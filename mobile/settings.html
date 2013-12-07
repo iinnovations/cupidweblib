@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>CuPID Settings</title>
+	<link rel="stylesheet" href="css/jquery.mobile-1.2.1.css" />
+	<link rel="stylesheet" href="css/jqm-docs.css" />
+    <link rel="stylesheet" href="css/CuPID.css" />
+	<script src="js/jquery-1.7.1.min.js"></script>
+	<script src="js/jqm-docs.js"></script>
+	<script src="js/jquery.mobile-1.2.1.js"></script>
+    
+	<script language="javascript" type="text/javascript" src="js/jqplot/jquery.jqplot.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="js/jqplot/jquery.jqplot.css" />
+    <script type="text/javascript" src="js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+	<script type="text/javascript" src="js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+
+<script type="text/javascript">
+
+// plotting stuff
+$(document).ready(function(){
+  // Some simple loops to build up data arrays.
+  var cosPoints = [];
+  for (var i=0; i<2*Math.PI; i+=0.4){ 
+    cosPoints.push([i, Math.cos(i)]); 
+  }
+    
+  var sinPoints = []; 
+  for (var i=0; i<2*Math.PI; i+=0.4){ 
+     sinPoints.push([i, 2*Math.sin(i-.8)]); 
+  }
+    
+  var powPoints1 = []; 
+  for (var i=0; i<2*Math.PI; i+=0.4) { 
+      powPoints1.push([i, 2.5 + Math.pow(i/4, 2)]); 
+  }
+    
+  var powPoints2 = []; 
+  for (var i=0; i<2*Math.PI; i+=0.4) { 
+      powPoints2.push([i, -2.5 - Math.pow(i/4, 2)]); 
+  } 
+ 
+  var plot3 = $.jqplot('plot1', [cosPoints, sinPoints, powPoints1, powPoints2], 
+    { 
+      series:[ 
+          {
+            // Change our line width and use a diamond shaped marker.
+            lineWidth:2, 
+            markerOptions: { style:'dimaond' }
+          }, 
+          {
+            // Don't show a line, just show markers.
+            // Make the markers 7 pixels with an 'x' style
+            showLine:false, 
+            markerOptions: { size: 7, style:"x" }
+          },
+          { 
+            // Use (open) circlular markers.
+            markerOptions: { style:"circle" }
+          }, 
+          {
+            // Use a thicker, 5 pixel line and 10 pixel
+            // filled square markers.
+            lineWidth:5, 
+            markerOptions: { style:"filledSquare", size:10 }
+          }
+      ]
+    }
+  );
+    
+});
+</script>
+</head>
+<body>
+<div data-role="page" class="type-home" id="main">
+	<div data-role="content">
+		<div class="content-secondary">
+			<p class="intro"><strong>Settings</strong> All of your settings are belong to us.</p>
+			<ul data-role="listview" data-inset="true"  data-dividertheme="f">
+				<li data-role="list-divider">Settings</li>
+				<li><a href="#system">System</a></li>
+				<li><a href="#channels">Channels</a></li>
+				<li><a href="#outputs">Outputs</a></li>
+				<li><a href="#sensors">Sensors</a></li>
+			</ul>
+		</div><!--/content-secondary-->
+	</div><!--content-->
+</div><!-- page -->
+<div data-role="page" class="type-home" id="system">
+	<div data-role="content">
+      <div class="content-secondary">
+		<ul data-role="listview" data-inset="true">
+            <li data-role="list-divider"><h4>Master Controls</h4></li>
+			<li data-role="fieldcontain">
+				<label for="flip-1">Flip switch:</label>
+				<select name="flip-1" id="flip-1" data-role="slider">
+				<option value="off">Off</option>
+				<option value="on">On</option>
+				</select> 
+                <label for="flip-1">Flip switch:</label>
+				<select name="flip-1" id="flip-1" data-role="slider">
+				<option value="off">Off</option>
+				<option value="on">On</option>
+				</select> 
+            </li>
+            
+			<li>
+            	<label for="slider-1">Input slider 1:</label>
+				<input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
+				<label for="slider-1">Input slider 2:</label>
+				<input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
+            </li>
+          </ul>
+		</div><!--/content-primary-->
+        <div class="content-primary">
+		<ul data-role="listview" data-inset="true" data-dividertheme="c">
+            <li data-role="list-divider"><h4>Channel 1</h4></li>
+			<li data-role="fieldcontain">
+             <div class="ui-grid-a">
+                <div class="ui-block-a">
+                  <label for="flip-1" style="width:8em"><h3>Enabled:</h3></label>
+                  <select name="flip-1" id="flip-1" data-role="slider">
+                  <option value="off">Off</option>
+                  <option value="on">On</option>
+                  </select> 
+                 </div>
+                 <div class="ui-block-b">
+                  <label for="flip-1" style="width:11em"><h3>Outputs Enabled:</h3></label>
+                  <select name="flip-1" id="flip-1" data-role="slider">
+                  <option value="off">Off</option>
+                  <option value="on">On</option>
+                  </select> 
+                </div>
+              </div>
+           </li>
+           <li>
+             <div class="ui-grid-a">
+                <div class="ui-block-a">
+            	  <h3>Control Value: </h3>
+                  <span id="control value"></span>
+                </div>
+                <div class="ui-block-b">
+            	  <label for="slider-1"><h3>Setpoint Value</h3></label>
+				  <input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
+                </div>
+              </div>
+           </li>
+           <li>
+        <div data-role="collapsible-set" data-content-theme="c" data-theme="d" data-inset="true">
+          <div data-role="collapsible" data-collapsed="true" >
+            <h4>More</h4>
+            <ul data-role="listview" data-inset="false">
+			  <li>
+            	<label for="slider-1">Setpoint Value</label>
+				<input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
+              </li>
+              <li>
+                <div class="ui-grid-a">
+                  <div class="ui-block-a">
+                    <label for="select-choice-1">Positive Output:</label>
+                    <select name="select-choice-1" id="select-choice-1">
+                        <option value="standard">Output 1</option>
+                        <option value="rush">Output 2</option>
+                        <option value="express">Output 3</option>
+                        <option value="overnight">Output 4</option>
+                    </select>
+                  </div>
+                  <div class="ui-block-b">
+                  <label for="select-choice-1">Negative Output:</label>
+                  <select name="select-choice-1" id="select-choice-1">
+                      <option value="standard">Output 1</option>
+                      <option value="rush">Output 2</option>
+                      <option value="express">Output 3</option>
+                      <option value="overnight">Output 4</option>
+                  </select>
+                  </div>
+                </div><!--ui grid-->
+			  </li>
+            </ul>
+            </div><!--collapsible-->
+            <div data-role="collapsible" data-collapsed="false" >
+            	<h4>Quick Plot</h4>
+            	<div id="plot1" class="quickplot"></div>
+                   
+            </div><!--collapsible-->
+          </div><!-- collapsible-set-->
+          </li></ul>
+		</div><!--/content-primary-->
+	</div><!--content-->
+</div><!-- page -->
+</body>
+</html>

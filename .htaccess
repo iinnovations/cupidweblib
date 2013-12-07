@@ -1,0 +1,14 @@
+Options -Multiviews
+
+RewriteEngine On
+RewriteBase /auth
+
+RewriteRule ^login$ /login.php [L]
+RewriteRule ^signup$ /signup.php [L]
+RewriteRule ^manage$ /manage.php [L]
+RewriteRule ^change$ /change.php [L]
+RewriteRule ^change/([a-f0-9]{32})$ /change.php?key=$1 [L]
+RewriteRule ^activate/([a-f0-9]{32})$ /user.php?activate=$1 [L]
+
+RewriteRule ^logout$ /user.php?logout [L]
+RewriteRule ^auth$ /auth.php [L]

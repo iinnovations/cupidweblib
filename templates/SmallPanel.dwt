@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+<!-- TemplateBeginEditable name="doctitle" -->
+<title>Template Title</title>
+<!-- TemplateEndEditable -->
+
+<!-- TemplateBeginEditable name="head" -->
+<!-- TemplateEndEditable -->
+<style type="text/css">
+body {
+	margin: 0;
+	padding: 0;
+	color: #FFF;
+	background-color: #000000;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	line-height: 1.4;
+	width:640px;
+	margin:0 auto;
+}
+.leftsidebar {
+	float: left;
+	width: 60px;
+	padding-bottom: 10px;
+	border-top-width: thin;
+	border-right-width: thin;
+	border-bottom-width: thin;
+	border-left-width: thin;
+	border-top-style: none;
+	border-right-style: none;
+	border-bottom-style: none;
+	border-left-style: none;
+	border-top-color: #333;
+	border-right-color: #333;
+	border-bottom-color: #333;
+	border-left-color: #333;
+	height: 800px;
+}
+
+.description {
+	font-family: "Courier New", Courier, monospace;
+	font-size: 30px;
+	font-weight: bold;
+	vertical-align: middle;
+	color:#FFF;
+}
+
+.content {
+	width: 640px;
+	float: left;
+	padding-top: 10px;
+	padding-right: 20;
+	padding-bottom: 10px;
+	padding-left: 0px;
+	border-color:#999;
+	background-color: #000;
+	border-radius:15px;
+	border-width:3px;
+}
+.myh3 {
+	font-style: normal;
+	font-size: 22px;
+	font-variant: normal;
+	font-weight: normal;
+}
+.stateindicator {
+	font-family: "Courier New", Courier, monospace;
+	font-size: 36px;
+	font-weight: bold;
+	vertical-align: middle;
+	color:#FFF;
+}
+</style>
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+</head>
+
+<body>
+<!-- TemplateBeginEditable name="Content" -->
+<div class="content">
+  <p><span class="myh3">Well, hello there. Welcome.</span></p>
+  <p>This is where some normal content goes</p>
+</div>
+<!-- TemplateEndEditable -->
+</body>
+</html>

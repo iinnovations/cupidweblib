@@ -1,0 +1,5 @@
+to:colin.reese@gmail.com
+from:me@thefermostat.com
+subject:AN EMAIL
+
+Message content goes here

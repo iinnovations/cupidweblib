@@ -1,0 +1,205 @@
+<?php require_once('user.php'); ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- TemplateBeginEditable name="doctitle" -->
+<title>CMS Admin</title>
+<!-- TemplateEndEditable -->
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+<style media="all" type="text/css">
+@import "../css/all.css";
+</style>
+<!-- TemplateBeginEditable name="head" -->
+<!-- TemplateEndEditable -->
+</head>
+<body>
+<div id="main">
+<!-- TemplateBeginEditable name="NavBar" -->
+  <div id="header"> <a href="http://www.interfaceinnovations.org" class="logo"><img src="images/cmstemplate/logo.png"alt="" /></a>
+  
+    <ul id="top-navigation">
+      <li><span><span><a href="index.html">Homepage</a></span></span></li>
+      <li><span><span><a href="controlpanel.html">Panel</a></span></span></li>
+      <li><span><span><a href="smallpanel.html">SmPanel</a></span></span></li>
+      <li><span><span><a href="sensors.html">Sensors</a></span></span></li>
+      <li><span><span><a href="datalogs.html">Datalogs</a></span></span></li>
+      <li class="active"><span><span>Settings</span></span></li>
+      <li><span><span><a href="admin.html">Admin</a></span></span></li>
+      <li><span><span><a href="help.html">Help</a></span></span></li>
+    </ul>
+  
+  
+  <div id="login"><?php 
+    if($user->logged_in()): 
+?> 
+        <p>You are logged in as <?php echo $_SESSION['user']['name']; ?>. <a href="/logout">Log out</a></p> 
+        <?php 
+	endif; 
+    if(!$user->logged_in()): 
+?> 
+        <p>You are not logged in. <a href="/login">Log in</a> 
+<?php 
+    endif; 
+?> 
+      </div><!-- login -->
+  </div><!-- header -->
+  <!-- TemplateEndEditable -->
+  <!-- TemplateBeginEditable name="MainBody" -->
+  
+  <div id="middle">
+    <div id="center-column">
+      <div class="top-bar"> 
+        <h1>Homepage</h1>
+        <div class="breadcrumbs">Welcome to your homepage!</div>
+      </div> <!-- End top bar -->
+      <br />
+      <!--<div class="select-bar">
+        <label>
+        <input type="text" name="textfield" />
+        </label>
+        <label>
+        <input type="submit" name="Submit" value="Search" />
+        </label>
+      </div>-->
+      <div class="table"> <img src="../images/cmstemplate/bg-th-left.gif" width="8" height="7" alt="" class="left" /> <img src="../images/cmstemplate/bg-th-right.gif" width="7" height="7" alt="" class="right" />
+        <table class="listing" cellpadding="0" cellspacing="0">
+          <tr>
+            <th class="first" width="177">Header Here</th>
+            <th>Header</th>
+            <th>Head</th>
+            <th>Header</th>
+            <th>Header</th>
+            <th>Head</th>
+            <th>Header</th>
+            <th class="last">Head</th>
+          </tr>
+          <tr>
+            <td class="first style1">- Lorem Ipsum </td>
+            <td><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/hr.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/edit-icon.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/login-icon.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td class="last"><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+          </tr>
+          <tr class="bg">
+            <td class="first style2">- Lorem Ipsum </td>
+            <td><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+            <td><img src="../images/cmstemplate/hr.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td><img src="../images/cmstemplate/edit-icon.gif" width="16" height="16" alt="edit" /></td>
+            <td><img src="../images/cmstemplate/login-icon.gif" width="16" height="16" alt="login" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td class="last"><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+          </tr>
+          <tr>
+            <td class="first style3">- Lorem Ipsum </td>
+            <td><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+            <td><img src="../images/cmstemplate/hr.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td><img src="../images/cmstemplate/edit-icon.gif" width="16" height="16" alt="edit" /></td>
+            <td><img src="../images/cmstemplate/login-icon.gif" width="16" height="16" alt="login" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td class="last"><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+          </tr>
+          <tr class="bg">
+            <td class="first style1">- Lorem Ipsum </td>
+            <td><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+            <td><img src="../images/cmstemplate/hr.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td><img src="../images/cmstemplate/edit-icon.gif" width="16" height="16" alt="edit" /></td>
+            <td><img src="../images/cmstemplate/login-icon.gif" width="16" height="16" alt="login" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td class="last"><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+          </tr>
+          <tr>
+            <td class="first style2">- Lorem Ipsum </td>
+            <td><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+            <td><img src="../images/cmstemplate/hr.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td><img src="../images/cmstemplate/edit-icon.gif" width="16" height="16" alt="edit" /></td>
+            <td><img src="../images/cmstemplate/login-icon.gif" width="16" height="16" alt="login" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td class="last"><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+          </tr>
+          <tr class="bg">
+            <td class="first style3">- Lorem Ipsum </td>
+            <td><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+            <td><img src="../images/cmstemplate/hr.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td><img src="../images/cmstemplate/edit-icon.gif" width="16" height="16" alt="edit" /></td>
+            <td><img src="../images/cmstemplate/login-icon.gif" width="16" height="16" alt="login" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td class="last"><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+          </tr>
+          <tr>
+            <td class="first style4">- Lorem Ipsum </td>
+            <td><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+            <td><img src="../images/cmstemplate/hr.gif" width="16" height="16" alt="" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td><img src="../images/cmstemplate/edit-icon.gif" width="16" height="16" alt="edit" /></td>
+            <td><img src="../images/cmstemplate/login-icon.gif" width="16" height="16" alt="login" /></td>
+            <td><img src="../images/cmstemplate/save-icon.gif" width="16" height="16" alt="save" /></td>
+            <td class="last"><img src="../images/cmstemplate/add-icon.gif" width="16" height="16" alt="add" /></td>
+          </tr>
+        </table>
+        <div class="select"> <strong>Other Pages: </strong>
+          <select>
+            <option>1</option>
+          </select>
+        </div>
+      </div>
+      <div class="table"> <img src="../images/cmstemplate/bg-th-left.gif" width="8" height="7" alt="" class="left" /> <img src="../images/cmstemplate/bg-th-right.gif" width="7" height="7" alt="" class="right" />
+        <table class="listing form" cellpadding="0" cellspacing="0">
+          <tr>
+            <th class="full" colspan="2">Header Here</th>
+          </tr>
+          <tr>
+            <td class="first" width="172"><strong>Lorem Ipsum</strong></td>
+            <td class="last"><input type="text" class="text" /></td>
+          </tr>
+          <tr class="bg">
+            <td class="first"><strong>Lorem Ipsum</strong></td>
+            <td class="last"><input type="text" class="text" /></td>
+          </tr>
+          <tr>
+            <td class="first"><strong>Lorem Ipsum</strong></td>
+            <td class="last"><input type="text" class="text" /></td>
+          </tr>
+          <tr class="bg">
+            <td class="first"><strong>Lorem Ipsum</strong></td>
+            <td class="last"><input type="text" class="text" /></td>
+          </tr>
+        </table>
+        <p>&nbsp;</p>
+      </div>
+      <div id="content">
+      	<h1>Class 1</h1>
+      	<h2>Class H2</h2>
+      	<h3>Class H3</h3>
+      	<h4>Class H4</h4>
+      	<p>Some typical content is here for your perusal</p>
+      </div>
+    </div>
+    <div id="right-column"> 
+    
+      <h3>Header</h3>
+      <ul class="nav">
+        <li><a href="http://www.free-css.com/">Lorem Ipsum dollar</a></li>
+        <li><a href="http://www.free-css.com/">Dollar</a></li>
+        <li><a href="http://www.free-css.com/">Lorem dollar</a></li>
+        <li><a href="http://www.free-css.com/">Ipsum dollar</a></li>
+        <li><a href="http://www.free-css.com/">Lorem Ipsum dollar</a></li>
+        <li class="last"><a href="http://www.free-css.com/">Dollar Lorem Ipsum</a></li>
+      </ul>
+      <a href="http://www.free-css.com/" class="link">Link here</a> <a href="http://www.free-css.com/" class="link">Link here</a> 
+    <strong class="h">INFO</strong>
+      <div class="box">Detect and eliminate viruses and Trojan horses, even new and unknown ones. Detect and eliminate viruses and Trojan horses, even new and </div>
+    </div>
+  </div>
+  <!-- TemplateEndEditable -->
+  <div id="footer"></div>
+</div>
+</body>
+</html>

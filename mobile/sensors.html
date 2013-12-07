@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>CuPID Settings</title>
+	<link rel="stylesheet" href="css/jquery.mobile-1.2.1.css" />
+	<link rel="stylesheet" href="css/jqm-docs.css" />
+    <link rel="stylesheet" href="css/CuPID.css" />
+	<script src="js/jquery-1.7.1.min.js"></script>
+	<script src="js/jqm-docs.js"></script>
+	<script src="js/jquery.mobile-1.2.1.js"></script>
+    
+	<script language="javascript" type="text/javascript" src="js/jqplot/jquery.jqplot.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="js/jqplot/jquery.jqplot.css" />
+    <script type="text/javascript" src="js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+	<script type="text/javascript" src="js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+
+<script type="text/javascript">
+
+// plotting stuff
+$(document).ready(function(){
+  // Some simple loops to build up data arrays.
+  var cosPoints = [];
+  for (var i=0; i<2*Math.PI; i+=0.4){ 
+    cosPoints.push([i, Math.cos(i)]); 
+  }
+    
+  var sinPoints = []; 
+  for (var i=0; i<2*Math.PI; i+=0.4){ 
+     sinPoints.push([i, 2*Math.sin(i-.8)]); 
+  }
+    
+  var powPoints1 = []; 
+  for (var i=0; i<2*Math.PI; i+=0.4) { 
+      powPoints1.push([i, 2.5 + Math.pow(i/4, 2)]); 
+  }
+    
+  var powPoints2 = []; 
+  for (var i=0; i<2*Math.PI; i+=0.4) { 
+      powPoints2.push([i, -2.5 - Math.pow(i/4, 2)]); 
+  } 
+ 
+  var plot3 = $.jqplot('plot1', [cosPoints, sinPoints, powPoints1, powPoints2], 
+    { 
+      series:[ 
+          {
+            // Change our line width and use a diamond shaped marker.
+            lineWidth:2, 
+            markerOptions: { style:'dimaond' }
+          }, 
+          {
+            // Don't show a line, just show markers.
+            // Make the markers 7 pixels with an 'x' style
+            showLine:false, 
+            markerOptions: { size: 7, style:"x" }
+          },
+          { 
+            // Use (open) circlular markers.
+            markerOptions: { style:"circle" }
+          }, 
+          {
+            // Use a thicker, 5 pixel line and 10 pixel
+            // filled square markers.
+            lineWidth:5, 
+            markerOptions: { style:"filledSquare", size:10 }
+          }
+      ]
+    }
+  );
+    
+});
+</script>
+</head>
+<body>
+<div data-role="page" class="type-home" id="main">
+	<div data-role="content">
+      <div class="content-secondary">
+		<ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">
+              <h4>Sensor Master Controls</h4></li>
+			<li data-role="fieldcontain">
+				<label for="flip-1">Sensor Read</label>
+				<select name="flip-1" id="flip-1" data-role="slider">
+				<option value="off">Off</option>
+				<option value="on">On</option>
+				</select> 
+                <label for="flip-1">Sensor Log:</label>
+				<select name="flip-1" id="flip-1" data-role="slider">
+				<option value="off">Off</option>
+				<option value="on">On</option>
+				</select> 
+            </li>
+            
+			<li>
+            	<label for="slider-1">Sensor Read Freq:</label>
+				<input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
+				<label for="slider-1">Sensor Log Points:</label>
+				<input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
+            </li>
+          </ul><!-- listview -->
+	</div><!--/content-secondary-->
+    <div class="content-primary">
+	  <ul data-role="listview" data-inset="true" data-dividertheme="a">
+        <li data-role="list-divider"><h4>Connected Sensors</h4></li>  
+          <li data-role="fieldcontain">
+            <div>
+              <div class="ui-grid-a">
+                  <div class="ui-block-a">
+                  
+                  <a href="index.html" data-role="button" data-inline="true" data-icon="refresh" data-theme="b">Refresh</a>
+                  </div>
+                  <div class="ui-block-b">
+                    <div data-role="controlgroup" data-type="horizontal">
+                      <a href="index.html" data-role="button">Yes</a>
+                      <a href="index.html" data-role="button">No</a>
+                      <a href="index.html" data-role="button">Maybe</a>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </li>         
+      <li>
+        <div data-role="collapsible" data-collapsed="true" data-theme="e" >
+          <h4>Sensor : 83BC34DF83BC34DF</h4>
+          <ul data-role="listview" data-inset="false">
+          <li>
+          <h3>Sensor ROM: </h3>
+          <span id="control value"></span>
+          </li>
+          <li>
+          <h3>Sensor Type:</h3>
+          <span id="control value"></span>
+          </li>
+          </ul>
+        </div><!--collapsible-->
+        <div data-role="collapsible" data-collapsed="true" data-theme="e" >
+          <h4>Sensor : 83BC34DF83BC34DF</h4>
+          <ul data-role="listview" data-inset="false">
+          <li>
+          <h3>Sensor ROM: </h3>
+          <span id="control value"></span>
+          </li>
+          <li>
+          <h3>Sensor Type:</h3>
+          <span id="control value"></span>
+          </li>
+          </ul>
+        </div><!--collapsible-->
+        <div data-role="collapsible" data-collapsed="true" data-theme="e" >
+          <h4>Sensor : 83BC34DF83BC34DF</h4>
+          <ul data-role="listview" data-inset="false">
+          <li>
+          <h3>Sensor ROM: </h3>
+          <span id="control value"></span>
+          </li>
+          <li>
+          <h3>Sensor Type:</h3>
+          <span id="control value"></span>
+          </li>
+          </ul>
+        </div><!--collapsible-->
+      </li></ul>
+	</div><!--/content-primary-->
+  </div><!--content-->
+</div><!-- page -->
+</body>
+</html>

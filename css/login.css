@@ -1,0 +1,68 @@
+div {
+	font-family:helvetica,arial;
+	text-align:center;
+	width:600px;
+	margin:10px auto;
+	background-color:#FFF;
+	overflow:hidden;
+	border:1px solid #698fac;
+	padding:10px;
+	color:#333;
+	-moz-border-radius:8px;
+	-khtml-border-radius:8px;
+	-webkit-border-radius:8px;
+}
+form {
+	margin:0px auto;
+	font-family:helvetica,arial;
+	text-align:center;
+}
+form fieldset {
+	border:none;
+}
+form label {
+	clear:left;
+	float:left;
+	width:50%;
+	margin-right:0.0em;
+	padding-top:0.3em;
+	text-align:right;
+	font-size:0.8em;
+	font-weight:bold;
+	cursor:pointer;
+	display:inline-block;
+}
+form input[type=text],form input[type=password] {
+	display:inline-block;
+	float:left;
+	width:200px;
+	border:1px solid #ccc;
+	font-family:helvetica,arial;
+	margin:3px 5px;
+	color:#333;
+	background:#fff;
+}
+form input[type=text]:hover,form input[type=password]:hover {
+	border:1px solid #d5e4fd;
+}
+form input[type=submit],form input[type=reset] {
+	width:80px;
+	margin:10px 0.2em;
+	font-family:helvetica,arial;
+}
+form br {
+	clear:both;
+}
+form p {
+	font-size:0.8em;
+	margin:0px;
+	padding:0px;
+	color:#333;
+}
+form p.error {
+	color:#666;
+}
+form a{
+	color:#000;
+	text-decoration:none;
+}

@@ -78,7 +78,7 @@ function RenderControlAlgorithms(algorithmstable,callbackoptions) {
 	});
 }
 
-//// Control Algorithms
+//// Channels Data
 function UpdateChannelsData(callbackoptions) {
 	  var callback=RenderChannelsData
 	  wsgiCallbackTableData(controldatabase,'channels',callback,callbackoptions)
@@ -152,6 +152,19 @@ function RenderInputs(inputstable,callbackoptions) {
 	    	UpdateInput(this.id, inputs)
 		}
 	});	
+}
+
+//// Indicators
+function UpdateIndicators(callbackoptions) {
+	var callback=RenderIndicators
+	wsgiCallbackTableData(controldatabase,'indicators',callback,callbackoptions)
+}
+function RenderIndicators(indicatorsdata,callbackoptions) {
+	//set interval function if timeout value is passed and valid
+	if (callbackoptions.timeout>0) {
+		setTimeout(function(){UpdateInputs(callbackoptions)},callbackoptions.timeout)
+	}
+	RenderWidgets(indicatorsdata,'indicators')
 }
 
 //// System Status

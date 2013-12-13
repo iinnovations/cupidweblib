@@ -6,6 +6,7 @@ controldatabase='/var/www/data/controldata.db'
 recipedatabase='/var/www/data/recipedata.db'
 logdatabase='/var/www/data/logdata.db'
 infodatabase='var/www/data/deviceinfo.db'
+systemdatabase='var/www/data/systemdata.db'
 
 // Define all the globals
 
@@ -38,6 +39,19 @@ function RenderWidgetsFromArray(data,prefix) {
   togglestolamps()
 }
 
+// This is strictly for databases of form parameter/value pairs
+function RenderWidgetsFromArrayByParamName(data,prefix) {
+  for (var i=0; i<data.length;i++){
+		  // Set each possibility
+		  $('.' + prefix + data[i].parameter).html(data[i].value)
+		  $('.' + prefix + data[i].parameter + 'toggle').val(booleanbinarytoonoff(data[i].value)).slider("refresh")
+		  $('.' + prefix + data[i].parameter + 'automantoggle').val(data[i].value).slider("refresh")
+		  $('.' + prefix + data[i].parameter + 'slider' + i).val(data[i].value).slider("refresh")
+		  $('.' + prefix + data[i].parameter + 'select' + i).val(data[i].value)	  
+  }
+  togglestolamps()
+}
+
 function RenderWidgets(data,prefix) {
 	  $.each(data,function(key,value){
 		  //console.log('key: ' + key + ' value: ' + value + ' element: ' + '.' + key + i)
@@ -56,6 +70,34 @@ function RenderWidgets(data,prefix) {
 
 ////////////////////////////////////////////////////////////////////////////
 // Rendering database data to views
+
+// Version and about data
+function UpdateVersionsData(callbackoptions) {
+	 var callback=RenderVersionsData
+	 wsgiCallbackTableData(systemdatabase,'versions',callback,callbackoptions)
+}
+function RenderVersionsData (versionsdata,callbackoptions){
+//set interval function if timeout value is passed and valid
+    timeout=callbackoptions.timeout || 0
+	if (callbackoptions.timeout>0) {
+		setTimeout(function(){UpdateVersionsData(callbackoptions)},callbackoptions.timeout)
+	}
+	RenderWidgetsFromArray(versionsdata,'versions')
+}
+
+// Metadata
+function UpdateMetadata(callbackoptions) {
+	 var callback=RenderMetadata
+	 wsgiCallbackTableData(systemdatabase,'metadata',callback,callbackoptions)
+}
+function RenderMetadata (metadata,callbackoptions){
+//set interval function if timeout value is passed and valid
+    timeout=callbackoptions.timeout || 0
+	if (callbackoptions.timeout>0) {
+		setTimeout(function(){UpdateMetadata(callbackoptions)},callbackoptions.timeout)
+	}
+	RenderWidgetsFromArrayByParamName(metadata,'metadata')
+}
 
 //// Control Algorithms
 function UpdateControlAlgorithms(callbackoptions) {
@@ -169,10 +211,10 @@ function RenderIndicators(indicatorsdata,callbackoptions) {
 
 //// System Status
 function UpdateSystemStatusData(callbackoptions) {
-	var callback=RenderSystemData
+	var callback=RenderSystemStatusData
 	wsgiCallbackTableData(controldatabase,'systemstatus',callback,callbackoptions)
 }
-function RenderSystemData(systemdatalist,callbackoptions) {
+function RenderSystemStatusData(systemstatusdatalist,callbackoptions) {
 	//set interval function if timeout value is passed and valid
 	timeout=callbackoptions.timeout || 0
 	if (timeout>0) {
@@ -182,10 +224,10 @@ function RenderSystemData(systemdatalist,callbackoptions) {
 	// Option for controls (as opposed to indicators (not implemented yet
     updatesliders = callbackoptions.updatesliders || true
 	
-	systemdata=systemdatalist[0]
+	systemstatusdata=systemdatalist[0]
 	//set interval function if timeout value is passed and valid
 	//console.log(systemdata)
-	RenderWidgets(systemdata,'')
+	RenderWidgets(systemstatusdata,'')
 	//old way
 	/*
 	$(".picontrolenabledslider").val(booleanbinarytoonoff(systemdata.picontrolenabled)).slider("refresh")

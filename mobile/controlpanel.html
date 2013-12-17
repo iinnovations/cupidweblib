@@ -237,7 +237,7 @@ function RenderChannels(channelstable) {
 	  
 	  
 	  // setpoint slider change value
-	  $( "#channelsetpointvalueslider" + i ).on( 'slidestop', { index: i}, function( event ) { 
+	  $( ".channelssetpointvalueslider" + i ).on( 'slidestop', { index: i}, function( event ) { 
 	    var data=event.data
 		value=$(this).val()
 		//alert("#channelsetpointvalueslider" + data.index)
@@ -247,9 +247,10 @@ function RenderChannels(channelstable) {
 	  });
 	  
 	  // Toggle manual/auto
-	  $( "#channelmodeautomantoggle" + i ).on( 'slidestop', { index: i}, function( event ) { 
+	  $( ".channelsmodeautomantoggle" + i ).on( 'change', { index: i}, function( event ) { 
 	    var data=event.data
 		value=$(this).val()
+		alert(value)
 		//alert("#channelsetpointvalueslider" + data.index)
 		actionobj ={'action':'setmode','newmode': value,'database':controldatabase,'channelname':channelsdata[data.index].name}
 		// invoke ajax query with callback to update the interface when it's done
@@ -257,7 +258,7 @@ function RenderChannels(channelstable) {
 	  });
 	  
 	  // Toggle channel enabled
-	  $( "#channelenabledtoggle" + i ).on( 'slidestop', { index: i}, function( event ) { 
+	  $( ".channelsenabledtoggle" + i ).on( 'slidestop', { index: i}, function( event ) { 
 	    var data=event.data
 		value=$(this).val()
 		//alert("#channelsetpointvalueslider" + data.index)
@@ -267,7 +268,7 @@ function RenderChannels(channelstable) {
 	  });
 	  
 	  // Toggle outputs enabled
-	  $( "#channeloutputsenabledtoggle" + i ).on( 'slidestop', { index: i}, function( event ) { 
+	  $( ".channelsoutputsenabledtoggle" + i ).on( 'slidestop', { index: i}, function( event ) { 
 	    var data=event.data
 		value=$(this).val()
 		//alert("#channelsetpointvalueslider" + data.index)
@@ -278,7 +279,7 @@ function RenderChannels(channelstable) {
 	  
 	  //dropdowns
 	  // Set positive output
-	  $( "#channelpositiveoutputselect" + i ).on( 'slidestop', { index: i}, function( event ) { 
+	  $( "#channelspositiveoutputselect" + i ).on( 'slidestop', { index: i}, function( event ) { 
 	    var data=event.data
 		value=$(this).val()
 		//alert("#channelsetpointvalueslider" + data.index)
@@ -288,11 +289,11 @@ function RenderChannels(channelstable) {
 	  });
 	  
 	  // Set negative output
-	  $( "#channelpositiveoutputselect" + i ).on( 'slidestop', { index: i}, function( event ) { 
+	  $( "#channelspositiveoutputselect" + i ).on( 'slidestop', { index: i}, function( event ) { 
 	    var data=event.data
 		value=$(this).val()
 		//alert("#channelsetpointvalueslider" + data.index)
-		actionobj ={'action':'setnegoutput','outputname':value,'channelname':channelsdata[data.index].name}
+		actionobj ={'action':'setnegoutput','outputname':value,'channelname':'\'' + channelsdata[data.index].name + '\''}
 		// invoke ajax query with callback to update the interface when it's done
 		UpdateControl(actionobj,UpdateChannelsData)
 	  });
@@ -430,7 +431,7 @@ $(document).ready(function(){
 			  <label for="pcenabled" style="display:inline-block; width:50%; margin-top:0px!important">
 			  <h3>Pi Control:</h3>
 			  </label>
-			  <select name="pcenabled" class="picontrolenabledtoggle" data-role="slider" >
+			  <select name="pcenabled" class="systemstatuspicontrolenabledtoggle" data-role="slider" >
                 <option value="Off">Off</option>
                 <option value="On">On</option>
 			  </select> 
@@ -438,10 +439,10 @@ $(document).ready(function(){
 		</li>
 		<li data-role="fieldcontain">
           <span class="justalamp">
-			  <label for="outputsenabled"  style="display:inline-block; width:50%;">
+			  <label for="enableoutputs"  style="display:inline-block; width:50%;">
 			  <h3>Outputs</h3>
 			  </label>
-			  <select name="outputsenabled" class="outputsenabledtoggle" data-role="slider">
+			  <select name="systemstatusenableoutputs" class="systemstatusenableoutputstoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
@@ -452,7 +453,7 @@ $(document).ready(function(){
 			  <label for="inputsreadenabled"  style="display:inline-block; width:50%;">
 			  <h3>Inputs Read:</h3>
 			  </label>
-			  <select name="inputsreadenabled" class="inputsreadenabledtoggle" data-role="slider">
+			  <select name="inputsreadenabled" class="systemstatusinputsreadenabledtoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
@@ -464,57 +465,57 @@ $(document).ready(function(){
            <li data-role="fieldcontain" class="sm-inset-header">
                 <fieldset class="ui-grid-a">
                   <div class="ui-block-a ui-stdlabel" >Last picontrol Poll</div>
-                  <div class="ui-block-b ui-stdlabel lastpicontrolpoll">0</div>
+                  <div class="ui-block-b ui-stdlabel systemstatuslastpicontrolpoll">0</div>
                 </fieldset>
             </li>
             <li data-role="fieldcontain" class="sm-inset-header">
                 <fieldset class="ui-grid-a">
                   <div class="ui-block-a ui-stdlabel" >Last Inputs Poll</div>
-                  <div class="ui-block-b ui-stdlabel lastinputspoll">0</div>
+                  <div class="ui-block-b ui-stdlabel systemstatuslastinputspoll">0</div>
                 </fieldset>
             </li>
             <li data-role="fieldcontain" class="sm-inset-header">
                 <fieldset class="ui-grid-a">
                   <div class="ui-block-a ui-stdlabel" >System Message</div>
-                  <div class="ui-block-b ui-stdlabel systemmessage">0</div>
+                  <div class="ui-block-b ui-stdlabel systemstatussystemmessage">0</div>
                 </fieldset>
             </li>
         </div>
         <div data-role="collapsible" data-collapsed="true" data-inset="false" data-count-theme="b" data-content-theme="b">
            <h3>Edit</h3>
              <li data-role="fieldcontain">
-			  <label for="picontrolenabledtoggle" style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">Pi Control
+			  <label for="systemstatuspicontrolenabledtoggle" style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">Pi Control
 			  </label>
-			  <select name="picontrolenabledtoggle" class="picontrolenabledtoggle" data-role="slider" >
+			  <select name="systemstatuspicontrolenabledtoggle" class="systemstatuspicontrolenabledtoggle" data-role="slider" >
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
 			</li>
             <li data-role="fieldcontain">
-			  <label for="flip-1"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
+			  <label for="systemstatusenableoutputstoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
 			  Outputs
 			  </label>
-			  <select name="flip-1" class="outputsenabledtoggle" data-role="slider">
+			  <select name="systemstatusenableoutputstoggle" class="systemstatusenableoutputstoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
 		    </li>
             <li data-role="fieldcontain">
-			  <label for="flip-1"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
+			  <label for="systemstatusinputsreadenabledtoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
 			  Inputs Read
 			  </label>
-			  <select name="flip-1" class="inputsreadenabledtoggle" data-role="slider">
+			  <select name="systemstatusinputsreadenabledtoggle" class="systemstatusinputsreadenabledtoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
             </li>
             <li class="sm-inset-header">
-            <label for="slider-1">Pi Control Freq:</label>
-			<input type="range" name="slider-1" class="picontrolfreqslider" value="55" min="0" max="100" />
+            <label for="systemstatuspicontrolfreqslider">Pi Control Freq:</label>
+			<input type="range" name="systemstatuspicontrolfreqslider" class="systemstatuspicontrolfreqslider" value="55" min="0" max="100" />
             </li>
             <li class="sm-inset-header">
-			<label for="slider-1" >Input Poll Freq:</label>
-			<input type="range" name="slider-1" class="inputsreadfreqslider" value="60" min="0" max="100" />
+			<label for="systemstatusinputsreadfreqslider" >Input Poll Freq:</label>
+			<input type="range" name="systemstatusinputsreadfreqslider" class="systemstatusinputsreadfreqslider" value="60" min="0" max="100" />
             </li>
         </div>
         <li data-role="fieldcontain">

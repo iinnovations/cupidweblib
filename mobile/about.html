@@ -15,18 +15,19 @@
 	<script src="/js/cupidjslib.js" type="text/javascript"></script>
 </head>
 <body>
+<div data-role="page" class="type-home" id="main">
 <script>
-  var updateinterval=3000
-  $(document).ready(function(){
-	  togglestolamps()
-	  //// Control Algorithms
-	  UpdateVersionsData({'timeout':updateinterval})  
-	  UpdateMetadata({'timeout':updateinterval}) 
-	  
-  });
+ var updateinterval=3000
+$(document).ready(function(){
+ 
+  togglestolamps()
+  //// Control Algorithms
+  UpdateVersionsData({'timeout':updateinterval})  
+  UpdateMetadata({'timeout':updateinterval}) 
+})
 </script>
 
-<div data-role="page" class="type-home" id="main">
+
 	<div data-role="content">
       <div class="content-secondary">
 		<ul data-role="listview" data-inset="true">
@@ -34,16 +35,16 @@
               <h4>Your CuPID</h4></li>
             
 			<li data-role="fieldcontain">Device Name:       <span class="metadatadevicename">&nbsp;</span></li>
-			<li data-role="fieldcontain">Device Group:       <span class="metadatadevicegroup">(None)</span></li>
+			<li data-role="fieldcontain">Device Group:       <span class="metadatadevicegroup">None</span></li>
             
             <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
-			  <div data-role="collapsible" data-collapsed="false"  >
+			  <div data-role="collapsible" data-collapsed="true"  >
 			    <h3><span class="versionsitem0">&nbsp;</span></h3>
                 <p><strong>Commit hex:   </strong><span class="versionsversion0">&nbsp;</span></p>
                 <p><strong>Version time:    </strong><span class="versionsversiontime0">&nbsp;</span></p>
                 <p><strong>Update time:    </strong><span class="versionsupdatetime0">&nbsp;</span></p>
 			  </div>
-              <div data-role="collapsible" data-collapsed="false"  >
+              <div data-role="collapsible" data-collapsed="true"  >
 			    <h3><span class="versionsitem1">&nbsp;</span></h3>
                 <p><strong>Commit hex:   </strong><span class="versionsversion1">&nbsp;</span></p>
                 <p><strong>Version time:    </strong><span class="versionsversiontime1">&nbsp;</span></p>
@@ -53,63 +54,6 @@
 			<li data-role="fieldcontain">Hardware</li>
           </ul>
 		</div><!--/content-secondary-->
-        <div class="content-primary" >
-		<ul data-role="listview" data-inset="true" data-dividertheme="c">
-           <li data-role="list-divider" ><h4>Device Status</h4></li>	
-           <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
-			  <div data-role="collapsible" data-collapsed="true"  >
-			    <h3>Network Connectivity (LAN)</h3>
-                <p>Enabled</p>
-			  </div>
-			  <div data-role="collapsible">
-		        <h3>External Web Access (WAN)</h3>
-	            <p>Disabled</p>
-	          </div>
-               <div data-role="collapsible" data-collapsed="false">
-			    <h3>Authentication and Access</h3>
-			    <p>Users and access control are controlled by a nice little piece of php and a sqlite database. Out of the box, there are three levels of access (technically four, if you include guest access): Viewer, Controller, and Administrator. Viewer is capable of monitoring process variables. Controller is able to change process variables and many settings. Administrator has full control, including modification of recipes and profiles. To change the passwords, you'll need to log in as administrator to user management pages. It's all pretty simple.</p>
-			  </div>
-			  <div data-role="collapsible">
-		        <h3>Accessing your data</h3>
-	            <p>Your data lives in a <a href="http://www.sqlite.org/">Sqlite</a> database on an SDCard on your Fermostat/CuPID Control. Sqlite is a very popular, lightweight binary database program that stores your data in neat little files and is easy on your system resources. It responds to pretty ordinary SQL syntax. If you've ever used phpmyadmin for MySQL, than the phpliteadmin interface set up at <a href="http://thefermostat.com//data/phpliteadmin.php">/data/phpliteadmin.php</a> should be completely familiar to you. Dump it, sync it, whatever. give a data export a try over on the datalogs tab.</p>
-	          </div>
-           </div>
-           <li>
-        <div data-role="collapsible-set" data-content-theme="c" data-theme="d" data-inset="true">
-          <div data-role="collapsible" data-collapsed="true" >
-            <h4>More</h4>
-            <ul data-role="listview" data-inset="false">
-			  <li>
-            	<label for="slider-1">Setpoint Value</label>
-				<input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
-              </li>
-              <li>
-                <div class="ui-grid-a">
-                  <div class="ui-block-a">
-                    <label for="select-choice-1">Positive Output:</label>
-                    <select name="select-choice-1" id="select-choice-1">
-                        <option value="standard">Output 1</option>
-                        <option value="rush">Output 2</option>
-                        <option value="express">Output 3</option>
-                        <option value="overnight">Output 4</option>
-                    </select>
-                  </div>
-                  <div class="ui-block-b">
-                  <label for="select-choice-1">Negative Output:</label>
-                  <select name="select-choice-1" id="select-choice-1">
-                      <option value="standard">Output 1</option>
-                      <option value="rush">Output 2</option>
-                      <option value="express">Output 3</option>
-                      <option value="overnight">Output 4</option>
-                  </select>
-                  </div>
-                </div><!--ui grid-->
-			  </li>
-            </ul>
-            </div><!--collapsible-->
-          </div><!-- collapsible-set-->
-          </li></ul>
-		</div><!--/content-primary-->
 	</div><!--content-->
 </div><!-- page -->
 </body>

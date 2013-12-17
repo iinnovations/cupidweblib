@@ -15,6 +15,10 @@ var outputs=[]
 var controlalgorithms=[]
 var controlrecipes=[]
 
+// 
+function logdone(data){
+	console.log('done')
+}
 // Generic jquerymobile render 
 
 function togglestolamps(){
@@ -52,17 +56,26 @@ function RenderWidgetsFromArrayByParamName(data,prefix) {
   togglestolamps()
 }
 
-function RenderWidgets(data,prefix) {
+// This works for a flat table only
+function RenderWidgets(databasename,tablename,data) {
 	  $.each(data,function(key,value){
 		  //console.log('key: ' + key + ' value: ' + value + ' element: ' + '.' + key + i)
 		  // Set each possibility
-		  $('.' + prefix + key).html(value)
-		  $('.' + prefix + key + 'toggle').val(booleanbinarytoonoff(value)).slider("refresh")
-		  $('.' + prefix + key + 'automantoggle').val(value).slider("refresh")
-		  $('.' + prefix + key + 'slider').val(value).slider("refresh")
-		  $('.' + prefix + key + 'select').val(value)
-		  
+		  $('.' + tablename + key).html(value)
+		  $('.' + tablename + key + 'toggle').val(booleanbinarytoonoff(value)).slider("refresh")
+		  $('.' + tablename + key + 'automantoggle').val(value).slider("refresh")
+		  $('.' + tablename + key + 'slider').val(value).slider("refresh")
+		  $('.' + tablename + key + 'select').val(value)
+	
 		  //console.log('.' + prefix + key + ' : ' + value)
+		  $('.' + tablename + key + 'toggle').on( 'slidestop', function( event ) { 
+	        var data=event.data
+		    value=$(this).val()
+			alert(value)
+		    actionobj ={'action':'setvalue','database':databasename,'table':tablename,'valuename':key, 'value':BooleansToIntegerString(value)}
+		    // invoke ajax query with callback to update the interface when it's done
+		    UpdateControl(actionobj,UpdateChannelsData)
+	      });
 	  })
 	  togglestolamps()
 }
@@ -206,7 +219,8 @@ function RenderIndicators(indicatorsdata,callbackoptions) {
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){UpdateInputs(callbackoptions)},callbackoptions.timeout)
 	}
-	RenderWidgets(indicatorsdata,'indicators')
+	// Database, tablename, data
+	RenderWidgets(controldatabase,'indicators',indicatorsdata)
 }
 
 //// System Status
@@ -224,10 +238,12 @@ function RenderSystemStatusData(systemstatusdatalist,callbackoptions) {
 	// Option for controls (as opposed to indicators (not implemented yet
     updatesliders = callbackoptions.updatesliders || true
 	
-	systemstatusdata=systemdatalist[0]
+	systemstatusdata=systemstatusdatalist[0]
+	//console.log(systemstatusdata)
+	
 	//set interval function if timeout value is passed and valid
 	//console.log(systemdata)
-	RenderWidgets(systemstatusdata,'')
+	RenderWidgets(controldatabase, 'systemstatus', systemstatusdata)
 	//old way
 	/*
 	$(".picontrolenabledslider").val(booleanbinarytoonoff(systemdata.picontrolenabled)).slider("refresh")

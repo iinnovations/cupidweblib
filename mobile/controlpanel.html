@@ -57,7 +57,7 @@ var renderclassnames=[]
 
 var updatetimeout=100
 var loginterval=30000
-var updateinterval=15000
+var updateinterval=5000
 
 var channelOptionsObj={
 	legend: {
@@ -124,27 +124,28 @@ function RenderChannels(channelstable) {
 	divhtmlstring=''
 	$("#channelset").html('')
 	for (i=0; i<channelsdata.length; i++){
+		index=i+1
 		divhtmlitemstring = '\
 		   <div data-role="collapsible" data-collapsed="true" data-count-theme="b" ><!--control item --> \
               <h3> '  + channelsdata[i].name + '</h3>\
               <li data-role="fieldcontain">\
                 <fieldset class="ui-grid-a">\
                   <div class="ui-block-a ui-biglabel inset-header" id="controlvalue">Control Value</div>\
-                  <div class="ui-block-b ui-biggerlabel inset-header channelcontrolvalue' + i + '">63</div>\
+                  <div class="ui-block-b ui-biggerlabel inset-header channelscontrolvalue' + index + '">63</div>\
                 </fieldset>\
               </li>\
 			  <li data-role="fieldcontain">\
                 <fieldset class="ui-grid-a">\
                   <div class="ui-block-a ui-biglabel inset-header">Setpoint Value\
                   </div>\
-                  <div class="ui-block-b ui-biggerlabel inset-header channelsetpointvalue' + i + '">63</div>	   \
+                  <div class="ui-block-b ui-biggerlabel inset-header channelssetpointvalue' + index + '">63</div>	   \
                 </fieldset>\
               </li>  \
 			  <li data-role="fieldcontain">\
                 <fieldset class="ui-grid-a">\
                   <div class="ui-block-a ui-biglabel inset-header">Action:\
                   </div>\
-                  <div class="ui-block-b ui-biggerlabel inset-header channelaction' + i + '">1</div>	   \
+                  <div class="ui-block-b ui-biggerlabel inset-header channelsaction' + index + '">1</div>	   \
                 </fieldset>\
               </li> \
               <li data-role="collapsible-set" data-content-theme="c" data-theme="d" data-inset="true">\
@@ -153,19 +154,26 @@ function RenderChannels(channelstable) {
                   <ul data-role="listview" data-inset="false" class="controllist">\
                     <li >\
                       <label for="slider-1" class="ui-biglabel" style="padding-right:10px">Setpoint</label>\
-                      <input type="range" name="slider-1" class="channelsetpointvalueslider' + i + '" id="channelsetpointvalueslider' + i + '"  value="60" min="0" max="100" />\
+                      <input type="range" name="slider-1" class="channelsetpointvalueslider' + index + '" id="channelsetpointvalueslider' + index + '"  value="60" min="0" max="100" />\
                     </li>\
                     <li data-role="fieldcontain" >\
-                        <label for="flip-1" style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>\
-                        <select name="flip-1" class="channelenabledtoggle' + i +  '" data-role="slider">\
+                        <label for="channelsenabled' + index +  'toggle" style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>\
+                        <select name="channelsenabled' + index +  'toggle" class="channelsenabled' + index +  'toggle" data-role="slider">\
                         <option value="Off">Off</option>\
                         <option value="On">On</option>\
                         </select> \
                     </li>\
+					<li data-role="fieldcontain" >\
+                        <label for="channelsmode' + index +  'automantoggle" style="display:inline-block; width:45%;"><h3>Mode:</h3></label>\
+                        <select name="channelsmode' + index +  'automantoggle" class="channelsmode' + index +  'automantoggle" data-role="slider">\
+                        <option value="auto">auto</option>\
+                        <option value="manual">man</option>\
+                        </select> \
+                    </li>\
                     <li data-role="fieldcontain">\
-                        <label for="flip-1" style="display:inline-block; width:45%;">\
+                        <label for="channelsoutputsenabled' + index + 'toggle" style="display:inline-block; width:45%;">\
                         <h3>Outputs:</h3></label>\
-                        <select name="flip-1" class="channeloutputsenabledtoggle' + i + '" data-role="slider">\
+                        <select name="channelsoutputsenabled' + index + 'toggle" class="channelselect channelsoutputsenabled' + index + 'toggle" id="channelselect channelsoutputsenabled' + index + 'toggle" data-role="slider">\
                         <option value="Off">Off</option>\
                         <option value="On">On</option>\
                         </select> \
@@ -173,17 +181,17 @@ function RenderChannels(channelstable) {
                     <li>\
                       <div class="ui-grid-a">\
                         <div class="ui-block-a">\
-                          <label for="selectpositiveoutput" class="ui-biglabel">Positive Output:</label>\
-                          <select name="selectpositiveoutput" class="selectpositiveoutput' + i + '" class="selectoutput">\
+                          <label for="channelspositiveoutput' + index + 'select" class="ui-biglabel">Positive Output:</label>\
+                          <select name="channelspositiveoutput' + index + 'select" class="outputselect channelspositiveoutput' + index + 'select" id="channelspositiveoutput' + index + 'select">\
                               <option value="standard">Output 1</option>\
-                              <option value="rush">Output 2</option>\
+                              <option value="rush">Output</option>\
                               <option value="express">Output 3</option>\
                               <option value="overnight">Output 4</option>\
                           </select>\
                         </div>\
                         <div class="ui-block-b">\
-                          <label for="selectnegativeoutput" class="ui-biglabel">Negative Output:</label>\
-                          <select name="selectnegativeoutput" id="selectnegativeoutput' + i + '" class="selectoutput">\
+                          <label for="channelsnegativeoutput' + index + 'select" class="ui-biglabel">Negative Output:</label>\
+                          <select name="channelsnegativeoutput' + index + 'select" class="outputselect channelsnegativeoutput' + index + 'select" id="channelsnegativeoutput' + index + 'select">\
                               <option value="standard">Output 1</option>\
                               <option value="rush">Output 2</option>\
                               <option value="express">Output 3</option>\
@@ -195,8 +203,8 @@ function RenderChannels(channelstable) {
                     <li>\
                       <div class="ui-grid-a">\
                         <div class="ui-block-a">\
-                          <label for="selectcontrolalgorithm" class="ui-biglabel">Control Algorithm</label>\
-                          <select name="selectcontrolalgorithm" class="selectcontrolalgorithm' + i + '" id="blurg">\
+                          <label for="channelscontrolalgorithm' + index + 'select" class="ui-biglabel">Control Algorithm</label>\
+                          <select name="channelscontrolalgorithm' + index + 'select" class="controlalgorithmselect channelscontrolalgorithm' + index + 'select" id="channelscontrolalgorithm' + index + 'select">\
                               <option value="standard">on/off two degree deadband</option>\
                               <option value="rush">on/off three degree deadband</option>\
                               <option value="express">on/off two degree deadband</option>\
@@ -204,8 +212,8 @@ function RenderChannels(channelstable) {
                           </select>\
                         </div>\
                         <div class="ui-block-b">\
-                          <label for="selectcontrolrecipe"  class="ui-biglabel">Control Recipe</label>\
-                          <select name="selectcontrolrecipe" id="selectcontrolrecipe' + i + '">\
+                          <label for="channelscontrolrecipe' + index + 'select"  class="ui-biglabel">Control Recipe</label>\
+                          <select name="channelscontrolrecipe' + index + 'select" class="controlrecipeselect channelscontrolrecipe' + index + 'select" id="channelscontrolrecipe' + index + 'select">\
                               <option value="standard">stdreflow</option>\
                               <option value="rush">Four-day 65F ale</option>\
                               <option value="express">Six-day 65F ale</option>\
@@ -216,96 +224,24 @@ function RenderChannels(channelstable) {
                     </li><!-- list option set -->\
                   </ul><!-- Edit set-->\
                 </div><!-- Edit collapsible -->\
-                <div data-role="collapsible" data-collapsed="true" class="smallplotcollapsible" id="smallplotcollapsible' + i + '">\
+                <div data-role="collapsible" data-collapsed="true" class="smallplotcollapsible" id="smallplotcollapsible' + index + '">\
               		<h4><span style="float:left;">Quick Plot</span>\
                     <span class="' + channelsdata[i].name.replace(' ','_') + 'logpoints ui-btn-up-c  ui-btn-corner-all cnt" style="float:right; font-size:12px; padding-left:7px; padding-right:7px">0</span></h4>\
-              		<div class="smallplot" id="smallplot' + i + '">Loading ...</div>\
+              		<div class="smallplot" id="smallplot' + index + '">Loading ...</div>\
             	</div><!-- plot collapsible -->\
               </li><!-- Edit Collapsible set -->\
             </div><!--collapsible control item --> ' 
 			
 	  $(divhtmlitemstring).appendTo("#channelset").trigger( "create" );
 	  
-	  // We take care of data rendering elsewhere using cupidjslib
-	  
-	  //$(".controlvalue" + i).html(channelsdata[i].controlvalue)
-	  //$(".setpointvalue" + i).html(channelsdata[i].setpointvalue)
-	  //$("#setpointvalueslider" + i).value(channelsdata[i].setpointvalue)
-	  //$(".setpointvalueslider" + i).val(channelsdata[i].setpointvalue).slider("refresh")
-	  //$(".channelenabled" + i).val(booleanbinarytoonoff(channelsdata[i].enabled).toLowerCase()).slider("refresh")
-	  //$(".channeloutputsenabled" + i).val(booleanbinarytoonoff(channelsdata[i].outputsenabled).toLowerCase()).slider("refresh")
-	  
-	  
-	  // setpoint slider change value
-	  $( ".channelssetpointvalueslider" + i ).on( 'slidestop', { index: i}, function( event ) { 
-	    var data=event.data
-		value=$(this).val()
-		//alert("#channelsetpointvalueslider" + data.index)
-		actionobj ={'action':'spchange','subaction':'setvalue','database':controldatabase,'channelname':channelsdata[data.index].name, 'value':value}
-		// invoke ajax query with callback to update the interface when it's done
-		UpdateControl(actionobj,UpdateChannelsData)
-	  });
-	  
-	  // Toggle manual/auto
-	  $( ".channelsmodeautomantoggle" + i ).on( 'change', { index: i}, function( event ) { 
-	    var data=event.data
-		value=$(this).val()
-		alert(value)
-		//alert("#channelsetpointvalueslider" + data.index)
-		actionobj ={'action':'setmode','newmode': value,'database':controldatabase,'channelname':channelsdata[data.index].name}
-		// invoke ajax query with callback to update the interface when it's done
-		UpdateControl(actionobj,UpdateChannelsData)
-	  });
-	  
-	  // Toggle channel enabled
-	  $( ".channelsenabledtoggle" + i ).on( 'slidestop', { index: i}, function( event ) { 
-	    var data=event.data
-		value=$(this).val()
-		//alert("#channelsetpointvalueslider" + data.index)
-		actionobj ={'action':'setmode','newmode': value,'database':controldatabase,'channelname':channelsdata[data.index].name}
-		// invoke ajax query with callback to update the interface when it's done
-		UpdateControl(actionobj,UpdateChannelsData)
-	  });
-	  
-	  // Toggle outputs enabled
-	  $( ".channelsoutputsenabledtoggle" + i ).on( 'slidestop', { index: i}, function( event ) { 
-	    var data=event.data
-		value=$(this).val()
-		//alert("#channelsetpointvalueslider" + data.index)
-		actionobj ={'action':'setchanneloutputsenabled','newstatus': value,'database':controldatabase,'channelname':channelsdata[data.index].name}
-		// invoke ajax query with callback to update the interface when it's done
-		UpdateControl(actionobj,UpdateChannelsData)
-	  });
-	  
-	  //dropdowns
-	  // Set positive output
-	  $( "#channelspositiveoutputselect" + i ).on( 'slidestop', { index: i}, function( event ) { 
-	    var data=event.data
-		value=$(this).val()
-		//alert("#channelsetpointvalueslider" + data.index)
-		actionobj ={'action':'setposoutput','outputname':value,'channelname':channelsdata[data.index].name}
-		// invoke ajax query with callback to update the interface when it's done
-		UpdateControl(actionobj,UpdateChannelsData)
-	  });
-	  
-	  // Set negative output
-	  $( "#channelspositiveoutputselect" + i ).on( 'slidestop', { index: i}, function( event ) { 
-	    var data=event.data
-		value=$(this).val()
-		//alert("#channelsetpointvalueslider" + data.index)
-		actionobj ={'action':'setnegoutput','outputname':value,'channelname':'\'' + channelsdata[data.index].name + '\''}
-		// invoke ajax query with callback to update the interface when it's done
-		UpdateControl(actionobj,UpdateChannelsData)
-	  });
-	  
-	  
-	  $('#smallplotcollapsible' + i).bind('expand',  { index: i }, function(event) {
+	  $('#smallplotcollapsible' + index).bind('expand',  { index: index }, function(event) {
 	    var data=event.data
 		
 		// Send index of channel and name of div to render to
 		//GetAndRenderPlotData([channelsdata[data.index].name],["smallplot" + data.index])
-		GetAndRenderPlotData(data.index,['smallplot' + data.index],[channelOptionsObj])
+		GetAndRenderPlotData(data.index-1,['smallplot' + data.index],[channelOptionsObj])
       })
+	  
 	}
 
 	<!--$('#channelscontainer').html(divhtmlstring)-->
@@ -325,7 +261,7 @@ function GetAndRenderPlotData(channelindex, passedrenderplotids,passedrenderplot
 	wsgiCallbackTableData (logdatabase,logtablename,callback,callbackoptions)
 }
 function RenderPlotData (returnedlogdata,plotoptions) {
-
+    console.log(returnedlogdata)
 	// clear out ids for render
 	for (i=0;i<renderplotids.length;i++) {
 		$('#' + renderplotids[i]).html('')
@@ -356,7 +292,6 @@ function RenderPlotData (returnedlogdata,plotoptions) {
 		}
 	}
 }
-
 
 // this function is not currently used.
 
@@ -407,17 +342,16 @@ $(document).ready(function(){
 	togglestolamps()
 	//// Control Algorithms
 	UpdateChannelsTable({'timeout':updateinterval})
-	UpdateControlRecipes({'timeout':updateinterval})
+	
+	setTimeout(function(){
+	UpdateControlRecipeNames({'timeout':updateinterval})
   	UpdateControlAlgorithms({'timeout':updateinterval})
 	UpdateInputs({'timeout':updateinterval})
 	UpdateOutputs({'timeout':updateinterval})
 	UpdateSystemStatusData({'timeout':updateinterval})
 	UpdatePlotMetadata({'timeout':updateinterval})
-	
 	UpdateChannelsData({'timeout':updateinterval})
-	
-  // Plot stuff
- 
+	},1000);
     
 });
 </script>

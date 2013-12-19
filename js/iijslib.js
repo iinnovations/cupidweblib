@@ -124,7 +124,7 @@ function addInput(object,choices,classname){
     //document.getElementById(divName).appendChild(newDiv);
 	object.appendChild(newDiv);
 }
-function UpdateInput(inputid,choices){
+function UpdateSelect(inputid,choices){
 	// find current value
 	options=[]
 	// with js
@@ -288,7 +288,8 @@ function wsgiCallbackTableData (database,table,callback,callbackoptions) {
 	$.ajax({
 		url: "/wsgisqlitequery",
 		type: "post",
-		datatype:"json",						
+		datatype:"json",				
+			
 		data: {'database':database,'table':table},
 		success: function(response){
 			// Execute our callback function
@@ -315,6 +316,19 @@ function wsgiCallbackMultTableData (database,tablenames,callback) {
 			//alert("I worked");
 			// Execute our callback function
 			callback(response.slice(1));										
+		}
+	});	
+}
+function wsgiGetTableNames (database,callback,callbackoptions) {	
+	$.ajax({
+		url: "/wsgisqlitequery",
+		type: "post",
+		datatype:"json",						
+		data: {'database':database,'specialaction':'gettablenames'},
+		success: function(response){
+			//alert("I worked");
+			// Execute our callback function
+			callback(response,callbackoptions);										
 		}
 	});	
 }

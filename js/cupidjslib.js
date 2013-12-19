@@ -5,8 +5,8 @@
 controldatabase='/var/www/data/controldata.db'
 recipedatabase='/var/www/data/recipedata.db'
 logdatabase='/var/www/data/logdata.db'
-infodatabase='var/www/data/deviceinfo.db'
-systemdatabase='var/www/data/systemdata.db'
+infodatabase='/var/www/data/deviceinfo.db'
+systemdatabase='/var/www/data/systemdata.db'
 
 // Define all the globals
 
@@ -28,56 +28,150 @@ function togglestolamps(){
   $('.justalamp .ui-slider').unbind()
 }
 
-function RenderWidgetsFromArray(data,prefix) {
-  for (var i=0; i<data.length;i++){
-	  $.each(data[i],function(key,value){
-		  //console.log('key: ' + key + ' value: ' + value + ' element: ' + '.' + key + i)
-		  // Set each possibility
-		  $('.' + prefix + key + i).html(value)
-		  $('.' + prefix + key + 'toggle' + i).val(booleanbinarytoonoff(value)).slider("refresh")
-		  $('.' + prefix + key + 'automantoggle' + i).val(value).slider("refresh")
-		  $('.' + prefix + key + 'slider' + i).val(value).slider("refresh")
-		  $('.' + prefix + key + 'select' + i).val(value)	  
-	  })
-  }
-  togglestolamps()
+function noclicky(){
+	$('.noclicky').unbind()
 }
 
-// This is strictly for databases of form parameter/value pairs
-function RenderWidgetsFromArrayByParamName(data,prefix) {
-  for (var i=0; i<data.length;i++){
-		  // Set each possibility
-		  $('.' + prefix + data[i].parameter).html(data[i].value)
-		  $('.' + prefix + data[i].parameter + 'toggle').val(booleanbinarytoonoff(data[i].value)).slider("refresh")
-		  $('.' + prefix + data[i].parameter + 'automantoggle').val(data[i].value).slider("refresh")
-		  $('.' + prefix + data[i].parameter + 'slider' + i).val(data[i].value).slider("refresh")
-		  $('.' + prefix + data[i].parameter + 'select' + i).val(data[i].value)	  
-  }
-  togglestolamps()
+
+
+// This are the generic rendering algorithms. These are used for the more specific table
+// renderers. There are three types of tables dealth with here and several types of widgets
+// 
+// Flat table - use RenderWidgets
+//   Columns are item names, values are values. One table row
+//   classnames : tablename + columnname + widget type (optional)
+//   example : systemstatuslastpicontrolfreqslider
+
+// Array table - use RenderWidgetsFromArray
+//   Columns are item names, values are values, multiple tablerows
+//   classnames : tablename + columname + index (zero indexed)
+//   example : channelssetpointvalue0
+
+// Unique key table - use RenderWidgetsFromArrayByUniqueKey
+//   See function below
+
+function setWidgetValues(baseclass,value) {
+	$(baseclass).html(value)
+	$(baseclass + 'toggle').val(booleanbinarytoonoff(value)).slider("refresh")
+	$(baseclass + 'automantoggle').val(value).slider("refresh")
+	$(baseclass + 'slider').val(value).slider("refresh")
+	$(baseclass + 'select').val(value)
 }
+function setWidgetActions(args){
+  callback = args.callback || logdone
+  updatetimeout=500
+  var actionobj={'action':'setvalue','database':args.database,'table':args.tablename,'valuename':args.key}
+  
+  if ( args.condition !== undefined) {  
+  	actionobj.condition=args.condition
+	//alert('i have a condition: ' + args.condition)
+  }
+  
+  //console.log(args)
+  $(baseclass + 'toggle').unbind('slidestop')
+  $(baseclass + 'toggle').on( 'slidestop', function( event ) { 
+	var data=event.data
+	value=$(this).val()
+	//alert(value)
+	actionobj.value=BooleansToIntegerString(value)
+	// invoke ajax query with callback to update the interface when it's done
+	
+	setTimeout(function(){
+		//console.log(actionobj)
+		UpdateControl(actionobj,callback)
+		
+		},updatetimeout)
+  });
+  
+  $(baseclass + 'automantoggle').unbind('slidestop')
+  $(baseclass + 'automantoggle').on( 'slidestop', function( event ) { 
+	var data=event.data
+	value=$(this).val()
+	//alert(value)
+	actionobj.value=value
+	// invoke ajax query with callback to update the interface when it's done
+	setTimeout(function(){UpdateControl(actionobj,callback)},updatetimeout)
+  });
+  
+  $(baseclass + 'slider').unbind('slidestop')
+  $(baseclass + 'slider,  .ui-slider-input').unbind('change')
+  // include change for text field and slidestop for slider
+  $(baseclass + 'slider, .ui-slider-input').on('change', function( event ) {
+	value=$(this).val()
+	actionobj.value=value
+	// invoke ajax query with callback to update the interface when it's done
+	setTimeout(function(){UpdateControl(actionobj,callback)},updatetimeout)
+  })
+  $(baseclass + 'slider').on('slidestop', function( event ) { 
+  var data=event.data
+  value=$(this).val()
+  actionobj.value=value
+  // invoke ajax query with callback to update the interface when it's done
+  setTimeout(function(){UpdateControl(actionobj,callback)},updatetimeout)
+  });
+  $(baseclass + 'select').unbind('change')
+  $(baseclass + 'select').on( 'change', function( event ) { 
+  var data=event.data
+  value=$(this).val()
+  //alert(value)
+  actionobj.value=value
+  // invoke ajax query with callback to update the interface when it's done
+  setTimeout(function(){UpdateControl(actionobj,callback)},updatetimeout)
+  });
+}
+
 
 // This works for a flat table only
-function RenderWidgets(databasename,tablename,data) {
+function RenderWidgets(database,tablename,data,callbackarg) {
+	  callback = callbackarg || logdone
+	  var updatetimeout=500 // ms to wait to avoid duplicate events
 	  $.each(data,function(key,value){
 		  //console.log('key: ' + key + ' value: ' + value + ' element: ' + '.' + key + i)
 		  // Set each possibility
-		  $('.' + tablename + key).html(value)
-		  $('.' + tablename + key + 'toggle').val(booleanbinarytoonoff(value)).slider("refresh")
-		  $('.' + tablename + key + 'automantoggle').val(value).slider("refresh")
-		  $('.' + tablename + key + 'slider').val(value).slider("refresh")
-		  $('.' + tablename + key + 'select').val(value)
-	
-		  //console.log('.' + prefix + key + ' : ' + value)
-		  $('.' + tablename + key + 'toggle').on( 'slidestop', function( event ) { 
-	        var data=event.data
-		    value=$(this).val()
-			alert(value)
-		    actionobj ={'action':'setvalue','database':databasename,'table':tablename,'valuename':key, 'value':BooleansToIntegerString(value)}
-		    // invoke ajax query with callback to update the interface when it's done
-		    UpdateControl(actionobj,UpdateChannelsData)
-	      });
+		  baseclass='.' + tablename + key
+		  setWidgetValues(baseclass,value)		  
+		  setWidgetActions({baseclass:baseclass,database:database,tablename:tablename,key:key,callback:callback})
 	  })
 	  togglestolamps()
+	  // callback
+}
+
+function RenderWidgetsFromArray(database,tablename,data,callbackarg) {
+  callback = callbackarg || logdone
+  var updatetimeout=500 // ms to wait to avoid duplicate events
+  for (var i=0; i<data.length;i++){
+	  index=i+1  
+	  $.each(data[i],function(key,value){
+    	  baseclass='.' + tablename + key + index
+		  setWidgetValues(baseclass,value)
+	      setWidgetActions({baseclass:baseclass,database:database,tablename:tablename,key:key,condition:'rowid='+index})
+	  })
+  }
+  togglestolamps()
+}
+
+// So here we take a table with multiple rows and render widgets based on a unique key
+// Say the unique key is 'item' and the table is 'metadata'
+// Say the first row has items 'item1' and fields 'field1' and 'field2' with 'field1value1' and 'field2value2', etc.
+
+// Class names would be metadataitem1field1, metdataitem1field2, etc.
+
+function RenderWidgetsFromArrayByUniqueKey(args,data) {
+  callback = args.callbackarg || logdone
+  uniquekeyname=args.uniquekey || 'parameter'
+  
+  var updatetimeout=500 // ms to wait to avoid duplicate events
+  for (var i=0; i<data.length;i++){
+	  // Set each possibility
+	  uniquekey=data[i].uniquekeyname
+	  $.each(data[i],function(key,value){
+		value=data.valuename
+		baseclass='.' + tablename + uniquekeyname + key
+		setWidgetValues(baseclass,value)
+		setWidgetActions({baseclass:baseclass,database:args.database,tablename:args.tablename,key:args.key,condition:uniquekeyname+'='+uniquekey})
+	  })
+  }
+  togglestolamps()
 }
 
 
@@ -95,7 +189,9 @@ function RenderVersionsData (versionsdata,callbackoptions){
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){UpdateVersionsData(callbackoptions)},callbackoptions.timeout)
 	}
-	RenderWidgetsFromArray(versionsdata,'versions')
+	// Render the widgets. The RenderVersionsData callback is for setting widget actions,
+	// so that it renders right after the value gets set
+	RenderWidgetsFromArray(systemdatabase,'versions',versionsdata,RenderVersionsData)
 }
 
 // Metadata
@@ -109,7 +205,10 @@ function RenderMetadata (metadata,callbackoptions){
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){UpdateMetadata(callbackoptions)},callbackoptions.timeout)
 	}
-	RenderWidgetsFromArrayByParamName(metadata,'metadata')
+	// Manually done here. Only a couple items.
+	$('.metadatadevicename').html(metadata[0].devicename)
+	$('.metadatagroupname').html(metadata[0].groupname)
+	
 }
 
 //// Control Algorithms
@@ -126,9 +225,9 @@ function RenderControlAlgorithms(algorithmstable,callbackoptions) {
 	for (var i=0; i<algorithmstable.length;i++){
 		controlalgorithms[i]=algorithmstable[i].name
 	}
-	$('.selectcontrolalgorithm').each(function(){
+	$('.controlalgorithmselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateInput(this.id, controlalgorithms)
+	    	UpdateSelect(this.id, controlalgorithms)
 		}
 	});
 }
@@ -143,26 +242,22 @@ function RenderChannelsData(channelsdata,callbackoptions) {
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){UpdateChannelsData(callbackoptions)},callbackoptions.timeout)
 	}
-	RenderWidgetsFromArray(channelsdata,'channel')
+	RenderWidgetsFromArray(controldatabase,'channels',channelsdata)
 }
 
 //// Control Recipes
-function UpdateControlRecipes(callbackoptions) {
-	  var callback=RenderControlRecipes
-	  wsgiCallbackTableData(controldatabase,'controlrecipes',callback,callbackoptions)
+function UpdateControlRecipeNames(callbackoptions) {
+	  var callback=RenderControlRecipeNames
+	  wsgiGetTableNames(recipedatabase,callback,callbackoptions)
 }
-function RenderControlRecipes(recipestable,callbackoptions) {
+function RenderControlRecipeNames(recipenames,callbackoptions) {
 	//set interval function if timeout value is passed and valid
 	if (callbackoptions.timeout>0) {
-		setTimeout(function(){UpdateControlRecipes(callbackoptions)},callbackoptions.timeout)
+		setTimeout(function(){UpdateControlRecipeNames(callbackoptions)},callbackoptions.timeout)
 	}
-	controlrecipes=[]
-	for (var i=0; i<recipestable.length;i++){
-		controlrecipes[i]=recipestable[i].name
-	}
-	$('.selectcontrolrecipe').each(function(){
+	$('.controlrecipeselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateInput(this.id, controlrecipes)
+	    	UpdateSelect(this.id, recipenames)
 		}
 	});
 }
@@ -181,9 +276,9 @@ function RenderOutputs(outputstable,callbackoptions) {
 	for (var i=0; i<outputstable.length;i++){
 		outputs.push(outputstable[i].name)
 	}
-	$('.selectoutput').each(function(){
+	$('.outputselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateInput(this.id, outputs)
+	    	UpdateSelect(this.id, outputs)
 		}
 	});	
 }
@@ -204,7 +299,7 @@ function RenderInputs(inputstable,callbackoptions) {
 	}
 	$('.selectinput').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateInput(this.id, inputs)
+	    	UpdateSelect(this.id, inputs)
 		}
 	});	
 }
@@ -237,35 +332,8 @@ function RenderSystemStatusData(systemstatusdatalist,callbackoptions) {
 	
 	// Option for controls (as opposed to indicators (not implemented yet
     updatesliders = callbackoptions.updatesliders || true
-	
 	systemstatusdata=systemstatusdatalist[0]
-	//console.log(systemstatusdata)
-	
-	//set interval function if timeout value is passed and valid
-	//console.log(systemdata)
 	RenderWidgets(controldatabase, 'systemstatus', systemstatusdata)
-	//old way
-	/*
-	$(".picontrolenabledslider").val(booleanbinarytoonoff(systemdata.picontrolenabled)).slider("refresh")
-	$(".picontrolstatusslider").val(booleanbinarytoonoff(systemdata.picontrolstatus)).slider("refresh")
-	
-	$(".outputsenabledstatusslider").val(booleanbinarytoonoff(systemdata.enableoutputs)).slider("refresh")
-	$(".outputsenabledslider").val(booleanbinarytoonoff(systemdata.enableoutputs)).slider("refresh")
-	
-	$(".inputsreadenabledslider").val(booleanbinarytoonoff(systemdata.inputsreadenabled)).slider("refresh")
-	$(".inputsreadstatusslider").val(booleanbinarytoonoff(systemdata.inputsreadstatus)).slider("refresh")
-	
-	$(".sessioncontrolenabledslider").val(booleanbinarytoonoff(systemdata.sessioncontrolenabled)).slider("refresh")
-	$(".sessioncontrolstatusslider").val(booleanbinarytoonoff(systemdata.sessioncontrolstatus)).slider("refresh")
-	
-	$(".picontrolfreq").html(systemdata.picontrolfreq)
-	$(".picontrolfreqslider").val(systemdata.picontrolfreq).slider("refresh")
-	$(".lastpicontrolpoll").html(systemdata.lastpicontrolpoll)
-	
-	$(".inputsreadfreq").html(systemdata.inputsreadfreq)
-	$(".inputsreadfreqslider").val(systemdata.inputsreadfreq).slider("refresh")
-	$(".lastinputspoll").html(systemdata.lastinputspoll)
-	*/		
 }
 
 //// Metadata
@@ -274,7 +342,6 @@ function UpdatePlotMetadata(callbackoptions) {
 	wsgiCallbackTableData(logdatabase,'metadata',callback,callbackoptions)
 }
 function RenderPlotMetadata(metadata,callbackoptions) {
-
 	//set interval function if timeout value is passed and valid
 	timeout=callbackoptions.timeout || 0
 	if (timeout>0) {

@@ -1,13 +1,6 @@
 // JavaScript Document
 
-////////////////////
-// jqplot object stuff
-
-function plotdefs(id) {
-	this.id = 'page plot definitions';
-}
-
-/////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 // Utility Functions
 
 // Value processing
@@ -19,10 +12,10 @@ function pad(num, size) {
 }
 function setprecision(num, digits) {
 	if (isNumber(num)) {
-		roundednumber=num.toPrecision(digits)
+		var roundednumber=num.toPrecision(digits);
 	}
 	else {roundednumber = 0}
-	return roundednumber
+	return roundednumber;
 }
 function zeropad(num, sizebefore, sizeafter) {
 	var frac = Math.round((num%1)*Math.pow(10,sizeafter))/Math.pow(10,sizeafter);
@@ -30,81 +23,84 @@ function zeropad(num, sizebefore, sizeafter) {
 	//console.log("whole: " + whole + " frac: " + frac)
 	var after = frac + "";
 	after = after.slice(2);
-	before = whole+"";
-    
+	var before = whole+"";
 	while (before.length < sizebefore) before = "0" + before;	
 	while (after.length < sizeafter) after = after + "0";
-	
     return before + "." + after;
 }
-function BooleansToIntegerString(boolean) {
-	var integer=0
+function booleansToIntegerString(boolean) {
+	var integer=0;
 	if (typeof boolean === 'string') { 
-		boolean=boolean.toLowerCase()
+		boolean=boolean.toLowerCase();
 	}
 	
 	//alert(boolean)
 	if (boolean=='t') {
-		integer=1
+		integer=1;
 	}
 	else if (boolean =='f') {
-		integer=0
+		integer=0;
 	}
 	else if (boolean=='true') {
-		integer=1
+		integer=1;
 	}
 	else if (boolean =='false') {
-		integer=0
+		integer=0;
+	}
+	else if (boolean==true) {
+		integer=1;
+	}
+	else if (boolean ==false) {
+		integer=0;
 	}
 	else if (boolean =='on') {
-		integer = 1
+		integer = 1;
 	}
 	else if (boolean =='off') {
-		integer =0
+		integer =0;
 	}
-	return integer.toString()
+	return integer.toString();
 }
-function booleanbinarytoenableddisabled(value) {
+function booleanBinaryToEnabledDisabled(value) {
+    var string="Value Error";
 	if (value==0) { string = "Disabled" }
 	else if (value==1) { string = "Enabled" }
-	else { string = "Value Error" }
-	return string
+	return string;
 }
-function booleanbinarytoonoff(value) {
+function booleanBinaryToOnOff(value) {
+    var string="Value Error";
 	if (value==0) { string = "Off" }
 	else if (value==1) { string = "On" }
-	else { string = "Value Error" }
-	return string
+	return string;
 }
-
-function datestringtoUTC(datestring) {
-	year = datestring.slice(0,4);
-	month = datestring.slice(5,7);
-	day = datestring.slice(8,10);
-	hour = datestring.slice(11,13);
-	minute = datestring.slice(14,16);
-	second = datestring.slice(17,19);
+function booleanBinaryToTrueFalseString(value) {
+    var string = "Value Error";
+	if (value==0) { string = "false" }
+	else if (value==1) { string = "true" }
+	return string;
+}
+function booleanBinaryToTrueFalse(value) {
+    var answer = false;
+	if (value==0) { answer = false }
+	else if (value==1) { answer = true }
+	return answer;
+}
+function dateStringToUTC(datestring) {
+	var year = datestring.slice(0,4);
+	var month = datestring.slice(5,7);
+	var day = datestring.slice(8,10);
+	var hour = datestring.slice(11,13);
+	var minute = datestring.slice(14,16);
+	var second = datestring.slice(17,19);
 				
-	return Date.UTC(year,month,day,hour,minute,second)	
+	return Date.UTC(year,month,day,hour,minute,second);
 }
-function IntegerStringToTrueFalue(integerinput) {
-	var integer=parseInt(integerinput)
-	if (integer==1) {
-		boolean=true
+function trueFalseToInteger (boolean) {
+	var integer=0;
+    if (boolean == true) {
+		integer=1;
 	}
-	else {
-		boolean=false
-	}
-	return boolean
-}
-function truefalsetointeger (boolean) {
-	if (boolean == true) {
-		integer=1
-	}
-	else {
-		integer=0
-	}
-	return integer
+	return integer;
 }
 
 ////////////////////////////////////////////////////////
@@ -112,9 +108,8 @@ function truefalsetointeger (boolean) {
 
 function addInput(object,choices,classname){
     var newDiv=document.createElement('div');
-    var selectHTML = "";
-    selectHTML="<select>";
-    for(i=0; i<choices.length; i=i+1){
+    var selectHTML = "<select>";
+    for(var i=0; i<choices.length; i=i+1){
         selectHTML+= "<option value='"+choices[i]+"'>"+choices[i]+"</option>";
     }
         selectHTML += "</select>";
@@ -126,16 +121,16 @@ function addInput(object,choices,classname){
 }
 function UpdateSelect(inputid,choices){
 	// find current value
-	options=[]
+	var options=[];
 	// with js
- 	var curval = document.getElementById(inputid).value
+ 	var curval = document.getElementById(inputid).value;
 	document.getElementById(inputid).options.length=0;
 	for(var i=0; i<choices.length; i++) {
 		document.getElementById(inputid).options[i]=new Option(choices[i], choices[i], true, false);
 	}
 	// set previous value if exists in new choices array
 	if(choices.indexOf(curval)>=0){
-		document.getElementById(inputid).value=curval
+		document.getElementById(inputid).value=curval;
 	}	
 	
 	// with jquery
@@ -158,20 +153,20 @@ function addRow(tableID,contentarray) {
 		  
 		  // determine if input or indicator
 		  
- 		  label=contentarray[i][1];
+ 		  var label=contentarray[i][1];
 		  
 		  // Act depending on type of cell
-		  var textvalue='empty'
+		  var textvalue='empty';
           switch(contentarray[i][2]) {
               case "text": 		// text is an entry field
-			  		var element1 = document.createElement("input")
+			  		var element1 = document.createElement("input");
 		  			element1.className=label;
                     element1.type="text";
 					newcell.appendChild(element1);
 					element1.value = contentarray[i][0];
                     break;
               case "checkbox":
-			  		var element1 = document.createElement("input")
+			  		var element1 = document.createElement("input");
 		  			element1.className=label;
 			  		element1.type="checkbox";
 					newcell.appendChild(element1);
@@ -186,7 +181,7 @@ function addRow(tableID,contentarray) {
 					} 
                     break;
               case "select-one":
-                    addInput(newcell,contentarray[i][3],label)
+                    addInput(newcell,contentarray[i][3],label);
 					newcell.firstChild.firstChild.value=contentarray[i][0];
                     break;
 			  case "value": // value is not editable
@@ -195,17 +190,16 @@ function addRow(tableID,contentarray) {
 					element1.className=label;
 					newcell.appendChild(element1);
 					element1.innerHTML = contentarray[i][0];
-					
 					break;
 			  case "boolean":
 			        if (contentarray[i][0]==1) {
 						textvalue="T";
 					}
 					else if (contentarray[i][0]==0 ){
-						textvalue="F"
+						textvalue="F";
 					} 
 					else {
-						textvalue="Error"
+						textvalue="Error";
 					}
 					newcell.innerHTML = textvalue;
 					break;
@@ -214,10 +208,10 @@ function addRow(tableID,contentarray) {
 						textvalue="On";
 					}
 					else if (contentarray[i][0]==0 ){
-						textvalue="Off"
+						textvalue="Off";
 					} 
 					else {
-						textvalue="Error"
+						textvalue="Error";
 					}
 					newcell.innerHTML = textvalue;
 					break;
@@ -226,33 +220,33 @@ function addRow(tableID,contentarray) {
      } // end for
 }	
 function clearTable(tableid,headerrows) {
-	var table = document.getElementById(tableid)	
+	var table = document.getElementById(tableid);
 	// render recipenames for indicators
-	controlrecipes=[]
+	var controlrecipes=[];
 	for(var i = table.rows.length - 1; i > headerrows-1; i--)
 	{
     	table.deleteRow(i);
 	}
 }
-///////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
 // Authentication
 
-function checkauth(authlevel, reqauthlevel, callback, message) {
+function checkauth(authlevel, reqauthlevel, callback, messagearg) {
 	// Handle custom message or lack thereof
-	message = (typeof message === "undefined") ? "You do not have authorization for this action" : message;
-
+	var message = messagearg || "You do not have authorization for this action" ;
 	if (authlevel >= reqauthlevel) {
-		callback()
+		callback();
 	}
 	else {
-		alert(message)
+		alert(message);
 	}
 }
 function partial(func /*, 0..n args */) {
 	var args = Array.prototype.slice.call(arguments, 1);
 	return function() {
-  	var allArguments = args.concat(Array.prototype.slice.call(arguments));
-   	return func.apply(this, allArguments);
+  	    var allArguments = args.concat(Array.prototype.slice.call(arguments));
+   	    return func.apply(this, allArguments);
 	};
 }
 function isNumber(n) {
@@ -281,15 +275,14 @@ function isNumber(n) {
 //	});	
 //}
 
-function wsgiCallbackTableData (database,table,callback,callbackoptions) {
+function wsgiCallbackTableData (database,table,callback,callbackoptionsarg) {
 	// Get the data
-	callbackoptions=callbackoptions || {}
-	//alert(database + ' ' + table + ' ' + callback)
+	var callbackoptions=callbackoptionsarg || {};
+	//console.log(database + ' ' + table + ' ' + callback)
 	$.ajax({
 		url: "/wsgisqlitequery",
 		type: "post",
 		datatype:"json",				
-			
 		data: {'database':database,'table':table},
 		success: function(response){
 			// Execute our callback function
@@ -301,12 +294,11 @@ function wsgiCallbackMultTableData (database,tablenames,callback) {
 	// Get the data
 	// We have to initialize the array or else it will not execute properly
 	// We can just trim it off the backend..
-	queryarray=['',]
+	var queryarray=[''];
 	//queryarray=[]
-	for (i=0;i<tablenames.length;i++){
-		queryarray.push('select * from \'' + tablenames[i] + '\'')
+	for (var i=0;i<tablenames.length;i++){
+		queryarray.push('select * from \'' + tablenames[i] + '\'');
 	}
-	
 	$.ajax({
 		url: "/wsgisqlitequery",
 		type: "post",

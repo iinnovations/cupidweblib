@@ -1056,7 +1056,6 @@ a.ui-link-inherit {
 	outline-style: auto;
 }
 
-
 /* Custom stuff to make layout pretty */
 
 .ui-collapsible-content p{
@@ -1078,9 +1077,9 @@ a.ui-link-inherit {
 .ui-collapsible .ui-collapsible-heading .ui-btn { border-left-width: 1px; border-right-width: 1px }
 
 .ui-customcenter { text-align:center !important;}
-.ui-stdlabel {line-height:20px!important;}
-.ui-biglabel {font-size:16px!important; font-weight:bold !important; line-height:16px!important}
-.ui-biggerlabel {font-size:28px!important; font-weight:normal!important;line-height:28px!important}
-.ui-biggestlabel {font-size:32px!important; font-weight:normal!important}
+.ui-stdlabel {margin:0.75em 0 0 0!important; vertical-align:top;}
+.ui-biglabel {margin:0.75em 0 0 0!important;line-height:20px!important; font-size:16px!important; font-weight:bold !important; vertical-align:top; }
+.ui-biggerlabel {margin:0.4em 0 0.2em 0!important;font-size:28px!important; font-weight:normal!important;vertical-align:top}
+.ui-biggestlabel {margin:0.75em 0 0.1em 0!important;font-size:32px!important; font-weight:normal!important;vertical-align:top}
 .inset-header {padding-left:15px}
 .sm-inset-header {padding-left:10px}

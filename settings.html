@@ -3,8 +3,19 @@
 <html><!-- InstanceBegin template="/Templates/main.dwt" codeOutsideHTMLIsLocked="false" -->
 <head>
 <!-- Get me some jquery-->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<script src="/mobile/js/jquery-1.7.1.min.js"></script>
+
+
+<script language="javascript" type="text/javascript" src="js/jqplot/jquery.jqplot.min.js"></script>
+<link rel="stylesheet" type="text/css" href="js/jqplot/jquery.jqplot.css" />
+<script type="text/javascript" src="/mobile/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="/mobile/js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<script type="text/javascript" src="/mobile/js/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
+<script type="text/javascript" src="/mobile/js/jqplot/plugins/jqplot.cursor.min.js"></script>
+
 <script src="/js/iijslib.js" type="text/javascript"></script> 
+<script src="/js/cupidjslib.js" type="text/javascript"></script> 
 
 <!--Record auth level-->
 <script type="text/javascript">
@@ -209,12 +220,12 @@ function RenderControlInputs (databaseinputstable) {
 }
 function SetStatusData(){
 	queryarray=[]
-	
-	queryarray.push('update systemstatus set picontrolenabled=\'' + BooleansToIntegerString(document.getElementsByClassName("picontrolenabled").item(0).checked) + '\'')
+	//alert(booleansToIntegerString($('.picontrolenabled').prop('checked')))
+	queryarray.push('update systemstatus set picontrolenabled=\'' + booleansToIntegerString(document.getElementsByClassName("picontrolenabled").item(0).checked) + '\'')
 	queryarray.push('update systemstatus set picontrolfreq=\'' + document.getElementsByClassName("picontrolfreq").item(0).value + '\'')
-	queryarray.push('update systemstatus set inputsreadenabled=\'' + BooleansToIntegerString(document.getElementsByClassName("inputsreadenabled").item(0).checked) + '\'')
+	queryarray.push('update systemstatus set inputsreadenabled=\'' + booleansToIntegerString(document.getElementsByClassName("inputsreadenabled").item(0).checked) + '\'')
 	queryarray.push('update systemstatus set inputsreadfreq=\'' + document.getElementsByClassName("inputsreadfreq").item(0).value+ '\'')
-	queryarray.push('update systemstatus set enableoutputs=\'' +  BooleansToIntegerString(document.getElementsByClassName("enableoutputs").item(0).checked) + '\'')
+	queryarray.push('update systemstatus set enableoutputs=\'' +  booleansToIntegerString(document.getElementsByClassName("enableoutputs").item(0).checked) + '\'')
 	//alert(query)
 	wsgiExecuteQueryArray (controldatabase,queryarray)
 }
@@ -223,7 +234,7 @@ function SetChannelsData(){
 	for (i=0;i<document.getElementById('channelstable').rows.length-1;i++) {
 		queryarray.push('update channels set name=\'' + document.getElementsByClassName("channelname").item(i).value + '\'  where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
 		queryarray.push('update channels set controlinput=\'' + document.getElementsByClassName("controlinput").item(i).firstChild.value + '\'  where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
-		queryarray.push('update channels set enabled=\'' + BooleansToIntegerString(document.getElementsByClassName("channelenabled").item(i).checked) + '\' where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
+		queryarray.push('update channels set enabled=\'' + booleansToIntegerString(document.getElementsByClassName("channelenabled").item(i).checked) + '\' where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
 		queryarray.push('update channels set controlalgorithm=\'' + document.getElementsByClassName("controlalgorithm").item(i).firstChild.value+ '\'  where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
 		queryarray.push('update channels set positiveoutput=\'' + document.getElementsByClassName("positiveoutput").item(i).firstChild.value + '\'  where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
 		queryarray.push('update channels set negativeoutput=\'' + document.getElementsByClassName("negativeoutput").item(i).firstChild.value + '\'  where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
@@ -238,7 +249,7 @@ function SetOutputsData(){
 		queryarray.push('update outputs set minontime=\'' + $(".minontime")[i].value + '\' where outputindex=' + $(".outputindex")[i].innerHTML)
 		queryarray.push('update outputs set minofftime=\'' + $(".minofftime")[i].value + '\' where outputindex=' + $(".outputindex")[i].innerHTML)
 		
-		queryarray.push('update outputs set enabled=\'' + BooleansToIntegerString($(".outputenabled")[i].checked) + '\' where outputindex=' + $(".outputindex")[i].innerHTML)
+		queryarray.push('update outputs set enabled=\'' + booleansToIntegerString($(".outputenabled")[i].checked) + '\' where outputindex=' + $(".outputindex")[i].innerHTML)
 		
 		queryarray.push('update outputs set mode=\'' + $(".mode")[i].firstChild.value + '\'  where outputindex=' + $(".outputindex")[i].innerHTML)
 		//alert(queryarray)

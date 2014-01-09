@@ -12,7 +12,7 @@
 
 <body>
 	<div>
-		<p>Login Page</p>
+		<h4>Login</h4>
 <?php $user->login_form(); ?>
 	</div>
 </body>

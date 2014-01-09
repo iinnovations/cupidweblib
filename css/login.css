@@ -1,20 +1,22 @@
 div {
 	font-family:helvetica,arial;
 	text-align:center;
-	width:600px;
+	width:500px;
 	margin:10px auto;
 	background-color:#FFF;
 	overflow:hidden;
 	border:1px solid #698fac;
 	padding:10px;
 	color:#333;
+    border-radius: 8px;
 	-moz-border-radius:8px;
 	-khtml-border-radius:8px;
 	-webkit-border-radius:8px;
+    box-shadow: 1px 1px 2px 2px;
 }
 form {
 	margin:0px auto;
-	font-family:helvetica,arial;
+	font-family:helvetica,arial,sans-serif;
 	text-align:center;
 }
 form fieldset {
@@ -35,7 +37,7 @@ form label {
 form input[type=text],form input[type=password] {
 	display:inline-block;
 	float:left;
-	width:200px;
+	width:100px;
 	border:1px solid #ccc;
 	font-family:helvetica,arial;
 	margin:3px 5px;

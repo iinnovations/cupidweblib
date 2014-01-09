@@ -3,8 +3,19 @@
 <html><!-- InstanceBegin template="/Templates/main.dwt" codeOutsideHTMLIsLocked="false" -->
 <head>
 <!-- Get me some jquery-->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<script src="/mobile/js/jquery-1.7.1.min.js"></script>
+
+
+<script language="javascript" type="text/javascript" src="js/jqplot/jquery.jqplot.min.js"></script>
+<link rel="stylesheet" type="text/css" href="js/jqplot/jquery.jqplot.css" />
+<script type="text/javascript" src="/mobile/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="/mobile/js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<script type="text/javascript" src="/mobile/js/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
+<script type="text/javascript" src="/mobile/js/jqplot/plugins/jqplot.cursor.min.js"></script>
+
 <script src="/js/iijslib.js" type="text/javascript"></script> 
+<script src="/js/cupidjslib.js" type="text/javascript"></script> 
 
 <!--Record auth level-->
 <script type="text/javascript">
@@ -46,7 +57,7 @@ if (authlevel > 0){
 </script>
 
 <!-- InstanceBeginEditable name="doctitle" -->
-<title>CuPID Settings</title>
+<title>CuPID Control Recipes</title>
 <!-- InstanceEndEditable -->
 <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
 <style media="all" type="text/css">
@@ -92,7 +103,7 @@ function GetAndRenderRecipes () {
 }
 function GetAndRenderRecipeMetaData (recipenamereturn) {
 	recipenames=recipenamereturn[0]
-	UpdateInput("selectrecipe", recipenames)
+	UpdateSelect("selectrecipe", recipenames)
 	clearTable('recipesummarytable',1)
 	
 	for(var i=0; i<recipenames.length; i++) {
@@ -126,7 +137,7 @@ function RenderRecipeMetadata (recipedata) {
 }		
 function GetAndRenderRecipeMetaData (recipenamereturn) {
 	recipenames=recipenamereturn[0]
-	UpdateInput("selectrecipe", recipenames)	
+	UpdateSelect("selectrecipe", recipenames)	
 	
 	clearTable('recipesummarytable',1)
 	
@@ -350,7 +361,9 @@ $(document).ready(function() {
       </div> <!-- full table -->  
       <table>
             <tr><td>
-            	<div class="rounded-borders" id="plot1" style="width: 885px; height: 500px;"></div>
+              <div style="padding:20px" class="rounded-borders" >
+            	<div id="plot1" style="width: 865px; height: 480px;"></div>
+                </div>
             </td></tr>
        </table>    
     </div>

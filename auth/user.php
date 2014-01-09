@@ -272,7 +272,7 @@ class user {
 		$message.="\t".$body."\r\n";
 		$message.='</body>'."\r\n";
 		$message.='</html>';
-		return @mail($to,$subject,$message,$headers);
+		return @($to,$subject,$message,$headers);
 	}
 
 	private function activate(){ // process account and email activation
@@ -410,13 +410,13 @@ class user {
 		echo "".
 		"\t\t".'<form method="post" action="/'.$this->config['pages']['login'].'">'."\n".
 		"\t\t\t".'<fieldset>'."\n".
-		"\t\t\t\t".'<label for="name">Username:</label><input name="name" id="name" type="text" /><br/>'."\n".
-		"\t\t\t\t".'<label for="password">Password:</label><input name="password" id="password" type="password" />'."\n".
+		"\t\t\t".'<label for="name">Username:</label><input name="name" id="name" type="text" /><br/>'."\n".
+		"\t\t\t".'<label for="password">Password:</label><input name="password" id="password" type="password" />'."\n".
 		"\t\t\t".'</fieldset>'."\n".
 		"\t\t\t".'<fieldset>'."\n".
 		"\t\t\t\t".'<p class="error">'.$this->errors().'</p>'."\n".
 		"\t\t\t\t".'<input type="hidden" name="nonce" value="'.$this->nonce('login').'" /><input value="Login" type="submit" /><input value="Reset" type="reset" />'."\n".
-		"\t\t\t\t".'<p>Need an account? <a href="/'.$this->config['pages']['signup'].'">Sign Up</a>.<br /><a href="/'.$this->config['pages']['change'].'">Change Password</a>.</p>'."\n".
+		//"\t\t\t\t".'<p>Need an account? <a href="/'.$this->config['pages']['signup'].'">Sign Up</a>.<br /><a href="/'.$this->config['pages']['change'].'">Change Password</a>.</p>'."\n".
 		"\t\t\t".'</fieldset>'."\n".
 		"\t\t".'</form>'."\n";
 	}
@@ -446,27 +446,27 @@ class user {
 		"\t\t".'</form>'."\n";
 	}
 
-	public function password_form(){ // prints the recover/change password form
-		echo "".
-		(!isset($_GET['key'])?
-		"\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'">'."\n".
-		"\t\t\t".'<fieldset>'."\n".
-		"\t\t\t\t".'<label for="login">Username:</label><input name="login" id="login" type="text" />'."\n".
-		"\t\t\t".'</fieldset>'."\n"
-		:
-		"\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'/'.$_GET['key'].'">'."\n".
-		"\t\t\t".'<fieldset>'."\n".
-		"\t\t\t\t".'<label for="name">Username:</label><input name="name" id="name" type="text" /><br/>'."\n".
-		"\t\t\t\t".'<label for="password">New Password:</label><input name="password" id="password" type="password" /><br/>'."\n".
-		"\t\t\t\t".'<label for="confirm-password">Confirm Password:</label><input name="confirm-password" id="confirm-password" type="password" />'."\n".
-		"\t\t\t".'</fieldset>'."\n")
-		.
-		"\t\t\t".'<fieldset>'."\n".
-		"\t\t\t\t".'<p class="error">'.$this->errors().'</p>'."\n".
-		"\t\t\t\t".'<input type="hidden" name="nonce" value="'.$this->nonce('change').'" /><input value="Change" type="submit" /><input value="Reset" type="reset" />'."\n".
-		"\t\t\t".'</fieldset>'."\n".
-		"\t\t".'</form>'."\n";
-	}
+    public function password_form(){ // prints the recover/change password form
+        echo "".
+        (!isset($_GET['key'])?
+        "\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'">'."\n".
+        "\t\t\t".'<fieldset>'."\n".
+        "\t\t\t\t".'<label for="login">Username:</label><input name="login" id="login" type="text" />'."\n".
+        "\t\t\t".'</fieldset>'."\n"
+        :
+        "\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'/'.$_GET['key'].'">'."\n".
+        "\t\t\t".'<fieldset>'."\n".
+        "\t\t\t\t".'<label for="name">Username:</label><input name="name" id="name" type="text" /><br/>'."\n".
+        "\t\t\t\t".'<label for="password">New Password:</label><input name="password" id="password" type="password" /><br/>'."\n".
+        "\t\t\t\t".'<label for="confirm-password">Confirm Password:</label><input name="confirm-password" id="confirm-password" type="password" />'."\n".
+        "\t\t\t".'</fieldset>'."\n")
+        .
+        "\t\t\t".'<fieldset>'."\n".
+        "\t\t\t\t".'<p class="error">'.$this->errors().'</p>'."\n".
+        "\t\t\t\t".'<input type="hidden" name="nonce" value="'.$this->nonce('change').'" /><input value="Change" type="submit" /><input value="Reset" type="reset" />'."\n".
+        "\t\t\t".'</fieldset>'."\n".
+        "\t\t".'</form>'."\n";
+    }
 
 	public function account_form(){ // prints the change e-mail form 
 		echo "".

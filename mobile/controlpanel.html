@@ -40,79 +40,37 @@
 
 
 // Set objects. not used yet.
-var plotdefs = new plotdefs()
-plotdefs.plotids=[]
-plotdefs.series=[[[]]]
-plotdefs.plotids.push('myplotid')
-plotdefs.series.push([[['/var/www/data/controldata.db','channels','channel 1data']]])
+//var plotdefs = new plotdefs()
+//plotdefs.plotids=[]
+//plotdefs.series=[[[]]]
+//plotdefs.plotids.push('myplotid')
+//plotdefs.series.push([[['/var/www/data/controldata.db','channels','channel 1data']]])
 
 // define some globals
-var inputids=[]
-var inputnames=[]
-var inputgroups=[]
-var channelsdata=[]
-var channelnames=[]
-var channellogdata=[]
-var renderclassnames=[]
+var jqmpage=true;
+var inputids=[];
+var inputnames=[];
+var inputgroups=[];
+var channelsdata=[];
+var channelnames=[];
+var channellogdata=[];
+var renderclassnames=[];
 
-var updatetimeout=100
-var loginterval=30000
-var updateinterval=5000
+var updatetimeout=100;
+var loginterval=30000;
+var updateinterval=30000;
 
-var channelOptionsObj={
-	legend: {
-	  show: true,
-	  location: 'sw',     // compass direction, nw, n, ne, e, se, s, sw, w.
-	  xoffset: 12,        // pixel offset of the legend box from the x (or x2) axis.
-	  yoffset: 12,        // pixel offset of the legend box from the y (or y2) axis.
-	},
-	axes:{
-		xaxis:{
-			renderer:$.jqplot.DateAxisRenderer,
-			tickOptions:{mark:'inside'}
-		},
-		 
-		yaxis:{min:30, max:100,
-			tickOptions:{mark:'inside'}
-		},  
-		y2axis:{
-		  min:-101, 
-		  max:101, 
-		  ticks:[-100,-50,0,50,100], 
-		  tickOptions:{showGridline:false, mark:'inside'},
-		  showTicks: false
-		}, 
-	},
-	seriesDefaults:{
-		 seriesColors: [ "#000000", "#ff0000", "#00ff00", "#0000ff", "#555555", "#958c12",
-  "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"], 
-		show:true,
-		lineWidth:2.5,
-		showMarker :false
-	},
-	cursor:{ 
-	  show: true,
-	  zoom:true, 
-	  showTooltip:true
-	},
-	series:[
-	  {label: 'Control Value'},
-	  {label: 'Setpoint Value'},
-	  {label: 'Action (%)',yaxis:'y2axis'} 
-	]
-}
+var setpointvalueseries=[];
+var controlvalueseries=[];
+var actionseries=[];
 
-var setpointvalueseries=[]
-var controlvalueseries=[]
-var actionseries=[]
-
-var actauthlevel=2
-var stdmessage='You do not have sufficient authorization for this action'
+var actauthlevel=2;
+var stdmessage='You do not have sufficient authorization for this action';
 
 //// Channels
 function UpdateChannelsTable() {
-	var callback=RenderChannels
-	wsgiCallbackTableData(controldatabase,'channels',callback)
+	var callback=RenderChannels;
+	wsgiCallbackTableData(controldatabase,'channels',callback);
 }
 function RenderChannels(channelstable) {
 	channelnames=['none']
@@ -121,10 +79,10 @@ function RenderChannels(channelstable) {
 		channelnames.push(channelstable[i].name)
 	}
 	
-	divhtmlstring=''
-	$("#channelset").html('')
+	var divhtmlstring;
+	$("#channelset").html('');
 	for (i=0; i<channelsdata.length; i++){
-		index=i+1
+		index=i+1;
 		divhtmlitemstring = '\
 		   <div data-role="collapsible" data-collapsed="true" data-count-theme="b" ><!--control item --> \
               <h3> '  + channelsdata[i].name + '</h3>\
@@ -138,12 +96,12 @@ function RenderChannels(channelstable) {
                 <fieldset class="ui-grid-a">\
                   <div class="ui-block-a ui-biglabel inset-header">Setpoint Value\
                   </div>\
-                  <div class="ui-block-b ui-biggerlabel inset-header channelssetpointvalue' + index + '">63</div>	   \
+                  <div class="ui-block-b ui-biggerlabel inset-header channelssetpointvalue' + index + '">63</div>\
                 </fieldset>\
               </li>  \
 			  <li data-role="fieldcontain">\
                 <fieldset class="ui-grid-a">\
-                  <div class="ui-block-a ui-biglabel inset-header">Action:\
+                  <div class="ui-block-a ui-biglabel inset-header">Action (%)\
                   </div>\
                   <div class="ui-block-b ui-biggerlabel inset-header channelsaction' + index + '">1</div>	   \
                 </fieldset>\
@@ -153,11 +111,11 @@ function RenderChannels(channelstable) {
                   <h4>Edit</h4>\
                   <ul data-role="listview" data-inset="false" class="controllist">\
                     <li >\
-                      <label for="slider-1" class="ui-biglabel" style="padding-right:10px">Setpoint</label>\
+                      <label for="slider-1" class="ui-biglabel" style="width:100%; padding-right:10px">Setpoint</label>\
                       <input type="range" name="slider-1" class="channelsetpointvalueslider' + index + '" id="channelsetpointvalueslider' + index + '"  value="60" min="0" max="100" />\
                     </li>\
                     <li data-role="fieldcontain" >\
-                        <label for="channelsenabled' + index +  'toggle" style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>\
+                        <label for="channelsenabled' + index +  'toggle" class="ui-biglabel" style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>\
                         <select name="channelsenabled' + index +  'toggle" class="channelsenabled' + index +  'toggle" data-role="slider">\
                         <option value="Off">Off</option>\
                         <option value="On">On</option>\
@@ -171,56 +129,53 @@ function RenderChannels(channelstable) {
                         </select> \
                     </li>\
                     <li data-role="fieldcontain">\
-                        <label for="channelsoutputsenabled' + index + 'toggle" style="display:inline-block; width:45%;">\
+                        <label for="channelsoutputsenabled' + index + 'toggle" style="width:45%; display:inline-block">\
                         <h3>Outputs:</h3></label>\
-                        <select name="channelsoutputsenabled' + index + 'toggle" class="channelselect channelsoutputsenabled' + index + 'toggle" id="channelselect channelsoutputsenabled' + index + 'toggle" data-role="slider">\
+                        <select name="channelsoutputsenabled' + index + 'toggle" class="channelsoutputsenabled' + index + 'toggle" id="channelselect channelsoutputsenabled' + index + 'toggle" data-role="slider">\
                         <option value="Off">Off</option>\
                         <option value="On">On</option>\
                         </select> \
                     </li>\
-                    <li>\
-                      <div class="ui-grid-a">\
-                        <div class="ui-block-a">\
-                          <label for="channelspositiveoutput' + index + 'select" class="ui-biglabel">Positive Output:</label>\
-                          <select name="channelspositiveoutput' + index + 'select" class="outputselect channelspositiveoutput' + index + 'select" id="channelspositiveoutput' + index + 'select">\
-                              <option value="standard">Output 1</option>\
-                              <option value="rush">Output</option>\
-                              <option value="express">Output 3</option>\
-                              <option value="overnight">Output 4</option>\
-                          </select>\
-                        </div>\
-                        <div class="ui-block-b">\
-                          <label for="channelsnegativeoutput' + index + 'select" class="ui-biglabel">Negative Output:</label>\
-                          <select name="channelsnegativeoutput' + index + 'select" class="outputselect channelsnegativeoutput' + index + 'select" id="channelsnegativeoutput' + index + 'select">\
-                              <option value="standard">Output 1</option>\
-                              <option value="rush">Output 2</option>\
-                              <option value="express">Output 3</option>\
-                              <option value="overnight">Output 4</option>\
-                          </select>\
-                        </div>\
-                      </div><!--ui grid-->\
+					<li >\
+					  <label for="channelscontrolinput' + index + 'jqmselect" class="ui-biglabel"><h3>Control Input</h3></label>\
+					  <select name="channelscontrolinput' + index + 'jqmselect" class="inputselect channelscontrolinput' + index + 'jqmselect" id="channelscontrolinput' + index + 'jqmselect">\
+						  <option value="standard">Output 1</option>\
+						  <option value="rush">Output</option>\
+						  <option value="express">Output 3</option>\
+						  <option value="overnight">Output 4</option>\
+					  </select>\
+                    </li><!-- list option set -->\
+                    <li >\
+					  <label for="channelspositiveoutput' + index + 'jqmselect" class="ui-biglabel"><h3>Positive Output</h3></label>\
+					  <select name="channelspositiveoutput' + index + 'jqmselect" class="outputselect channelspositiveoutput' + index + 'jqmselect" id="channelspositiveoutput' + index + 'jqmselect">\
+						  <option value="standard">Output 1</option>\
+						  <option value="rush">Output</option>\
+						  <option value="express">Output 3</option>\
+						  <option value="overnight">Output 4</option>\
+					  </select>\
+					  <label for="channelsnegativeoutput' + index + 'jqmselect" class="ui-biglabel">Negative Output</label>\
+					  <select name="channelsnegativeoutput' + index + 'jqmselect" class="outputselect channelsnegativeoutput' + index + 'jqmselect" id="channelsnegativeoutput' + index + 'jqmselect">\
+						  <option value="standard">Output 1</option>\
+						  <option value="rush">Output 2</option>\
+						  <option value="express">Output 3</option>\
+						  <option value="overnight">Output 4</option>\
+					  </select>\
                     </li><!-- list option set -->\
                     <li>\
-                      <div class="ui-grid-a">\
-                        <div class="ui-block-a">\
-                          <label for="channelscontrolalgorithm' + index + 'select" class="ui-biglabel">Control Algorithm</label>\
-                          <select name="channelscontrolalgorithm' + index + 'select" class="controlalgorithmselect channelscontrolalgorithm' + index + 'select" id="channelscontrolalgorithm' + index + 'select">\
-                              <option value="standard">on/off two degree deadband</option>\
-                              <option value="rush">on/off three degree deadband</option>\
-                              <option value="express">on/off two degree deadband</option>\
-                              <option value="value4">two degree deadband</option>\
-                          </select>\
-                        </div>\
-                        <div class="ui-block-b">\
-                          <label for="channelscontrolrecipe' + index + 'select"  class="ui-biglabel">Control Recipe</label>\
-                          <select name="channelscontrolrecipe' + index + 'select" class="controlrecipeselect channelscontrolrecipe' + index + 'select" id="channelscontrolrecipe' + index + 'select">\
-                              <option value="standard">stdreflow</option>\
-                              <option value="rush">Four-day 65F ale</option>\
-                              <option value="express">Six-day 65F ale</option>\
-                              <option value="overnight">Twelve-day 65F ale</option>\
-                          </select>\
-                        </div>\
-                      </div><!--ui grid-->\
+					  <label for="channelscontrolalgorithm' + index + 'jqmselect" class="ui-biglabel">Control Algorithm</label>\
+					  <select name="channelscontrolalgorithm' + index + 'jqmselect" class="controlalgorithmselect channelscontrolalgorithm' + index + 'jqmselect" id="channelscontrolalgorithm' + index + 'jqmselect">\
+						  <option value="standard">on/off two degree deadband</option>\
+						  <option value="rush">on/off three degree deadband</option>\
+						  <option value="express">on/off two degree deadband</option>\
+						  <option value="value4">two degree deadband</option>\
+					  </select>\
+					  <label for="channelscontrolrecipe' + index + 'jqmselect"  class="ui-biglabel">Control Recipe</label>\
+					  <select name="channelscontrolrecipe' + index + 'jqmselect" class="controlrecipeselect channelscontrolrecipe' + index + 'jqmselect" id="channelscontrolrecipe' + index + 'jqmselect">\
+						  <option value="standard">stdreflow</option>\
+						  <option value="rush">Four-day 65F ale</option>\
+						  <option value="express">Six-day 65F ale</option>\
+						  <option value="overnight">Twelve-day 65F ale</option>\
+					  </select>\
                     </li><!-- list option set -->\
                   </ul><!-- Edit set-->\
                 </div><!-- Edit collapsible -->\
@@ -239,7 +194,9 @@ function RenderChannels(channelstable) {
 		
 		// Send index of channel and name of div to render to
 		//GetAndRenderPlotData([channelsdata[data.index].name],["smallplot" + data.index])
-		GetAndRenderPlotData(data.index-1,['smallplot' + data.index],[channelOptionsObj])
+		channelindex=data.index-1
+		logtablename=channelsdata[channelindex].name + "log"
+		GetAndRenderChannelData(logtablename,['smallplot' + data.index],[channelOptionsObj])
       })
 	  
 	}
@@ -249,49 +206,7 @@ function RenderChannels(channelstable) {
 	$('#channellistview').listview('refresh')
 	UpdateChannelsData()
 }
-function GetAndRenderPlotData(channelindex, passedrenderplotids,passedrenderplotoptions){
-	// pass classes to render to a global for use in the callback
-	renderplotoptions=passedrenderplotoptions[0]
-	renderplotids=passedrenderplotids
-	
-	logtablename=channelsdata[channelindex].name + "log"
-	callbackoptions=renderplotoptions
-	//alert(query)
-	callback=RenderPlotData
-	wsgiCallbackTableData (logdatabase,logtablename,callback,callbackoptions)
-}
-function RenderPlotData (returnedlogdata,plotoptions) {
-    console.log(returnedlogdata)
-	// clear out ids for render
-	for (i=0;i<renderplotids.length;i++) {
-		$('#' + renderplotids[i]).html('')
-	}
-	//console.log(returnedlogdata)
-	
-	setpointvalueseries=[]
-	controlvalueseries=[]
-	actionseries=[]
-	for (i=0;i<returnedlogdata.length;i++){
-		// put the data into a series format for jqplot
-		controlvalueseries.push([returnedlogdata[i].time,returnedlogdata[i].controlvalue])
-		setpointvalueseries.push([returnedlogdata[i].time,returnedlogdata[i].setpointvalue])
-		actionseries.push([returnedlogdata[i].time,returnedlogdata[i].action])
-		
-	}
-	if (controlvalueseries.length>0){
-		for (i=0;i<renderplotids.length;i++){
-			// take the ith class list and render dataseries to the classes
-			//alert(renderplotids[i])
-			$.jqplot(renderplotids[0], [controlvalueseries,setpointvalueseries,actionseries], plotoptions)   
-			
-		}
-	}
-	else{
-		for (i=0;i<renderplotids.length;i++){
-			$('#' + renderplotids[i]).html('No data available')
-		}
-	}
-}
+
 
 // this function is not currently used.
 
@@ -348,8 +263,8 @@ $(document).ready(function(){
   	UpdateControlAlgorithms({'timeout':updateinterval})
 	UpdateInputs({'timeout':updateinterval})
 	UpdateOutputs({'timeout':updateinterval})
-	UpdateSystemStatusData({'timeout':updateinterval})
 	UpdatePlotMetadata({'timeout':updateinterval})
+	UpdateSystemStatusData({'timeout':updateinterval})
 	UpdateChannelsData({'timeout':updateinterval})
 	},1000);
     
@@ -362,8 +277,8 @@ $(document).ready(function(){
 		<li data-role="list-divider"><h4>Master Controls</h4></li>
 		<li data-role="fieldcontain" >
             <span class="justalamp">
-			  <label for="pcenabled" style="display:inline-block; width:50%; margin-top:0px!important">
-			  <h3>Pi Control:</h3>
+			  <label for="pcenabled" class="ui-biglabel" style="display:inline-block; width:50%; ">
+			  Pi Control
 			  </label>
 			  <select name="pcenabled" class="systemstatuspicontrolenabledtoggle" data-role="slider" >
                 <option value="Off">Off</option>
@@ -373,19 +288,19 @@ $(document).ready(function(){
 		</li>
 		<li data-role="fieldcontain">
           <span class="justalamp">
-			  <label for="enableoutputs"  style="display:inline-block; width:50%;">
-			  <h3>Outputs</h3>
-			  </label>
-			  <select name="systemstatusenableoutputs" class="systemstatusenableoutputstoggle" data-role="slider">
-			  <option value="Off">Off</option>
-			  <option value="On">On</option>
-			  </select> 
+            <label for="enableoutputs" class="ui-biglabel" style="display:inline-block; width:50%; ">
+            Outputs
+            </label>
+            <select name="systemstatusenableoutputs" class="systemstatusenableoutputstoggle" data-role="slider">
+            <option value="Off">Off</option>
+            <option value="On">On</option>
+            </select> 
 		  </span>
 		</li>
 		<li data-role="fieldcontain">
           <span class="justalamp">
-			  <label for="inputsreadenabled"  style="display:inline-block; width:50%;">
-			  <h3>Inputs Read:</h3>
+			  <label for="inputsreadenabled" class="ui-biglabel" style="display:inline-block; width:50%;">
+			  Inputs Read
 			  </label>
 			  <select name="inputsreadenabled" class="systemstatusinputsreadenabledtoggle" data-role="slider">
 			  <option value="Off">Off</option>
@@ -444,11 +359,11 @@ $(document).ready(function(){
 			  </select> 
             </li>
             <li class="sm-inset-header">
-            <label for="systemstatuspicontrolfreqslider">Pi Control Freq:</label>
+            <label for="systemstatuspicontrolfreqslider" style="width:100%; padding-right:40px">Pi Control Freq:</label>
 			<input type="range" name="systemstatuspicontrolfreqslider" class="systemstatuspicontrolfreqslider" value="55" min="0" max="100" />
             </li>
             <li class="sm-inset-header">
-			<label for="systemstatusinputsreadfreqslider" >Input Poll Freq:</label>
+			<label for="systemstatusinputsreadfreqslider" style="width:100%; padding-right:40px">Input Poll Freq:</label>
 			<input type="range" name="systemstatusinputsreadfreqslider" class="systemstatusinputsreadfreqslider" value="60" min="0" max="100" />
             </li>
         </div>

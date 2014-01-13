@@ -7,7 +7,7 @@
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 	<meta http-equiv="Content-Language" content="en-us" />
 	<title>Manage Account</title>
-	<link rel="stylesheet" type="text/css" href="/login.css" />
+	<link rel="stylesheet" type="text/css" href="/css/login.css" />
 </head>
 
 <body>

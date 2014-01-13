@@ -73,7 +73,7 @@ class user {
 			else $this->fail("Please try again");
 		}
 		elseif(isset($_GET['activate']))
-			$this->activate();
+			$this->activate($_GET['activate']);
 	}
 
 	protected function fail($message,$to=''){ // fails forward
@@ -178,9 +178,9 @@ class user {
 		
 		if(!$result)
 			$this->fail("Invalid username or password"); // invalid username or password
-		else
-			if($result['temp'][0]=='a')
-				$this->fail("You have not activated your account"); // account not activated
+		//else
+		//	if($result['temp'][0]=='a')
+		//		$this->fail("You have not activated your account"); // account not activated
 		else {
 			// get number of sessions allowed
 			$db=$this->sqliteauthlog();
@@ -256,29 +256,62 @@ class user {
 		return new PDO('sqlite:'.dirname(dirname(__FILE__)).'/data/authlog.db');
 	}
 
-	protected function mail($to,$subject,$body){ // sends an html email
-		$headers='MIME-Version: 1.0'."\r\n";
-		$headers.='Content-type: text/html; charset=iso-8859-1'."\r\n";
-		$headers.='From: '.$this->config['site']['name'].' <'.$this->config['site']['email'].'>'."\r\n";
-		$message='<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'."\r\n";
-		$message.="\t".'"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'."\r\n";
-		$message.='<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">'."\r\n";
-		$message.='<head>'."\r\n";
-		$message.="\t".'<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />'."\r\n";
-		$message.="\t".'<meta http-equiv="Content-Language" content="en-us" />'."\r\n";
-		$message.="\t".'<title>'.$subject.'</title>'."\r\n";
-		$message.='</head>'."\r\n";
-		$message.='<body>'."\r\n";
-		$message.="\t".$body."\r\n";
-		$message.='</body>'."\r\n";
-		$message.='</html>';
-		return @($to,$subject,$message,$headers);
+    protected function mail($to,$subject,$body){ // sends an html email
+        $headers='MIME-Version: 1.0'."\r\n";
+        $headers.='Content-type: text/html; charset=iso-8859-1'."\r\n";
+        $headers.='From: '.$this->config['site']['name'].' <'.$this->config['site']['email'].'>'."\r\n";
+        $message='<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'."\r\n";
+        $message.="\t".'"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'."\r\n";
+        $message.='<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">'."\r\n";
+        $message.='<head>'."\r\n";
+        $message.="\t".'<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />'."\r\n";
+        $message.="\t".'<meta http-equiv="Content-Language" content="en-us" />'."\r\n";
+        $message.="\t".'<title>'.$subject.'</title>'."\r\n";
+        $message.='</head>'."\r\n";
+        $message.='<body>'."\r\n";
+        $message.="\t".$body."\r\n";
+        $message.='</body>'."\r\n";
+        $message.='</html>';
+        return @mail($to,$subject,$message,$headers);
 	}
+    protected function gmail($to,$subject,$body){ // sends a gmail smtp email
+        require("class.phpmailer.php");
 
-	private function activate(){ // process account and email activation
-		$key=$_GET['activate'];
+        $mail = new PHPMailer();
+
+        $mail->IsSMTP();  // telling the class to use SMTP
+        $mail->SMTPAuth   = true; // SMTP authentication
+        $mail->Host       = 'smtp.gmail.com'; // SMTP server
+        $mail->SMTPSecure = 'ssl';
+        $mail->Port       = 465; // SMTP Port
+        $mail->Username   = "cupidmailer@interfaceinnovations.org"; // SMTP account username
+        $mail->Password   = "cupidmail";        // SMTP account password
+
+        $mail->SetFrom('cupidmail@interfaceinnovations.org', 'CuPID Mailer'); // FROM
+        $mail->AddReplyTo('cupidmail@interfaceinnovations.org', 'CuPID Mailer'); // Reply TO
+
+        $mail->AddAddress($to, $to); // recipient email
+
+        $mail->Subject    = $subject; // email subject
+        $mail->Body       = $body;
+
+        $result=$mail->Send();
+        if(!$result) {
+            echo 'Message was not sent.';
+            echo 'Mailer error: ' . $mail->ErrorInfo;
+            $returnmessage=$mail->ErrorInfo;
+
+        } else {
+            echo 'Message has been sent.';
+            $returnmessage='success';
+        }
+        return $returnmessage;
+    }
+
+	private function activate($key){ // process account and email activation
+		//$key=$_GET['activate'];
 		if(strlen($key)<>32||ereg("[^a-f0-9]",$key))
-			$this->fail('Invalid activation key','/'.$this->config['pages']['login']);
+			$this->fail('Invalid activation key: '.$key,'/'.$this->config['pages']['login']);
 		$db=$this->sqlite();
 		$q=$db->prepare("UPDATE users SET temp='' WHERE temp=?");
 		$q->execute(array('a='.$key));
@@ -288,7 +321,7 @@ class user {
 		$q->execute(array('a='.$key.'&e=%'));
 		$result=$q->fetch(PDO::FETCH_ASSOC);
 		if(!$result)
-			$this->fail("Invalid activation key",'/'.$this->config['pages']['login']);//invalid key
+			$this->fail("Invalid activation key:".$key,'/'.$this->config['pages']['login']);//invalid key
 		parse_str($result['temp']);
 		$q=$db->prepare("UPDATE users SET temp='', email=? WHERE temp=?");
 		$q->execute(array($e,$result['temp']));
@@ -325,14 +358,16 @@ class user {
 			$q->execute(array('p.'.$change,$id));
 			if($q->rowCount()==0)
 				$this->fail('Something went wrong');
-			if(@$this->mail($email,$subject,$message))
+			$mailstatus=@$this->gmail($email,$subject,$message);
+            if($mailstatus=='success')
 				$this->fail('Please check your email for instructions on changing your password.');
-			$this->fail('Something went wrong');
+			$this->fail('Something went wrong\n Mailstatus: '.$mailstatus);
 		}
-		elseif(isset($_POST['name'])&&isset($_POST['password'])&&isset($_POST['confirm-password'])&&isset($_GET['key'])){
-			$key=$_GET['key'];
-			if(strlen($key)<>32||ereg("[^a-f0-9]",$key))
-				$this->fail('Invalid key');
+       // elseif(isset($_POST['name'])&&isset($_POST['password'])&&isset($_POST['confirm-password'])&&isset($_GET['key'])){
+		elseif(isset($_POST['name'])&&isset($_POST['password'])&&isset($_POST['confirm-password'])){
+			//$key=$_GET['key'];
+			//if(strlen($key)<>32||ereg("[^a-f0-9]",$key))
+			//	$this->fail('Invalid key');
 			$name=strtolower($_POST['name']);
 			if(!$this->is_username($name)||strlen($name)<$this->config['username']['min']||strlen($name)>$this->config['username']['max'])
 				$this->fail('Invalid username');
@@ -349,11 +384,11 @@ class user {
 			if(!$result)
 				$this->fail("Invalid username");
 			$id=$result['id'];
-			$q=$db->prepare("UPDATE users SET password=?, temp='' WHERE temp=? AND id=?");
-			$q->execute(array($password,'p.'.$key,$id));
+			$q=$db->prepare("UPDATE users SET password=?, temp='' WHERE id=?");
+			$q->execute(array($password,$id));
 			if($q->rowCount()!=0)
 				$this->fail('Your new password has been saved.','/'.$this->config['pages']['login']);
-			else $this->fail('Invalid key');
+			else $this->fail('Invalid key on rowcount. id: '.$id.' name: '.$name);
 		}
 		else $this->fail('Please complete all fields');
 	}
@@ -399,9 +434,12 @@ class user {
 		if($q->rowCount()!=0){
 			$subject='Account Change at '.$this->config['site']['name'];
 			$message='<p>A request was made to change the e-mail address associated with your account from '.$_SESSION['user']['email'].' to '.$email.'. Please click the link below to confirm the new address.</p>'."\r\n";
-			$message.="\t".'<p><a href="http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['activate'].'/'.$activate.'">http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['activate'].'/'.$activate.'</a></p>';
-			$this->mail($email,$subject,$message);
-			$this->fail("Success! Please check your e-mail to confirm the new address.");
+			$message.="\t".'<p><a href="http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['activate'].'/'.$activate.'">http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['activate'].'?activate='.$activate.'</a></p>';
+            $mailstatus=@$this->gmail($email,$subject,$message);
+            if($mailstatus=='success'){
+			      $this->fail("Success! Please check your e-mail to confirm the new address. Result was ".$mailstatus);
+            }
+            $this->fail("Something went wrong.\n Result was ".$mailstatus);
 		}
 		else $this->fail("Something went wrong");
 	}
@@ -420,15 +458,29 @@ class user {
 		"\t\t\t".'</fieldset>'."\n".
 		"\t\t".'</form>'."\n";
 	}
-        public function logout_form(){
-                echo "".
-                "\t\t".'<form method="get" action="/'.$this->config['pages']['login'].'">'."\n".
-		"\t\t\t".'<fieldset>'."\n".
-		"\t\t\t\t".'<input type="hidden" name="logout" value="'.$this->nonce('edit').'" /><input value="logout" type="submit" />'."\n".
-		"\t\t\t".'</fieldset>'."\n".
-                "\t\t".'</form>'."\n";
+    public function logout_form(){
+        echo "".
+        "\t\t".'<form method="get" action="/'.$this->config['pages']['login'].'">'."\n".
+        "\t\t\t".'<fieldset>'."\n".
+        "\t\t\t\t".'<input type="hidden" name="logout" value="'.$this->nonce('edit').'" /><input value="logout" type="submit" />'."\n".
+        "\t\t\t".'</fieldset>'."\n".
+        "\t\t".'</form>'."\n";
+    }
+    public function activate_form(){
+        echo "";
+        if(isset($_GET['activate'])){
+            echo $_GET['activate'];
         }
+         if(!isset($_GET['email'])){
+             echo 'activate not set';
+         }
+        //echo "\t\t".'<form method="get" action="/'.$this->config['pages']['activate'].'">'."\n".
+        //"\t\t\t".'<fieldset>'."\n".
+        //"\t\t\t\t".'<input type="hidden" name="activate" value="'.$this->nonce('activate').'" /><input value="activate" type="submit" />'."\n".
+        //"\t\t\t".'</fieldset>'."\n".
+        //"\t\t".'</form>'."\n";
 
+    }
 	public function signup_form(){ // prints the registration form
 		echo "".
 		"\t\t".'<form method="post" action="/'.$this->config['pages']['signup'].'">'."\n".
@@ -447,21 +499,24 @@ class user {
 	}
 
     public function password_form(){ // prints the recover/change password form
-        echo "".
-        (!isset($_GET['key'])?
-        "\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'">'."\n".
-        "\t\t\t".'<fieldset>'."\n".
-        "\t\t\t\t".'<label for="login">Username:</label><input name="login" id="login" type="text" />'."\n".
-        "\t\t\t".'</fieldset>'."\n"
-        :
-        "\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'/'.$_GET['key'].'">'."\n".
-        "\t\t\t".'<fieldset>'."\n".
-        "\t\t\t\t".'<label for="name">Username:</label><input name="name" id="name" type="text" /><br/>'."\n".
-        "\t\t\t\t".'<label for="password">New Password:</label><input name="password" id="password" type="password" /><br/>'."\n".
-        "\t\t\t\t".'<label for="confirm-password">Confirm Password:</label><input name="confirm-password" id="confirm-password" type="password" />'."\n".
-        "\t\t\t".'</fieldset>'."\n")
-        .
-        "\t\t\t".'<fieldset>'."\n".
+        echo "";
+        if(!$this->logged_in()){
+            //echo "not logged in";
+            echo "\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'">'."\n".
+            "\t\t\t".'<fieldset>'."\n".
+            "\t\t\t\t".'<label for="login">Username:</label><input name="login" id="login" type="text" />'."\n".
+            "\t\t\t".'</fieldset>'."\n";
+        }
+        if($this->logged_in()){
+            //echo "logged in";
+            echo "\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'/'.$_GET['key'].'">'."\n".
+            "\t\t\t".'<fieldset>'."\n".
+            "\t\t\t\t".'<label for="name">Username:</label><input name="name" id="name" type="text" /><br/>'."\n".
+            "\t\t\t\t".'<label for="password">New Password:</label><input name="password" id="password" type="password" /><br/>'."\n".
+            "\t\t\t\t".'<label for="confirm-password">Confirm Password:</label><input name="confirm-password" id="confirm-password" type="password" />'."\n".
+            "\t\t\t".'</fieldset>'."\n";
+        }
+        echo "\t\t\t".'<fieldset>'."\n".
         "\t\t\t\t".'<p class="error">'.$this->errors().'</p>'."\n".
         "\t\t\t\t".'<input type="hidden" name="nonce" value="'.$this->nonce('change').'" /><input value="Change" type="submit" /><input value="Reset" type="reset" />'."\n".
         "\t\t\t".'</fieldset>'."\n".

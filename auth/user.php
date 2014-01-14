@@ -37,11 +37,14 @@ class user {
 			'signup'=>'auth/signup', // registration page
 			'manage'=>'auth/manage', // change email page
 			'change'=>'auth/change', // change password page
-			'activate'=>'auth/activate' // activation page
+            'reset'=>'auth/reset', // reset password page
+
+			'activate'=>'auth/activate', // change email action page
+            'doreset'=>'auth/doreset' // reset pw action page
 		),
 		'site'=>array(
 			'admin'=>'Cupid User', // your name
-			'email'=>'support@interfaceinnovations.org', // address to send new account emails from
+			'email'=>'cupidmail@interfaceinnovations.org', // address to send new account emails from
 			'name'=>'PHP Login Script', // site name to display in emails
 			'cookie'=>'cupidcontrol' // cookie name
 		)
@@ -70,10 +73,16 @@ class user {
 			   $this->change();
 			elseif($this->nonce('edit')==$_POST['nonce'])
 			   $this->edit();
+            elseif($this->nonce('reset')==$_POST['nonce'])
+                $this->reset();
 			else $this->fail("Please try again");
 		}
-		elseif(isset($_GET['activate']))
+		elseif(isset($_GET['activate'])){
 			$this->activate($_GET['activate']);
+        }
+        elseif(isset($_GET['reset'])){
+            $this->doreset($_GET['reset']);
+        }
 	}
 
 	protected function fail($message,$to=''){ // fails forward
@@ -323,7 +332,7 @@ class user {
 		if(!$result)
 			$this->fail("Invalid activation key:".$key,'/'.$this->config['pages']['login']);//invalid key
 		parse_str($result['temp']);
-		$q=$db->prepare("UPDATE users SET temp='', email=? WHERE temp=?");
+		$q=$db->prepare("UPDATE users SET temp='', email=? WHERE temp like ?");
 		$q->execute(array($e,$result['temp']));
 		if($q->rowCount()!=0){
 			if($_SESSION['user']['id']==$result['id'])
@@ -333,7 +342,37 @@ class user {
 		else
 			$this->fail("Something went wrong",'/'.$this->config['pages']['login']);
 	}
+    private function doreset($reset){ // process account and email activation
+        $db=$this->sqlite();
+        // check to see if an entry exists
+        $q=$db->prepare("SELECT id, name, temp FROM users WHERE temp LIKE ?");
+        $q->execute(array('r='.$reset));
+        $result=$q->fetch(PDO::FETCH_ASSOC);
+        // if we get a result
+        if($result){
+            $name=strtolower($result['name']);
+            // delete temp entry and set password
+            $password=md5(sha1($name).$this->config['password']['salt'].sha1('temppassword'));
+            $q=$db->prepare("UPDATE users SET temp='', password=? WHERE temp=?");
+            $q->execute(array($password,$result['temp']));
 
+            if($q->rowCount()!=0){
+                $this->fail('Your password has been reset!','/'.$this->config['pages']['login']);
+            }
+            $this->fail('fail on second query','/'.$this->config['pages']['login']);
+        }
+        $this->fail('fail on first query with: r='.$reset.' result '.$result,'/'.$this->config['pages']['login']);
+
+        $this->fail("Invalid activation key: ".$reset,'/'.$this->config['pages']['login']);//invalid key
+
+        if($q->rowCount()!=0){
+            if($_SESSION['user']['id']==$result['id'])
+                $_SESSION['user']['email']=$e;
+            $this->fail('Your password has been reset','/'.$this->config['pages']['manage']);
+        }
+        else
+            $this->fail("Something went wrong",'/'.$this->config['pages']['login']);
+    }
 	private function change(){ // processes the password recovery form
 		if($_POST['login']!=''){
 			$user=strtolower($_POST['login']);
@@ -434,16 +473,41 @@ class user {
 		if($q->rowCount()!=0){
 			$subject='Account Change at '.$this->config['site']['name'];
 			$message='<p>A request was made to change the e-mail address associated with your account from '.$_SESSION['user']['email'].' to '.$email.'. Please click the link below to confirm the new address.</p>'."\r\n";
-			$message.="\t".'<p><a href="http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['activate'].'/'.$activate.'">http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['activate'].'?activate='.$activate.'</a></p>';
+			$message.="\t".'<p><a href="http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['activate'].'?activate='.$activate.'">http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['activate'].'?activate='.$activate.'</a></p>';
             $mailstatus=@$this->gmail($email,$subject,$message);
             if($mailstatus=='success'){
-			      $this->fail("Success! Please check your e-mail to confirm the new address. Result was ".$mailstatus);
+			      $this->fail("Success! Please check your e-mail to reset your password. Result was ".$mailstatus);
             }
             $this->fail("Something went wrong.\n Result was ".$mailstatus);
 		}
 		else $this->fail("Something went wrong");
 	}
+    private function reset(){ // processes the reset password form
+        if(!isset($_POST['name'])) {
+            $this->fail("no username sent");
+        }
+        $name=strtolower($_POST['name']);
+        $db=$this->sqlite();
+        $q=$db->prepare("select email FROM users WHERE name=?");
+        $q->execute(array($name));
+        $result=$q->fetch(PDO::FETCH_ASSOC);
+        $email=$result['email'];
 
+        $reset=md5(uniqid(rand(),true));
+        $q=$db->prepare("UPDATE users SET temp=? WHERE name=?");
+        $q->execute(array('r='.$reset,$name));
+        if($q->rowCount()!=0){
+            $subject='Account Change at '.$this->config['site']['name'];
+            $message='<p>A request was made to reset the password for the account id'.$name.'. Please click the link below to confirm the new address.</p>'."\r\n";
+            $message.="\t".'<p><a href="http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['doreset'].'?reset='.$reset.'">http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['doreset'].'?reset='.$reset.'</a></p>';
+            $mailstatus=@$this->gmail($email,$subject,$message);
+            if($mailstatus=='success'){
+                $this->fail("Success! Please check your e-mail to confirm your password reset.");
+            }
+            $this->fail("Something went wrong.\n Result was ".$mailstatus);
+        }
+        else $this->fail("Something went wrong. email was".$email." from ".$name);
+    }
 	public function login_form(){ // prints the login form
 		echo "".
 		"\t\t".'<form method="post" action="/'.$this->config['pages']['login'].'">'."\n".
@@ -454,7 +518,7 @@ class user {
 		"\t\t\t".'<fieldset>'."\n".
 		"\t\t\t\t".'<p class="error">'.$this->errors().'</p>'."\n".
 		"\t\t\t\t".'<input type="hidden" name="nonce" value="'.$this->nonce('login').'" /><input value="Login" type="submit" /><input value="Reset" type="reset" />'."\n".
-		//"\t\t\t\t".'<p>Need an account? <a href="/'.$this->config['pages']['signup'].'">Sign Up</a>.<br /><a href="/'.$this->config['pages']['change'].'">Change Password</a>.</p>'."\n".
+		"\t\t\t\t".'<p>Lost your password? <a href="/'.$this->config['pages']['reset'].'">Reset</a>.<br /><a href="/'.$this->config['pages']['change'].'">Change Password</a>.</p>'."\n".
 		"\t\t\t".'</fieldset>'."\n".
 		"\t\t".'</form>'."\n";
 	}
@@ -471,15 +535,18 @@ class user {
         if(isset($_GET['activate'])){
             echo $_GET['activate'];
         }
-         if(!isset($_GET['email'])){
+         if(!isset($_GET['activate'])){
              echo 'activate not set';
          }
-        //echo "\t\t".'<form method="get" action="/'.$this->config['pages']['activate'].'">'."\n".
-        //"\t\t\t".'<fieldset>'."\n".
-        //"\t\t\t\t".'<input type="hidden" name="activate" value="'.$this->nonce('activate').'" /><input value="activate" type="submit" />'."\n".
-        //"\t\t\t".'</fieldset>'."\n".
-        //"\t\t".'</form>'."\n";
-
+    }
+    public function doreset_form(){
+        echo "";
+        if(isset($_GET['reset'])){
+            echo $_GET['reset'];
+        }
+        if(!isset($_GET['reset'])){
+            echo 'reset not set';
+        }
     }
 	public function signup_form(){ // prints the registration form
 		echo "".
@@ -497,16 +564,8 @@ class user {
 		"\t\t\t".'</fieldset>'."\n".
 		"\t\t".'</form>'."\n";
 	}
-
     public function password_form(){ // prints the recover/change password form
         echo "";
-        if(!$this->logged_in()){
-            //echo "not logged in";
-            echo "\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'">'."\n".
-            "\t\t\t".'<fieldset>'."\n".
-            "\t\t\t\t".'<label for="login">Username:</label><input name="login" id="login" type="text" />'."\n".
-            "\t\t\t".'</fieldset>'."\n";
-        }
         if($this->logged_in()){
             //echo "logged in";
             echo "\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'/'.$_GET['key'].'">'."\n".
@@ -516,16 +575,34 @@ class user {
             "\t\t\t\t".'<label for="confirm-password">Confirm Password:</label><input name="confirm-password" id="confirm-password" type="password" />'."\n".
             "\t\t\t".'</fieldset>'."\n";
         }
+        if(!$this->logged_in()){
+            //echo "not logged in";
+            echo "\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'">'."\n".
+                "\t\t\t".'<fieldset>'."\n".
+                "\t\t\t\t".'<label for="login">Username:</label><input name="login" id="login" type="text" />'."\n".
+                "\t\t\t".'</fieldset>'."\n";
+        }
         echo "\t\t\t".'<fieldset>'."\n".
         "\t\t\t\t".'<p class="error">'.$this->errors().'</p>'."\n".
         "\t\t\t\t".'<input type="hidden" name="nonce" value="'.$this->nonce('change').'" /><input value="Change" type="submit" /><input value="Reset" type="reset" />'."\n".
         "\t\t\t".'</fieldset>'."\n".
         "\t\t".'</form>'."\n";
     }
-
-	public function account_form(){ // prints the change e-mail form 
+    public function reset_form(){ // prints the reset password form
+        echo "";
+        echo "\t\t".'<form method="post" action="/'.$this->config['pages']['reset'].'">'."\n".
+        "\t\t\t".'<fieldset>'."\n".
+        "\t\t\t\t".'<label for="name">Username:</label><input name="name" id="name" type="text" /><br/>'."\n".
+        "\t\t\t".'</fieldset>'."\n";
+        echo "\t\t\t".'<fieldset>'."\n".
+        "\t\t\t\t".'<p class="error">'.$this->errors().'</p>'."\n".
+        "\t\t\t\t".'<input type="hidden" name="nonce" value="'.$this->nonce('reset').'" /><input value="Reset" type="submit" />'."\n".
+        "\t\t\t".'</fieldset>'."\n".
+        "\t\t".'</form>'."\n";
+    }
+	public function account_form(){ // prints the change e-mail form
 		echo "".
-		"\t\t".'<form method="post" action="/'.$this->config['pages']['manage'].'">'."\n".
+		"\t\t".'<form method="post" action="/'.$this->config['pages']['change'].'">'."\n".
 		"\t\t\t".'<fieldset>'."\n".
 		"\t\t\t\t".'<label for="email">New E-Mail:</label><input name="email" id="email" type="text" /><br/>'."\n".
 		"\t\t\t\t".'<label for="confirm-email">Confirm E-Mail:</label><input name="confirm-email" id="confirm-email" type="text" />'."\n".
@@ -536,15 +613,12 @@ class user {
 		"\t\t\t".'</fieldset>'."\n".
 		"\t\t".'</form>'."\n";
 	}
-
 	protected $actions=array();
-
 	protected function add_action($tag,$function_to_add,$priority=10,$accepted_args=1){ // modified from wordpress - used for adding actions to events
 		$idx=$this->action_id($tag,$function_to_add,$priority);
 		$this->actions[$tag][$priority][$idx]=array('function'=>$function_to_add,'accepted_args'=>$accepted_args);
 		return true;
 	}
-
 	protected function do_action($tag,$arg=''){ // modified from wordpress - used for running actions on certain events
 		$action=array();
 		$action[]=$tag;
@@ -568,7 +642,6 @@ class user {
 		}while(next($this->actions[$tag])!==false);
 		array_pop($action);
 	}
-	
 	private function action_id($tag,$function,$priority){ // modified from wordpress - used privately by add_action
 		if(is_string($function))
 			return $function;
@@ -588,11 +661,9 @@ class user {
 		else if(is_string($function[0]))
 			return $function[0].$function[1];
 	}
-	
 	private function set_actions(){ // sets default actions
 		$this->add_action('signup',array('user','signup_notification'));
 	}
-	
 	private function signup_notification($args){ // sends an e-mail notification when a user signs up
 		$this->mail($this->config['site']['email'],'New User at '.$this->config['site']['name'],'<p>'.$args[1].' just registered at '.$this->config['site']['name'].'</p>');
 	}

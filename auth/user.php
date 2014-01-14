@@ -322,25 +322,23 @@ class user {
 		if(strlen($key)<>32||ereg("[^a-f0-9]",$key))
 			$this->fail('Invalid activation key: '.$key,'/'.$this->config['pages']['login']);
 		$db=$this->sqlite();
-		$q=$db->prepare("UPDATE users SET temp='' WHERE temp=?");
-		$q->execute(array('a='.$key));
-		if($q->rowCount()!=0)
-			$this->fail('Your account has been activated','/'.$this->config['pages']['login']);
-		$q=$db->prepare("SELECT id, temp FROM users WHERE temp LIKE ?");
-		$q->execute(array('a='.$key.'&e=%'));
-		$result=$q->fetch(PDO::FETCH_ASSOC);
-		if(!$result)
-			$this->fail("Invalid activation key:".$key,'/'.$this->config['pages']['login']);//invalid key
-		parse_str($result['temp']);
-		$q=$db->prepare("UPDATE users SET temp='', email=? WHERE temp like ?");
-		$q->execute(array($e,$result['temp']));
-		if($q->rowCount()!=0){
+        $q=$db->prepare("SELECT id, temp FROM users WHERE temp LIKE ?");
+        $q->execute(array('a='.$key.'&e=%'));
+        $result=$q->fetch(PDO::FETCH_ASSOC);
+        $temp=$result['temp'];
+        parse_str($result['temp']);
+        if($result){
+            $q=$db->prepare("UPDATE users SET temp='', email=? WHERE temp = ?");
+            $q->execute(array($e,$$temp));
+            $result=$q->fetch(PDO::FETCH_ASSOC);
+            if(!$result)
+                $this->fail("Failed activation query".$key.' e '.$e,'/'.$this->config['pages']['login']);//invalid key
 			if($_SESSION['user']['id']==$result['id'])
 				$_SESSION['user']['email']=$e;
-			$this->fail('Your new e-mail has been activated','/'.$this->config['pages']['manage']);
+            $this->fail('Your account has been activated','/'.$this->config['pages']['login']);
 		}
 		else
-			$this->fail("Something went wrong",'/'.$this->config['pages']['login']);
+			$this->fail("Something went wrong with key: ".$key." result ".$result,'/'.$this->config['pages']['login']);
 	}
     private function doreset($reset){ // process account and email activation
         $db=$this->sqlite();

@@ -1,5 +1,8 @@
 // JavaScript Document
 
+//globals
+var stdauthmessage='You do not have sufficient authorization for this action';
+
 ///////////////////////////////////////////////////////
 // Utility Functions
 
@@ -234,7 +237,7 @@ function clearTable(tableid,headerrows) {
 
 function checkauth(authlevel, reqauthlevel, callback, messagearg) {
 	// Handle custom message or lack thereof
-	var message = messagearg || "You do not have authorization for this action" ;
+	var message = messagearg || stdmessage ;
 	if (authlevel >= reqauthlevel) {
 		callback();
 	}

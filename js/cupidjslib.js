@@ -44,6 +44,7 @@ function setWidgetValues(baseclass,value) {
     value = value || 0;
 
     $(baseclass).html(value);
+    $(baseclass + 'text').val(value);
     $(baseclass + 'select').val(value);
     $(baseclass + 'checkbox').attr("checked",booleanBinaryToTrueFalse(value));
 
@@ -73,7 +74,7 @@ function setWidgetActions(args){
     var callback = args.callback || logdone;
     var updateTimeout=500;
     var actionobj={'action':'setvalue','database':args.database,'table':args.tablename,'valuename':args.key};
-    var baseclass = args.baseclass
+    var baseclass = args.baseclass;
 
     if ( args.condition !== undefined) {
         actionobj.condition=args.condition;
@@ -89,8 +90,6 @@ function setWidgetActions(args){
             UpdateControl(actionobj, callback);
         }, updatetimeout);
     });
-
-    //console.log(args)
     if (jqmpage) {
         var $toggleclasses = $(baseclass + 'toggle');
         $toggleclasses.unbind('slidestop');
@@ -102,6 +101,7 @@ function setWidgetActions(args){
                 UpdateControl(actionobj, callback);
             }, updateTimeout);
         });
+
         var $amtoggleclasses=$(baseclass + 'automantoggle');
         $amtoggleclasses.unbind('slidestop');
         $amtoggleclasses.on('slidestop', function (event) {
@@ -116,8 +116,7 @@ function setWidgetActions(args){
         var $slideclasses=$(baseclass + 'slider');
         $slideclasses.unbind('slidestop');
         $slideclasses.filter('.ui-slider-input').unbind('change');
-
-        // include change for text field and slidestop for slider
+        // include change for input field and slidestop for slider
         $slideclasses.filter('.ui-slider-input').on('change', function (event) {
             actionobj.value = $(this).val();
             // invoke ajax query with callback to update the interface when it's done
@@ -125,6 +124,7 @@ function setWidgetActions(args){
                 UpdateControl(actionobj, callback);
             }, updatetimeout);
         });
+
         $slideclasses.on('slidestop', function (event) {
             //var data = event.data
             actionobj.value = $(this).val();
@@ -143,6 +143,26 @@ function setWidgetActions(args){
             setTimeout(function () {
                 UpdateControl(actionobj, callback);
             }, updatetimeout);
+        });
+
+        // this class updates a field based on the same name
+        // baseclasstextupdate updates baseclass field using
+        // the value found in baseclasstext
+
+        var $jqmupdatetextclasses=$(baseclass + 'textupdate')
+        $jqmupdatetextclasses.unbind('click');
+        $jqmupdatetextclasses.click(function (event) {
+            // Need to switch value to text field on this one
+            actionobj.value = $(baseclass + 'text').val();
+            // invoke ajax query with callback to update the interface when it's done
+            UpdateControl(actionobj, callback);
+            var updateoncomplete = true;
+            if (updateoncomplete){
+                //alert('update on complete!')
+                setTimeout(function () {
+                    setWidgetValues(baseclass,actionobj.value)
+                }, updatetimeout);
+            }
         });
     }
 }
@@ -325,6 +345,7 @@ function RenderControlRecipeNames(recipenames,callbackoptions) {
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){UpdateControlRecipeNames(callbackoptions)},callbackoptions.timeout)
 	}
+
 	$('.controlrecipeselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, renderrecipenames)
@@ -332,21 +353,21 @@ function RenderControlRecipeNames(recipenames,callbackoptions) {
 	});
 }
 
-
 //// Outputs
-function UpdateOutputs(callbackoptions) {
-	var callback=RenderOutputs;
+function UpdateOutputsData(callbackoptions) {
+	var callback=RenderOutputsData;
 	wsgiCallbackTableData(controldatabase,'outputs',callback,callbackoptions)
 }
-function RenderOutputs(outputstable,callbackoptions) {
+function RenderOutputsData(outputstable,callbackoptions) {
 	//set interval function if timeout value is passed and valid
 	if (callbackoptions.timeout>0) {
-		setTimeout(function(){UpdateOutputs(callbackoptions)},callbackoptions.timeout);
+		setTimeout(function(){UpdateOutputsData(callbackoptions)},callbackoptions.timeout);
 	}
 	var outputs=['none'];
 	for (var i=0; i<outputstable.length;i++){
 		outputs.push(outputstable[i].name);
 	}
+    RenderWidgetsFromArray(controldatabase,'outputs',outputstable)
 	$('.outputselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, outputs);
@@ -355,19 +376,20 @@ function RenderOutputs(outputstable,callbackoptions) {
 }
 
 //// Inputs
-function UpdateInputs(callbackoptions) {
-	var callback = RenderInputs;
+function UpdateInputsData(callbackoptions) {
+	var callback = RenderInputsData;
 	wsgiCallbackTableData(controldatabase,'inputsdata',callback,callbackoptions)
 }
-function RenderInputs(inputstable,callbackoptions) {
+function RenderInputsData(inputstable,callbackoptions) {
 	//set interval function if timeout value is passed and valid
 	if (callbackoptions.timeout>0) {
-		setTimeout(function(){UpdateInputs(callbackoptions)},callbackoptions.timeout)
+		setTimeout(function(){UpdateInputsData(callbackoptions)},callbackoptions.timeout)
 	}
 	var inputs=['none'];
 	for (var i=0; i<inputstable.length;i++){
 		inputs.push(inputstable[i].id);
 	}
+    RenderWidgetsFromArray(controldatabase,'inputsdata',inputstable)
 	$('.inputselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, inputs);
@@ -376,18 +398,18 @@ function RenderInputs(inputstable,callbackoptions) {
 	});	
 }
 
-//// Indicators
-function UpdateIndicators(callbackoptions) {
+//// Indicators This is not written yet!
+function UpdateIndicatorsData(callbackoptions) {
 	var callback=RenderIndicators;
 	wsgiCallbackTableData(controldatabase,'indicators',callback,callbackoptions);
 }
 function RenderIndicators(indicatorsdata,callbackoptions) {
 	//set interval function if timeout value is passed and valid
 	if (callbackoptions.timeout>0) {
-		setTimeout(function(){UpdateInputs(callbackoptions)},callbackoptions.timeout);
+		setTimeout(function(){UpdateIndicatorsData(callbackoptions)},callbackoptions.timeout);
 	}
-	// Database, tablename, data
-	RenderWidgets(controldatabase,'indicators',indicatorsdata);
+	console.log('time to render')
+    RenderWidgetsFromArray(controldatabase,'indicators',indicatorsdata);
 }
 
 //// System Status
@@ -537,16 +559,16 @@ var largeChannelOptionsObj={
 	]
 };
 
-function GetAndRenderChannelData(callbackoptions){	
-	var callback=RenderChannelData;
+function GetAndRenderLogData(callbackoptions){
+	var callback=RenderLogData;
 	wsgiCallbackTableData (logdatabase,callbackoptions.logtablename,callback,callbackoptions);
 }
-function RenderChannelData (returnedlogdata,callbackoptions) {
+function RenderLogData (returnedlogdata,callbackoptions) {
     //console.log(returnedlogdata)
 	// clear out ids for render
     var i=0;
 	if (callbackoptions.timeout>0) {
-		setTimeout(function(){GetAndRenderChannelData(callbackoptions)},callbackoptions.timeout);
+		setTimeout(function(){GetAndRenderLogData(callbackoptions)},callbackoptions.timeout);
 	}
 	for (i=0;i<callbackoptions.renderplotids.length;i++) {
 		$('#' + callbackoptions.renderplotids[i]).html('');

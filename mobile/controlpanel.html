@@ -195,7 +195,7 @@ function RenderChannels(channelstable) {
 		//GetAndRenderPlotData([channelsdata[data.index].name],["smallplot" + data.index])
 		channelindex=data.index-1
 		logtablename=channelsdata[channelindex].name + "log"
-		GetAndRenderLogData({'logtablename':logtablename,'renderplotids':['smallplot' + data.index],renderplotoptions:[channelOptionsObj]})
+		GetAndRenderLogData({'logtablename':logtablename,'renderplotids':['smallplot' + data.index],seriesnames: 'value',renderplotoptions:[channelOptionsObj]})
       })
 	  
 	}
@@ -277,7 +277,7 @@ $(document).ready(function(){
 			  <label for="pcenabled" class="ui-biglabel" style="display:inline-block; width:50%; ">
 			  Pi Control
 			  </label>
-			  <select name="pcenabled" class="systemstatuspicontrolenabledtoggle" data-role="slider" >
+			  <select name="pcenabled" class="systemstatuspicontrolstatustoggle" data-role="slider" >
                 <option value="Off">Off</option>
                 <option value="On">On</option>
 			  </select> 
@@ -288,7 +288,7 @@ $(document).ready(function(){
             <label for="enableoutputs" class="ui-biglabel" style="display:inline-block; width:50%; ">
             Outputs
             </label>
-            <select name="systemstatusenableoutputs" class="systemstatusenableoutputstoggle" data-role="slider">
+            <select name="systemstatusenableoutputs" class="systemstatusoutputsreadstatustoggle" data-role="slider">
             <option value="Off">Off</option>
             <option value="On">On</option>
             </select> 
@@ -299,7 +299,7 @@ $(document).ready(function(){
 			  <label for="inputsreadenabled" class="ui-biglabel" style="display:inline-block; width:50%;">
 			  Inputs Read
 			  </label>
-			  <select name="inputsreadenabled" class="systemstatusinputsreadenabledtoggle" data-role="slider">
+			  <select name="inputsreadenabled" class="systemstatusinputsreadstatustoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 

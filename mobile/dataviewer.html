@@ -67,143 +67,40 @@ var actionseries=[];
 var actauthlevel=2;
 
 //// Channels
-function UpdateChannelsTable() {
-    var callback=RenderChannels;
-    wsgiCallbackTableData(controldatabase,'channels',callback);
+function UpdateLogTable() {
+    var callback=RenderLogs;
+    var callbackoptions={}
+    wsgiGetTableNames(logdatabase,callback,callbackoptions)
 }
-function RenderChannels(channelstable) {
-    channelnames=['none']
-    channelsdata=channelstable
-    for (var i=0; i<channelstable.length;i++){
-        channelnames.push(channelstable[i].name)
+function RenderLogs(datatable) {
+
+    $('#logdatalistview').empty()
+    console.log(datatable)
+    $('#logdatalistview').append('\
+        <li data-role="list-divider">\
+            <h4>Content Selection</h4>\
+        </li>'
+    )
+    for (var i=0;i<datatable.length;i++){
+        $('#logdatalistview').append('\
+                <li data-role="fieldcontain" id="logdataset" >\
+                    <p class="ui-block-a ui-biglabel" style="width: 100%">' + datatable[i] + '</p>\
+                    <fieldset class="ui-grid-a" style="margin-top:40px">\
+                        <div class="ui-block-a " style="text-align: left; margin-right: 0px; width:75%" >\
+                            <label for="plotme" style="font-size:14px; margin-top: 1px; position: relative; top: -6px;  margin-left: 0px; margin-right: 5px">Plot</label>\
+                            <select name="plotme" class="plotme" data-role="slider">\
+                            <option value="Off">Off</option>\
+                            <option value="On">On</option>\
+                            </select>\
+                        </div>\
+                        <div class="ui-block-b ui-btn-up-d  ui-btn-corner-all cnt" style="float:right; margin:3px 1px 5px 0px; padding: 7px 10px; text-align: center; width: 60px">52\
+                        </div>\
+                    </fieldset>\
+                </li>'
+        )
     }
-
-    var divhtmlstring;
-    $("#channelset").html('');
-    for (i=0; i<channelsdata.length; i++){
-        index=i+1;
-        divhtmlitemstring = '\
-		   <div data-role="collapsible" data-collapsed="true" data-count-theme="b" ><!--control item --> \
-    <h3> '  + channelsdata[i].name + '</h3>\
-    <li data-role="fieldcontain">\
-    <fieldset class="ui-grid-a">\
-    <div class="ui-block-a ui-biglabel inset-header" id="controlvalue">Control Value</div>\
-    <div class="ui-block-b ui-biggerlabel inset-header channelscontrolvalue' + index + '">63</div>\
-    </fieldset>\
-    </li>\
-    <li data-role="fieldcontain">\
-    <fieldset class="ui-grid-a">\
-    <div class="ui-block-a ui-biglabel inset-header">Setpoint Value\
-    </div>\
-    <div class="ui-block-b ui-biggerlabel inset-header channelssetpointvalue' + index + '">63</div>\
-    </fieldset>\
-    </li>  \
-    <li data-role="fieldcontain">\
-    <fieldset class="ui-grid-a">\
-    <div class="ui-block-a ui-biglabel inset-header">Action (%)\
-    </div>\
-    <div class="ui-block-b ui-biggerlabel inset-header channelsaction' + index + '">1</div>	   \
-    </fieldset>\
-    </li> \
-    <li data-role="collapsible-set" data-content-theme="c" data-theme="d" data-inset="true">\
-    <div data-role="collapsible" data-collapsed="true" >\
-    <h4>Edit</h4>\
-    <ul data-role="listview" data-inset="false" class="controllist">\
-    <li >\
-    <label for="slider-1" class="ui-biglabel" style="width:100%; padding-right:10px">Setpoint</label>\
-    <input type="range" name="slider-1" class="channelsetpointvalueslider' + index + '" id="channelsetpointvalueslider' + index + '"  value="60" min="0" max="100" />\
-    </li>\
-    <li data-role="fieldcontain" >\
-    <label for="channelsenabled' + index +  'toggle" class="ui-biglabel" style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>\
-    <select name="channelsenabled' + index +  'toggle" class="channelsenabled' + index +  'toggle" data-role="slider">\
-    <option value="Off">Off</option>\
-    <option value="On">On</option>\
-    </select> \
-    </li>\
-    <li data-role="fieldcontain" >\
-    <label for="channelsmode' + index +  'automantoggle" style="display:inline-block; width:45%;"><h3>Mode:</h3></label>\
-    <select name="channelsmode' + index +  'automantoggle" class="channelsmode' + index +  'automantoggle" data-role="slider">\
-    <option value="auto">auto</option>\
-    <option value="manual">man</option>\
-    </select> \
-    </li>\
-    <li data-role="fieldcontain">\
-    <label for="channelsoutputsenabled' + index + 'toggle" style="width:45%; display:inline-block">\
-    <h3>Outputs:</h3></label>\
-    <select name="channelsoutputsenabled' + index + 'toggle" class="channelsoutputsenabled' + index + 'toggle" id="channelselect channelsoutputsenabled' + index + 'toggle" data-role="slider">\
-    <option value="Off">Off</option>\
-    <option value="On">On</option>\
-    </select> \
-    </li>\
-    <li >\
-    <label for="channelscontrolinput' + index + 'jqmselect" class="ui-biglabel"><h3>Control Input</h3></label>\
-    <select name="channelscontrolinput' + index + 'jqmselect" class="inputselect channelscontrolinput' + index + 'jqmselect" id="channelscontrolinput' + index + 'jqmselect">\
-    <option value="standard">Output 1</option>\
-    <option value="rush">Output</option>\
-    <option value="express">Output 3</option>\
-    <option value="overnight">Output 4</option>\
-    </select>\
-    </li><!-- list option set -->\
-    <li >\
-    <label for="channelspositiveoutput' + index + 'jqmselect" class="ui-biglabel"><h3>Positive Output</h3></label>\
-    <select name="channelspositiveoutput' + index + 'jqmselect" class="outputselect channelspositiveoutput' + index + 'jqmselect" id="channelspositiveoutput' + index + 'jqmselect">\
-    <option value="standard">Output 1</option>\
-    <option value="rush">Output</option>\
-    <option value="express">Output 3</option>\
-    <option value="overnight">Output 4</option>\
-    </select>\
-    <label for="channelsnegativeoutput' + index + 'jqmselect" class="ui-biglabel">Negative Output</label>\
-    <select name="channelsnegativeoutput' + index + 'jqmselect" class="outputselect channelsnegativeoutput' + index + 'jqmselect" id="channelsnegativeoutput' + index + 'jqmselect">\
-    <option value="standard">Output 1</option>\
-    <option value="rush">Output 2</option>\
-    <option value="express">Output 3</option>\
-    <option value="overnight">Output 4</option>\
-    </select>\
-    </li><!-- list option set -->\
-    <li>\
-    <label for="channelscontrolalgorithm' + index + 'jqmselect" class="ui-biglabel">Control Algorithm</label>\
-    <select name="channelscontrolalgorithm' + index + 'jqmselect" class="controlalgorithmselect channelscontrolalgorithm' + index + 'jqmselect" id="channelscontrolalgorithm' + index + 'jqmselect">\
-    <option value="standard">on/off two degree deadband</option>\
-    <option value="rush">on/off three degree deadband</option>\
-    <option value="express">on/off two degree deadband</option>\
-    <option value="value4">two degree deadband</option>\
-    </select>\
-    <label for="channelscontrolrecipe' + index + 'jqmselect"  class="ui-biglabel">Control Recipe</label>\
-    <select name="channelscontrolrecipe' + index + 'jqmselect" class="controlrecipeselect channelscontrolrecipe' + index + 'jqmselect" id="channelscontrolrecipe' + index + 'jqmselect">\
-    <option value="standard">stdreflow</option>\
-    <option value="rush">Four-day 65F ale</option>\
-    <option value="express">Six-day 65F ale</option>\
-    <option value="overnight">Twelve-day 65F ale</option>\
-    </select>\
-    </li><!-- list option set -->\
-    </ul><!-- Edit set-->\
-    </div><!-- Edit collapsible -->\
-    <div data-role="collapsible" data-collapsed="true" class="smallplotcollapsible" id="smallplotcollapsible' + index + '">\
-    <h4><span style="float:left;">Quick Plot</span>\
-    <span class="' + channelsdata[i].name.replace(' ','_') + 'logpoints ui-btn-up-c  ui-btn-corner-all cnt" style="float:right; font-size:12px; padding-left:7px; padding-right:7px">0</span></h4>\
-    <div class="smallplot" id="smallplot' + index + '">Loading ...</div>\
-    </div><!-- plot collapsible -->\
-    </li><!-- Edit Collapsible set -->\
-    </div><!--collapsible control item --> '
-
-        $(divhtmlitemstring).appendTo("#channelset").trigger( "create" );
-
-        $('#smallplotcollapsible' + index).bind('expand',  { index: index }, function(event) {
-            var data=event.data
-
-            // Send index of channel and name of div to render to
-            //GetAndRenderPlotData([channelsdata[data.index].name],["smallplot" + data.index])
-            channelindex=data.index-1
-            logtablename=channelsdata[channelindex].name + "log"
-            GetAndRenderLogData({'logtablename':logtablename,'renderplotids':['smallplot' + data.index],renderplotoptions:[channelOptionsObj]})
-        })
-
-    }
-
-    <!--$('#channelscontainer').html(divhtmlstring)-->
-    $('#channelset').collapsibleset('refresh')
-    $('#channellistview').listview('refresh')
-    UpdateChannelsData()
+    $('#logdatalistview').listview('refresh')
+    $('#logdatalistview').trigger("create")
 }
 
 
@@ -214,19 +111,16 @@ $(document).ready(function(){
     // UpdateLogsTable({'timeout':updateinterval})
     $('#plotrefresh').click(function(event){
         //UpdateInputsTable()
-        channelOptionsObj.axes.yaxis.min=0;
-        channelOptionsObj.axes.yaxis.min=100;
-        GetAndRenderLogData({logtablename:'channel 1log',renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
+        GetAndRenderLogData({logtablename:'input_i2c1wire_289E4FA804000011log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
     });
+    UpdateLogTable()
+
 });
 </script>
 <div data-role="content">
 <div class="content-secondary">
     <ul data-role="listview" data-inset="true">
         <li data-role="list-divider"><h4>Plot Controls</h4></li>
-        <li data-role="fieldcontain" >
-            A Log Channel
-        </li>
         <li class="sm-inset-header">
             <label for="plotpointsslider" style="width:100%; padding-right:40px">Plot Points</label>
             <input type="range" id="plotpointsslider" class="plotpointsslider" value="55" min="0" max="100" />
@@ -239,31 +133,17 @@ $(document).ready(function(){
             <a href="logviewer.html">Log Viewer</a>
         </li>
     </ul>
-    <div data-role="button" data-theme="c" id="plotrefresh">Refresh</div>
 </div><!--/content-secondary-->
 <div class="content-primary">
-    <ul data-role="listview" data-inset="true" data-dividertheme="c" id="channellistview">
+    <ul data-role="listview" data-inset="true" data-dividertheme="c" id="logdatalistview">
         <li data-role="list-divider">
             <h4>Content Selection</h4>
         </li>
-        <li data-role="fieldcontain" >
-            <div class="ui-biglabel">A Log Channel
-            </div>
-            <fieldset class="ui-grid-a" style="margin-top:10px">
-                <div class="ui-block-a ">
-                    <select name="plotme" class="plotme" data-role="slider">
-                        <option value="Off">Off</option>
-                        <option value="On">On</option>
-                    </select>
-                </div>
-                <div class="ui-block-b ui-btn-up-d  ui-btn-corner-all cnt" style="float:right; margin:5px 10px 5px 10px; padding: 7px 10px; text-align: center; width: 60px">52
-                </div>
-            </fieldset>
-        </li>
         <li data-role="fieldcontain">
-            <a href="channelsedit.html">Add/Delete/Rename</a>
+            &nbsp;
         </li>
     </ul>
+    <div data-role="button" data-theme="c" id="plotrefresh">Refresh</div>
     <ul data-role="listview" data-inset="true" data-dividertheme="c" id="channellistview">
         <li data-role="list-divider">
             <h4>Data Plot</h4>

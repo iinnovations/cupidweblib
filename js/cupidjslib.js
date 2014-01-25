@@ -487,7 +487,7 @@ var channelOptionsObj={
 			tickOptions:{mark:'inside'}
 		},
 		 
-		yaxis:{min:30, max:100,
+		yaxis:{min:0, max:100,
 			tickOptions:{mark:'inside'}
 		},  
 		y2axis:{
@@ -574,28 +574,48 @@ function RenderLogData (returnedlogdata,callbackoptions) {
 		$('#' + callbackoptions.renderplotids[i]).html('');
 	}
 	//console.log(returnedlogdata)
+    //console.log(callbackoptions.seriesnames)
+    var plotseriesarray=[]
+    for (var i=0;i<callbackoptions.seriesnames.length;i++){
+        var currentseries=[]
+        for(var j=0;j<returnedlogdata.length;j++){
+            var seriesname=callbackoptions.seriesnames[i]
+            //console.log(seriesname)
+            //console.log([returnedlogdata[j].time,returnedlogdata[j].value])
+            currentseries.push([returnedlogdata[j].time,returnedlogdata[j][callbackoptions.seriesnames[i]]])
+            // temporary. need to iterate over render plots
 
-	var setpointvalueseries=[];
-	var controlvalueseries=[];
-	var actionseries=[];
-	for (i=0;i<returnedlogdata.length;i++){
+            for (var k=0;k<callbackoptions.renderplotids.length;k++){
+                callbackoptions.renderplotoptions[k].series[i].label=callbackoptions.logtablename + ' : ' + callbackoptions.seriesnames[i];
+            }
+        }
+        plotseriesarray.push(currentseries)
+        //console.log(currentseries)
+    }
+    for (i=0;i<callbackoptions.renderplotids.length;i++){
+        $.jqplot(callbackoptions.renderplotids[i], plotseriesarray, callbackoptions.renderplotoptions[i]);
+    }
+    //var setpointvalueseries=[];
+	//var controlvalueseries=[];
+	//var actionseries=[];
+	//for (i=0;i<returnedlogdata.length;i++){
 		// put the data into a series format for jqplot
-		controlvalueseries.push([returnedlogdata[i].time,returnedlogdata[i].controlvalue]);
-		setpointvalueseries.push([returnedlogdata[i].time,returnedlogdata[i].setpointvalue]);
-		actionseries.push([returnedlogdata[i].time,returnedlogdata[i].action]);
-	}
-	if (controlvalueseries.length>0){
-		for (i=0;i<callbackoptions.renderplotids.length;i++){
-			// take the ith class list and render dataseries to the classes
-			//alert(renderplotids[i])
-			$.jqplot(callbackoptions.renderplotids[0], [controlvalueseries,setpointvalueseries,actionseries], callbackoptions.renderplotoptions[0]);
-		}
-	}
-	else{
-		for (i=0;i<callbackoptions.renderplotids.length;i++){
-			$('#' + callbackoptions.renderplotids[i]).html('No data available');
-		}
-	}
+	//	controlvalueseries.push([returnedlogdata[i].time,returnedlogdata[i].controlvalue]);
+	//	setpointvalueseries.push([returnedlogdata[i].time,returnedlogdata[i].setpointvalue]);
+	//	actionseries.push([returnedlogdata[i].time,returnedlogdata[i].action]);
+	//}
+	//if (controlvalueseries.length>0){
+	//	for (i=0;i<callbackoptions.renderplotids.length;i++){
+	//		// take the ith class list and render dataseries to the classes
+	//		//alert(renderplotids[i])
+	//		$.jqplot(callbackoptions.renderplotids[0], [controlvalueseries,setpointvalueseries,actionseries], callbackoptions.renderplotoptions[0]);
+	//	}
+	//}
+	//else{
+	//	for (i=0;i<callbackoptions.renderplotids.length;i++){
+	//		$('#' + callbackoptions.renderplotids[i]).html('No data available');
+	//	}
+	//}
 }
 
 ////////////////////////////////////////////////////

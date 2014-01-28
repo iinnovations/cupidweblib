@@ -181,6 +181,8 @@ dd h4 { margin:15px 0 0 0; }
 .type-interior .ui-popup-container .ui-content { padding: 15px !important; }
 
 /* F bar theme - just for the docs overview headers */
+/* THESE ARE OVERRIDEN BY CuPID.css */
+
 .ui-bar-f {
 	border: 1px solid #56A00E;
 	background: 			#74b042;
@@ -377,7 +379,9 @@ dd h4 { margin:15px 0 0 0; }
 		margin: 0;
 		padding: 0;
 	}
-	
+    .plots {
+        height:200px;
+    }
 }
 @media all and (min-width: 750px){
 	.type-home .ui-content {
@@ -390,6 +394,9 @@ dd h4 { margin:15px 0 0 0; }
 		width: 56%;
 		padding-right: 1%;
 	}
+    .plots {
+        height:300px;
+    }
 }
 
 @media all and (min-width: 1200px){
@@ -413,7 +420,11 @@ dd h4 { margin:15px 0 0 0; }
 	.type-interior .content-primary {
 		width: 60%;
 	}
+    .plots {
+        height:500px;
+    }
 }
+
 
 /* reset for popup examples */
 .type-interior .ui-popup.ui-content,

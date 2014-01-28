@@ -249,9 +249,19 @@ function UpdateVersionsData(callbackoptions) {
    var callback=RenderVersionsData;
    wsgiCallbackTableData(systemdatabase,'versions',callback,callbackoptions)
 }
-function RenderVersionsData (versionsdata,callbackoptions){
-  //set interval function if timeout value is passed and valid
-  var timeout=callbackoptions.timeout || 0;
+function RenderVersionsData (versionsdata,callbackoptionsarg){
+    var callbackoptions = callbackoptionsarg || {};
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (callbackoptions.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + callbackoptions.timeoutclass).val()*1000;
+    }
+    else if (callbackoptions.hasOwnProperty('timeout')) {
+        timeout=callbackoptions.timeout;
+    }
+    else {
+        timeout=0;
+    }
   if (callbackoptions.timeout>0) {
 	  setTimeout(function(){UpdateVersionsData(callbackoptions)},timeout);
   }
@@ -265,9 +275,19 @@ function UpdateMetadata(callbackoptions) {
 	 var callback=RenderMetadata;
 	 wsgiCallbackTableData(systemdatabase,'metadata',callback,callbackoptions)
 }
-function RenderMetadata (metadata,callbackoptions){
-//set interval function if timeout value is passed and valid
-    var timeout=callbackoptions.timeout || 0;
+function RenderMetadata (metadata,callbackoptionsarg){
+    var callbackoptions = callbackoptionsarg || {};
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (callbackoptions.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + callbackoptions.timeoutclass).val()*1000;
+    }
+    else if (callbackoptions.hasOwnProperty('timeout')) {
+        timeout=callbackoptions.timeout;
+    }
+    else {
+        timeout=0;
+    }
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){UpdateMetadata(callbackoptions)},timeout);
 	}
@@ -283,8 +303,19 @@ function UpdateControlAlgorithms(callbackoptions) {
 	  wsgiCallbackTableData(controldatabase,'controlalgorithms',callback,callbackoptions);
 }
 function RenderControlAlgorithms(algorithmstable,callbackoptionsarg) {
-	//set interval function if timeout value is passed and valid
     var callbackoptions = callbackoptionsarg || {};
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (callbackoptions.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + callbackoptions.timeoutclass).val()*1000;
+    }
+    else if (callbackoptions.hasOwnProperty('timeout')) {
+        timeout=callbackoptions.timeout;
+    }
+    else {
+        timeout=0;
+    }
+
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){UpdateControlAlgorithms(callbackoptions)},callbackoptions.timeout);
 	}
@@ -304,19 +335,28 @@ function UpdateChannelsData(callbackoptions) {
 	  var callback=RenderChannelsData;
 	  wsgiCallbackTableData(controldatabase,'channels',callback,callbackoptions)
 }
-function RenderChannelsData(channelsdata,callbackoptions) {
-	//set interval function if timeout value is passed and valid
-	if (callbackoptions.timeout>0) {
-		setTimeout(function(){UpdateChannelsData(callbackoptions)},callbackoptions.timeout)
-	}
+function RenderChannelsData(channelsdata,callbackoptionsarg) {
+    var callbackoptions = callbackoptionsarg || {};
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (callbackoptions.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + callbackoptions.timeoutclass).val()*1000;
+    }
+    else if (callbackoptions.hasOwnProperty('timeout')) {
+        timeout=callbackoptions.timeout;
+    }
+    else {
+        timeout=0;
+    }
 
 	// Grab only a single channel if we pass that option
+    // This first option grabs an element by the passed index
 	if (callbackoptions.hasOwnProperty('index')) {
 		RenderWidgets(controldatabase,'channels',channelsdata[callbackoptions.index-1])
 	}
 	else if (callbackoptions.hasOwnProperty('indexselector')) {
-		//alert(callbackoptions.indexselector)
-		//alert($('#'+callbackoptions.indexselector).prop('selectedIndex'))
+        // We pass an index selector id and get the selected index value.
+        // we get the channel based on the value of the selector
 		RenderWidgets(controldatabase,'channels',channelsdata[$('#'+callbackoptions.indexselector).prop('selectedIndex')])
 	}
 	else {
@@ -338,8 +378,19 @@ function UpdateControlRecipeNames(callbackoptions) {
 	  var callback=RenderControlRecipeNames;
 	  wsgiGetTableNames(recipedatabase,callback,callbackoptions)
 }
-function RenderControlRecipeNames(recipenames,callbackoptions) {
-	//set interval function if timeout value is passed and valid
+function RenderControlRecipeNames(recipenames,callbackoptionsarg) {
+    var callbackoptions = callbackoptionsarg || {};
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (callbackoptions.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + callbackoptions.timeoutclass).val()*1000;
+    }
+    else if (callbackoptions.hasOwnProperty('timeout')) {
+        timeout=callbackoptions.timeout;
+    }
+    else {
+        timeout=0;
+    }
 	var renderrecipenames=['none'];
 	renderrecipenames.push(recipenames);
 	if (callbackoptions.timeout>0) {
@@ -358,8 +409,19 @@ function UpdateOutputsData(callbackoptions) {
 	var callback=RenderOutputsData;
 	wsgiCallbackTableData(controldatabase,'outputs',callback,callbackoptions)
 }
-function RenderOutputsData(outputstable,callbackoptions) {
-	//set interval function if timeout value is passed and valid
+function RenderOutputsData(outputstable,callbackoptionsarg) {
+    var callbackoptions = callbackoptionsarg || {};
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (callbackoptions.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + callbackoptions.timeoutclass).val()*1000;
+    }
+    else if (callbackoptions.hasOwnProperty('timeout')) {
+        timeout=callbackoptions.timeout;
+    }
+    else {
+        timeout=0;
+    }
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){UpdateOutputsData(callbackoptions)},callbackoptions.timeout);
 	}
@@ -380,8 +442,19 @@ function UpdateInputsData(callbackoptions) {
 	var callback = RenderInputsData;
 	wsgiCallbackTableData(controldatabase,'inputsdata',callback,callbackoptions)
 }
-function RenderInputsData(inputstable,callbackoptions) {
-	//set interval function if timeout value is passed and valid
+function RenderInputsData(inputstable,callbackoptionsarg) {
+    var callbackoptions = callbackoptionsarg || {};
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (callbackoptions.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + callbackoptions.timeoutclass).val()*1000;
+    }
+    else if (callbackoptions.hasOwnProperty('timeout')) {
+        timeout=callbackoptions.timeout;
+    }
+    else {
+        timeout=0;
+    }
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){UpdateInputsData(callbackoptions)},callbackoptions.timeout)
 	}
@@ -403,8 +476,19 @@ function UpdateIndicatorsData(callbackoptions) {
 	var callback=RenderIndicators;
 	wsgiCallbackTableData(controldatabase,'indicators',callback,callbackoptions);
 }
-function RenderIndicators(indicatorsdata,callbackoptions) {
-	//set interval function if timeout value is passed and valid
+function RenderIndicators(indicatorsdata,callbackoptionsarg) {
+    var callbackoptions = callbackoptionsarg || {};
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (callbackoptions.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + callbackoptions.timeoutclass).val()*1000;
+    }
+    else if (callbackoptions.hasOwnProperty('timeout')) {
+        timeout=callbackoptions.timeout;
+    }
+    else {
+        timeout=0;
+    }
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){UpdateIndicatorsData(callbackoptions)},callbackoptions.timeout);
 	}
@@ -417,9 +501,19 @@ function UpdateSystemStatusData(callbackoptions) {
 	var callback=RenderSystemStatusData;
 	wsgiCallbackTableData(controldatabase,'systemstatus',callback,callbackoptions);
 }
-function RenderSystemStatusData(systemstatusdatalist,callbackoptions) {
-	//set interval function if timeout value is passed and valid
-	var timeout=callbackoptions.timeout || 0;
+function RenderSystemStatusData(systemstatusdatalist,callbackoptionsarg) {
+    var callbackoptions = callbackoptionsarg || {};
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (callbackoptions.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + callbackoptions.timeoutclass).val()*1000;
+    }
+    else if (callbackoptions.hasOwnProperty('timeout')) {
+        timeout=callbackoptions.timeout;
+    }
+    else {
+        timeout=0;
+    }
 	if (timeout>0) {
 		setTimeout(function(){UpdateSystemStatusData(callbackoptions)},timeout);
 	}
@@ -434,22 +528,27 @@ function UpdatePlotMetadata(callbackoptions) {
 	var callback=RenderPlotMetadata;
 	wsgiCallbackTableData(logdatabase,'metadata',callback,callbackoptions);
 }
-function RenderPlotMetadata(metadata,callbackoptions) {
-	//set interval function if timeout value is passed and valid
-	var timeout=callbackoptions.timeout || 0;
+function RenderPlotMetadata(metadata,callbackoptionsarg) {
+    var callbackoptions = callbackoptionsarg || {};
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (callbackoptions.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + callbackoptions.timeoutclass).val()*1000;
+    }
+    else if (callbackoptions.hasOwnProperty('timeout')) {
+        timeout=callbackoptions.timeout;
+    }
+    else {
+        timeout=0;
+    }
 	if (timeout>0) {
 		setTimeout(function(){UpdatePlotMetadata(callbackoptions)},timeout);
 	}
 	for (var i=0;i<metadata.length;i++){
-		$('.' + metadata[i].name.replace(' ','_') + 'points').html(metadata[i].numpoints);
-		//alert('.' + metadata[i].name.replace(' ','_') + 'points')
+        //$('.' + metadata[i].name.replace(' ','_') + 'points').html(88);
+		$('.' + metadata[i].name.replace(/ /g,'_') + 'points').html(metadata[i].numpoints);
+	    //alert('.' + metadata[i].name.replace(' ','_') + 'points')
 	}
-	//for (var i=0;i<tablenames.length;i++)
-	//{
-	//	//query.push('\'select ROM from ' + tablenames[i] + ' order by time limit 1\'')
-	//	queryarray.push("select count(*) from \'" + tablenames[i] + "\'")
-	//	queryarray.push("select time from \'" + tablenames[i] + "\' order by time limit 1")
-	//}
 }
 
 function UpdateTimestamps(passedoptions){
@@ -487,8 +586,9 @@ var channelOptionsObj={
 			tickOptions:{mark:'inside'}
 		},
 		 
-		yaxis:{min:0, max:100,
-			tickOptions:{mark:'inside'}
+		yaxis:{
+			tickOptions:{mark:'inside'},
+            autoscale:true
 		},  
 		y2axis:{
 		  min:-101, 
@@ -505,16 +605,20 @@ var channelOptionsObj={
 		lineWidth:2.5,
 		showMarker :false
 	},
-	cursor:{ 
+	cursor:{
 	  show: true,
-	  zoom:true, 
+	  zoom:true,
 	  showTooltip:true
 	},
 	series:[
 	  {label: 'Control Value'},
 	  {label: 'Setpoint Value'},
 	  {label: 'Action (%)',yaxis:'y2axis'} 
-	]
+	],
+    highlighter: {
+        show: true,
+        sizeAdjust: 7.5
+    }
 };
 var largeChannelOptionsObj={
 	legend: {
@@ -533,9 +637,10 @@ var largeChannelOptionsObj={
 			tickOptions:{mark:'inside'}
 		},  
 		y2axis:{
-		  min:-105, 
-		  max:105, 
-		  ticks:[-100,-50,0,50,100], 
+            autoscale: true,
+		  min:-110,
+		  max:110,
+		  ticks:[-100,-50,0,50,100],
 		  tickOptions:{showGridline:false, mark:'inside'},
 		  showTicks: true
 		}
@@ -561,30 +666,90 @@ var largeChannelOptionsObj={
 
 function GetAndRenderLogData(callbackoptions){
 	var callback=RenderLogData;
+    // This section lets the timeout function get an updated value for the table
+    // it should be retrieving. We can do it by channel or tablename, as long as we
+    // keep the naming convention the same!
+
+    if (callbackoptions.hasOwnProperty('tablenameid')) {
+        callbackoptions.logtablename=$('#' + callbackoptions.tablenameid).val()
+    }
+    else if (callbackoptions.hasOwnProperty('channelnameid')) {
+        callbackoptions.logtablename=$('#' + callbackoptions.channelnameid).val() + '_log'
+    }
 	wsgiCallbackTableData (logdatabase,callbackoptions.logtablename,callback,callbackoptions);
 }
-function RenderLogData (returnedlogdata,callbackoptions) {
+function GetAndRenderMultLogsData(logdatabase,callbackoptions){
+    var callback=RenderMultLogsData;
+    wsgiCallbackMultTableData(logdatabase,callbackoptions.tablenames,callback,callbackoptions)
+}
+function RenderMultLogsData(returnedlogdata,callbackoptions){
+
+    // This function operates on multiple returned log tables
+    // This means that the log data and seriesnames have an additional dimension
+    // The plotids and results, however, do not.
+
+    // We give this function [[seriesnames]] to get and [plotids]
+    // to render to, as properties of the callbackoptions argument
+    // We then use these to parse the passed datatable
+
+    // We have l tables that we are getting data from
+    // We get i series from each table
+    // Each series is j points long.
+    // We then render to k plotids
+
     //console.log(returnedlogdata)
-	// clear out ids for render
-    var i=0;
+    if (callbackoptions.timeout>0) {
+        setTimeout(function(){GetAndRenderMultLogsData(callbackoptions)},callbackoptions.timeout);
+    }
+    for (i=0;i<callbackoptions.renderplotids.length;i++) {
+        $('#' + callbackoptions.renderplotids[i]).html('');
+    }
+    var plotseriesarray=[];
+    // For each log table
+    var totalseriescount=0;
+    for (var l=0;l<returnedlogdata.length;l++){
+        // For the i-th series in hte l-th table
+        for (var i=0;i<callbackoptions.seriesnames[l].length;i++){
+            var currentseries=[];
+            var seriesname=callbackoptions.seriesnames[l][i];
+            for(var j=0;j<returnedlogdata[l].length;j++){
+                currentseries.push([returnedlogdata[l][j].time,returnedlogdata[l][j][seriesname]]);
+                for (var k=0;k<callbackoptions.renderplotids.length;k++){
+                    // For now the options reside in the html. Probably most flexible this way.
+                    // callbackoptions.renderplotoptions[k].series[totalseriescount].label=callbackoptions.logtablename + ' : ' + callbackoptions.seriesnames[l][i];
+                }
+            }
+            plotseriesarray.push(currentseries);
+            totalseriescount+=1;
+        }
+    }
+
+    for (var i=0;i<callbackoptions.renderplotids.length;i++){
+        $.jqplot(callbackoptions.renderplotids[i], plotseriesarray, callbackoptions.renderplotoptions[i]);
+    }
+}
+function RenderLogData (returnedlogdata,callbackoptions) {
+    // This function operates on a single returned log table
+    //console.log(returnedlogdata)
+    // We give this function [seriesnames] and [plotids]
+    // to render to, as properties of the callbackoptions argument
+	// We then use these to parse the passed datatable
+
 	if (callbackoptions.timeout>0) {
 		setTimeout(function(){GetAndRenderLogData(callbackoptions)},callbackoptions.timeout);
 	}
 	for (i=0;i<callbackoptions.renderplotids.length;i++) {
 		$('#' + callbackoptions.renderplotids[i]).html('');
 	}
-	//console.log(returnedlogdata)
-    //console.log(callbackoptions.seriesnames)
+
+	// for each seriesname, iterate over j data points,
+    // then render to k plotids
     var plotseriesarray=[]
     for (var i=0;i<callbackoptions.seriesnames.length;i++){
         var currentseries=[]
+        var seriesname=callbackoptions.seriesnames[i]
         for(var j=0;j<returnedlogdata.length;j++){
-            var seriesname=callbackoptions.seriesnames[i]
-            //console.log(seriesname)
-            //console.log([returnedlogdata[j].time,returnedlogdata[j].value])
-            currentseries.push([returnedlogdata[j].time,returnedlogdata[j][callbackoptions.seriesnames[i]]])
-            // temporary. need to iterate over render plots
-
+            currentseries.push([returnedlogdata[j].time,returnedlogdata[j][seriesname]])
             for (var k=0;k<callbackoptions.renderplotids.length;k++){
                 callbackoptions.renderplotoptions[k].series[i].label=callbackoptions.logtablename + ' : ' + callbackoptions.seriesnames[i];
             }
@@ -595,27 +760,6 @@ function RenderLogData (returnedlogdata,callbackoptions) {
     for (i=0;i<callbackoptions.renderplotids.length;i++){
         $.jqplot(callbackoptions.renderplotids[i], plotseriesarray, callbackoptions.renderplotoptions[i]);
     }
-    //var setpointvalueseries=[];
-	//var controlvalueseries=[];
-	//var actionseries=[];
-	//for (i=0;i<returnedlogdata.length;i++){
-		// put the data into a series format for jqplot
-	//	controlvalueseries.push([returnedlogdata[i].time,returnedlogdata[i].controlvalue]);
-	//	setpointvalueseries.push([returnedlogdata[i].time,returnedlogdata[i].setpointvalue]);
-	//	actionseries.push([returnedlogdata[i].time,returnedlogdata[i].action]);
-	//}
-	//if (controlvalueseries.length>0){
-	//	for (i=0;i<callbackoptions.renderplotids.length;i++){
-	//		// take the ith class list and render dataseries to the classes
-	//		//alert(renderplotids[i])
-	//		$.jqplot(callbackoptions.renderplotids[0], [controlvalueseries,setpointvalueseries,actionseries], callbackoptions.renderplotoptions[0]);
-	//	}
-	//}
-	//else{
-	//	for (i=0;i<callbackoptions.renderplotids.length;i++){
-	//		$('#' + callbackoptions.renderplotids[i]).html('No data available');
-	//	}
-	//}
 }
 
 ////////////////////////////////////////////////////

@@ -1232,7 +1232,8 @@ a.ui-link-inherit {
 .ui-collapsible .ui-collapsible-heading .ui-btn { border-left-width: 1px; border-right-width: 1px }
 
 .ui-customcenter { text-align:center !important;}
-.ui-stdlabel {margin:0.75em 0 0 0!important; vertical-align:top;}
+.ui-stdlabel {margin:0.75em 0 0 0!important;  vertical-align:top;}
+.ui-toglabel {margin:0.80em 0 0 0!important;  vertical-align:top;}
 .ui-buttontextpartner {margin:0.6em 0 0 0!important; vertical-align:top;}
 .ui-buttontextpartner input {height:45px}
 .ui-biglabel {margin:0.75em 0 0 0!important;line-height:20px!important; font-size:16px!important; font-weight:bold !important; vertical-align:top; }

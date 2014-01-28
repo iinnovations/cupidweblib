@@ -293,24 +293,23 @@ function wsgiCallbackTableData (database,table,callback,callbackoptionsarg) {
 		}
 	});	
 }
-function wsgiCallbackMultTableData (database,tablenames,callback) {
+function wsgiCallbackMultTableData (database,tablenames,callback,callbackoptionsarg) {
 	// Get the data
-	// We have to initialize the array or else it will not execute properly
-	// We can just trim it off the backend..
-	var queryarray=[''];
-	//queryarray=[]
-	for (var i=0;i<tablenames.length;i++){
-		queryarray.push('select * from \'' + tablenames[i] + '\'');
-	}
+    // We do this because the wsgi acts funny with things we say are
+    // arrays and send in arrays of less than 2 items. So we send in two extra elements
+    // and then prune them off in the response.
+    tablenames=['',''].concat(tablenames);
+    //console.log(tablenames)
+    var callbackoptions=callbackoptionsarg || {};
 	$.ajax({
 		url: "/wsgisqlitequery",
 		type: "post",
 		datatype:"json",						
-		data: {'database':database,'queryarray':queryarray},
+		data: {'database':database,'tables':tablenames},
 		success: function(response){
 			//alert("I worked");
 			// Execute our callback function
-			callback(response.slice(1));										
+			callback(response.slice(2),callbackoptions);
 		}
 	});	
 }

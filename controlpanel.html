@@ -73,19 +73,19 @@ if (authlevel > 0){
 
 // define some globals
 var activeindex=1
-var inputids=[]
-var inputnames=[]
-var inputgroups=[]
-var inputassignments=[]
-var channellogdata=[]
-var controldata=[]
+//var inputids=[]
+//var inputnames=[]
+//var inputgroups=[]
+//var inputassignments=[]
+//var channellogdata=[]
+//var controldata=[]
 var updatetimeout=100
-var loginterval=30000
+var loginterval=10000
 var updateinterval=10000
-var systemdata=[]
-var controlrecipes=[]
-var outputs=[]
-var inputtable=[]
+//var systemdata=[]
+//var controlrecipes=[]
+//var outputs=[]
+//var inputtable=[]
 var actauthlevel=2
 var stdmessage='You do not have sufficient authorization for this action'
 
@@ -103,13 +103,12 @@ function UpdateControlModes() {
 
 jqmpage=false
 
-
 // Retrieve values for selected channel and load into indicators
 
 
 //logtablename=$('#channelselect').val() + "log"
 
-//GetAndRenderChannelData(logtablename,['plot1'],[channelOptionsObj])
+//GetAndRenderLogData(logtablename,['plot1'],[channelOptionsObj])
 
 
 
@@ -132,141 +131,139 @@ $(function(){
 	$('#spdownbutton').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
     	console.log(authlevel);
-		var selectedchannelname=document.getElementById("channelselect").value
+		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'spchange','subaction':'incdown','database':controldatabase,'channelname':selectedchannelname},
-            success: function(response){
-            	setTimeout(function(){UpdateChannelsData},updatetimeout)
+            success: function(){
+            	setTimeout(function(){UpdateChannelsData({'indexselector':'channelselect'})},updatetimeout);
             }
        });
 	   }, stdmessage);
     });
 	$('#spupbutton').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("selectchannel").value
+		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'spchange','subaction':'incup','database':controldatabase,'channelname':selectedchannelname},
-            success: function(response){
-            	setTimeout(function(){UpdateChannelsData},updatetimeout)
+            success: function(){
+            	setTimeout(function(){UpdateChannelsData({'indexselector':'channelselect'})},updatetimeout);
             }
         });
 		 }, stdmessage);
     });
 	$('#actiondownbutton').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value
+		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'actiondown','database':controldatabase,'channelname':selectedchannelname},
-            success: function(response){
-            	setTimeout(function(){UpdateChannelsData()},updatetimeout)
+            success: function(){
+            	setTimeout(function(){UpdateChannelsData({'indexselector':'channelselect'})},updatetimeout);
             }
         });
 		}, stdmessage);
     });
 	$('#actionupbutton').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value
+		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'actionup','database':controldatabase,'channelname':selectedchannelname},
-            success: function(response){
-            setTimeout(UpdateChannelsData,updatetimeout)
+            success: function(){
+            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout);
             }
         });
 		}, stdmessage);
     });
 	$('#togglecontrolmode').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value
+		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'togglemode','database':controldatabase,'channelname':selectedchannelname},
-            success: function(response){
-            setTimeout(UpdateChannelsData,updatetimeout)
+            success: function(){
+            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout);
             }
         });
 		}, stdmessage);
     });
 	$('#controlrecipeselectset').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value
-		var newrecipe=document.getElementById("controlrecipeselect").value
-		alert(selectedchannelname + newrecipe)
+		var selectedchannelname=document.getElementById("channelselect").value;
+		var newrecipe=document.getElementById("controlrecipeselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'setrecipe','database':controldatabase,'channelname':selectedchannelname,'recipe':newrecipe},
-            success: function(response){
-            setTimeout(UpdateChannelsData,updatetimeout)
+            success: function(){
+            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout);
             }
         });
 		}, stdmessage);
     });
 	$('#setchannelenabledbutton').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value
-		var enabledstatus=trueFalseToInteger(document.getElementById("channelenabled").checked)
+		var selectedchannelname=document.getElementById("channelselect").value;
+		var enabledstatus=trueFalseToInteger(document.getElementById("channelenabled").checked);
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'setchannelenabled','newstatus':enabledstatus,'database':controldatabase,'channelname':selectedchannelname},
-            success: function(response){
-            setTimeout(UpdateChannelsData,updatetimeout)
+            success: function(){
+            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout);
             }
         });
 		}, stdmessage);
     });
 	$('#setchanneloutputsenabledbutton').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value
-		var enabledstatus=trueFalseToInteger(document.getElementById("channeloutputsenabled").checked)
+		var selectedchannelname=document.getElementById("channelselect").value;
+		var enabledstatus=trueFalseToInteger(document.getElementById("channeloutputsenabled").checked);
 		//alert(enabledstatus)
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'setchanneloutputsenabled','newstatus':enabledstatus,'database':controldatabase,'channelname':selectedchannelname},
-            success: function(response){
-            setTimeout(UpdateChannelsData,updatetimeout)
+            success: function(){
+            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout)
             }
         });
 	   }, stdmessage);
     });
 	$('#setposoutbutton').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value
-		var selectedposout=document.getElementById("channelspositiveoutputselect").value
+		var selectedchannelname=document.getElementById("channelselect").value;
+		var selectedposout=document.getElementById("channelspositiveoutputselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'setposoutput','database':controldatabase,'channelname':selectedchannelname,'outputname':selectedposout},
-            success: function(response){
-            setTimeout(UpdateChannelsData,updatetimeout)
+            success: function(){
+            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout)
             }
         });
 		}, stdmessage);
     });
 	$('#setnegoutbutton').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
-			alert('neg out action set')
-		var selectedchannelname=document.getElementById("channelselect").value
-		var selectednegout=document.getElementById("channelsnegativeoutputselect").value
+		var selectedchannelname=document.getElementById("channelselect").value;
+		var selectednegout=document.getElementById("channelsnegativeoutputselect").value;
 		alert(selectednegout)
         $.ajax({
         	url: "/wsgiupdatecontrol",
@@ -274,23 +271,23 @@ $(function(){
             datatype:"json",
             data: {'action':'setnegoutput','database':controldatabase,'channelname':selectedchannelname,'outputname':selectednegout},
             success: function(response){
-            setTimeout(UpdateChannelsData,updatetimeout)
+            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout)
             }
         });
 	   }, stdmessage);
     });
 	$('#setcontrolinputbutton').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value
-		var selectedinput=document.getElementById("controlinput").value
+		var selectedchannelname=document.getElementById("channelselect").value;
+		var selectedinput=document.getElementById("controlinput").value;
 		//alert(selectedinput)
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'setcontrolinput','controlinput':selectedinput,'database':controldatabase,'channelname':selectedchannelname},
-            success: function(response){
-            setTimeout(UpdateChannelsData,updatetimeout)
+            success: function(){
+            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout)
             }
         });
 	  }, stdmessage);
@@ -304,22 +301,26 @@ $(document).ready(function(){
 	// run once to respond, but not interval running.
 	$('#channelselect').change(function(){
 		UpdateChannelsData({'indexselector':'channelselect'})
-		GetAndRenderChannelData({'logtablename':'channel 1log','renderplotids':['chart1'], 'renderplotoptions':[largeChannelOptionsObj]})
+		GetAndRenderLogData({'channelnameid':'channelselect','renderplotids':['chart1'], 'seriesnames':['controlvalue','setpointvalue','action'],'renderplotoptions':[largeChannelOptionsObj]})
 	})
 	
 	UpdateControlRecipeNames({'timeout':updateinterval})
   	UpdateControlAlgorithms({'timeout':updateinterval})
-	UpdateInputs({'timeout':updateinterval})
-	UpdateOutputs({'timeout':updateinterval})
+	UpdateInputsData({'timeout':updateinterval})
+	UpdateOutputsData({'timeout':updateinterval})
 	UpdateSystemStatusData({'timeout':updateinterval})
-	GetAndRenderChannelData({'logtablename':'channel 1log','renderplotids':['chart1'],'timeout':updateinterval, 'renderplotoptions':[largeChannelOptionsObj]})
-	//UpdatePlotMetadata({'timeout':updateinterval})
-	
+
 	// Just get one channel's worth of data. These are 1-indexed
 	// which matches up with rowID on table, and a selector with a 'none' first entry
 	UpdateChannelsData({'timeout':updateinterval,'indexselector':'channelselect'})
 	UpdateTimestamps({'timeout':updateinterval,'renderids':['lastpanelupdate']})
-	
+
+    // Give the class with the channel name time to render.
+    setTimeout(function(){
+        //GetAndRenderLogData({'logtablename':'mychannel_log','renderplotids':['chart1'],'timeout':updateinterval,'seriesnames':['controlvalue','setpointvalue','action'], 'renderplotoptions':[channelOptionsObj]})
+
+        GetAndRenderLogData({'channelnameid':'channelselect','renderplotids':['chart1'],'timeout':updateinterval,'seriesnames':['controlvalue','setpointvalue','action'], 'renderplotoptions':[largeChannelOptionsObj]})
+    },1000)
 });
 
 
@@ -403,28 +404,28 @@ $(document).ready(function(){
           		 </tr>
           		 <tr>
             		<td>Control Algorithm</td>
-            		<td colspan="2" style="text-align:left"><select id="controlalgorithmselect" class="controlalgorithmselect" ><option value="None">None</option></select></td>
+            		<td colspan="2" style="text-align:left"><select id="channelscontrolalgorithmselect" class="channelscontrolalgorithmselect controlalgorithmselect" ><option value="None">None</option></select></td>
                     <td colspan="2" ><button id="controlalgorithmsetbutton" style="width:85px" >Set</button></td>
           		 </tr>
                  <tr>
             		<td>Control Recipe</td>
-            		<td colspan="2" style="text-align:left"><select id="controlrecipeselect" class="controlrecipeselect" ><option value="None">None</option></select></td>
+            		<td colspan="2" style="text-align:left"><select id="channelscontrolrecipeselect" class="channelscontrolrecipeselect controlrecipeselect" ><option value="None">None</option></select></td>
                     <td colspan="2" ><button id="controlrecipeselectset" style="width:85px" >Set</button></td>
           		 </tr>
                  <tr>
                    <td width="90" >Recipe Stage</td>
-                   <td width="75" colspan="2"><span class="channelscontrolrecipestage" ic=class="channelscontrolrecipestage">value</span></td>
+                   <td width="75" colspan="2"><span class="channelsrecipestage" ic=class="channelsrecipestage">value</span></td>
                    <td>&nbsp;</td>
                  </tr>       
           		 <tr>
             		<td>Enabled</td>
-            		<td colspan="2" ><input type="checkbox" class="regular-checkbox channelsenabledcheckbox" id="channelsenabledcheckbox"/><label for="channelenabled"></label></td>
+            		<td colspan="2" ><input type="checkbox" class="regular-checkbox channelsenabledcheckbox" id="channelsenabledcheckbox"/><label for="channelsenabledcheckbox"></label></td>
                     <td colspan="2"><button id="channelsenabledcheckboxset" style="width:85px" >Set</button></td>
             		
                  </tr>
                  <tr>
             		<td>Outputs Enabled</td>
-            		<td colspan="2" ><input id="channelsoutputsenabledcheckbox" class="regular-checkbox channelsoutputsenabledcheckbox" type="checkbox"/><label for="channeloutputsenabledcheckbox"></label></td>
+            		<td colspan="2" ><input id="channelsoutputsenabledcheckbox" class="regular-checkbox channelsoutputsenabledcheckbox" type="checkbox"/><label for="channelsoutputsenabledcheckbox"></label></td>
                     <td colspan="2" ><button id="channelsoutputsenabledcheckboxset" style="width:85px">Set</button></td>
             		
                  </tr>  
@@ -467,19 +468,23 @@ $(document).ready(function(){
                   </tr>
                   <tr>
                     <td width="100" colspan="2">Pi Control Enabled</td>
-                    <td width="125" colspan="2" ><input type="checkbox" class="regular-checkbox systemstatuspicontrolenabledcheckbox" id="systemstatuspicontrolenabledcheckbox"/><label for="channelenabled"></label></td>
+                    <td width="125" colspan="2" ><input type="checkbox" class="regular-checkbox systemstatuspicontrolenabledcheckbox" id="systemstatuspicontrolenabledcheckbox"/><label for="systemstatuspicontrolenabledcheckbox"></label></td>
                   </tr> 
                   <tr>
                     <td width="75" colspan="2">Control Status</td>
-                    <td width="125" colspan="2" ><input type="checkbox" class="regular-checkbox systemstatuspicontrolstatuscheckbox" id="systemstatuspicontrolstatuscheckbox"/><label for="channelenabled"></label></td>
-                  </tr> 
-                  <tr>
+                    <td width="125" colspan="2" ><input type="checkbox" class="regular-checkbox systemstatuspicontrolstatuscheckbox" id="systemstatuspicontrolstatuscheckbox"/><label for="systemstatuspicontrolstatuscheckbox"></label></td>
+                  </tr>
+                    <tr>
+                        <td width="75" colspan="2">Outputs Enabled</td>
+                        <td width="125" colspan="2" ><input type="checkbox" class="regular-checkbox systemstatusenableoutputscheckbox" id="systemstatusenableoutputscheckbox"/><label for="systemstatusenableoutputscheckbox"></label></td>
+                    </tr>
+                    <tr>
                     <td width="75" colspan="2">Last Poll</td>
-                    <td width="125" colspan="2" class="systemstatuslastpicontrolpoll" id="systemstatuslastpicontrolpoll"><input type="checkbox" class="regular-checkbox systemstatuspicontrolenabledcheckbox" id="systemstatuspicontrolenabledcheckbox"/><label for="channelenabled"></label></td>
+                    <td width="125" colspan="2" class="systemstatuslastpicontrolpoll" id="systemstatuslastpicontrolpoll"></td>
                   </tr>
                   <tr>
                     <td width="75" colspan="2">Poll Frequency</td>
-                    <td width="125" colspan="2" class="systemstatuspicontrolfreq" id="systemstatuspicontrolfreq"><input type="checkbox" class="regular-checkbox systemstatuspicontrolenabledcheckbox" id="systemstatuspicontrolenabledcheckbox"/><label for="channelenabled"></label></td>
+                    <td width="125" colspan="2" class="systemstatuspicontrolfreq" id="systemstatuspicontrolfreq"></td>
                   </tr>            
                 </table>
                </div>
@@ -493,11 +498,11 @@ $(document).ready(function(){
                   </tr>
                   <tr>
                     <td width="75" colspan="2">Enabled</td>
-                    <td width="125" colspan="2" ><input type="checkbox" class="regular-checkbox systemstatusinputsreadenabledcheckbox" id="systemstatusinputsreadenabledcheckbox"/><label for="channelenabled"></label></td>
+                    <td width="125" colspan="2" ><input type="checkbox" class="regular-checkbox systemstatusinputsreadenabledcheckbox" id="systemstatusinputsreadenabledcheckbox"/><label for="systemstatusinputsreadenabledcheckbox"></label></td>
                   </tr> 
                    <tr>
                     <td width="75" colspan="2">Status</td>
-                    <td width="125" colspan="2"><input type="checkbox" class="regular-checkbox systemstatusinputreadstatuscheckbox" id="systemstatusinputsstatuscheckbox"/><label for="channelenabled"></label></td>
+                    <td width="125" colspan="2"><input type="checkbox" class="regular-checkbox systemstatusinputsreadstatuscheckbox" id="systemstatusinputsreadstatuscheckbox"/><label for="systemstatusinputsreadstatuscheckbox"></label></td>
                   </tr> 
                   <tr>
                     <td width="75" colspan="2">Last Poll</td>

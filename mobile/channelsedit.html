@@ -60,26 +60,63 @@ function RenderChannels(channelstable) {
                         <div class="ui-block-a ui-buttontextpartner"><input type="text" class="channelsname' + index + 'text"  value="name" ></div>\
                         <div class="ui-block-b channelsname' + index + 'textupdate" id="channelsname' + index + 'textupdate" ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>\
                     </div>\
-                    <a data-theme="b" data-role="button" class="channelsname' + index + 'moveup" data-icon="arrow-u" data-rel="popup" href="#popup'+index+'">Move Up</a>\
-                    <a data-theme="b" data-role="button" class="channelsname' + index + 'movedown" data-icon="arrow-d" data-rel="popup" href="#popup'+index+'">Move Down</a>\
-                    <a data-theme="f" data-role="button" class="channelsname' + index + 'delete" data-icon="delete" data-rel="popup" href="#popup'+index+'">Delete</a>\
-                    <div data-role="popup" id="popup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
+                    <a data-theme="b" data-role="button" class="channelsname' + index + 'moveup" data-icon="arrow-u" data-rel="popup" href="#movechanneluppopup'+index+'">Move Up</a>\
+                    <a data-theme="b" data-role="button" class="channelsname' + index + 'movedown" data-icon="arrow-d" data-rel="popup" href="#movechanneldownpopup'+index+'">Move Down</a>\
+                    <a data-theme="f" data-role="button" class="channelsname' + index + 'delete" data-icon="delete" data-rel="popup" href="#deletechannelpopup'+index+'">Delete</a>\
+                    </fieldset>\
+                    <div data-role="popup" id="deletechannelpopup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
                         <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
                             <h3>Delete ' + channelstable[i].name + '</h3>\
                         </div>\
                         <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content">\
-                            <h3 class="ui-title">Are you sure you want to delete this page?</h3>\
+                            <h3 class="ui-title">Are you sure you want to delete this channel?</h3>\
                             <p>This action cannot be undone.</p>\
                             <a href="#" data-role="button" data-inline="true" data-rel="back" data-theme="c">Cancel</a>\
-                            <a href="#" class="channel' + index + 'deleteconfirm" data-role="button" data-inline="true" data-rel="back" data-transition="flow" data-theme="f">Delete</a>\
+                            <a href="#" class="channel_' + index + '_deleteconfirm" id="channel_' + index + '_deleteconfirm" data-role="button" data-inline="true" data-rel="back" data-transition="flow" data-theme="f">Delete</a>\
                         </div>\
                     </div>\
-                    </fieldset>\
+                    <div data-role="popup" id="movechanneluppopup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
+                        <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
+                            <h3>Move Up ' + channelstable[i].name + '</h3>\
+                        </div>\
+                        <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content">\
+                            <h3 class="ui-title">Are you sure you want to move this channel up?</h3>\
+                            <p>You know, gotta be sure.</p>\
+                            <a href="#" data-role="button" data-inline="true" data-rel="back" data-theme="c">Cancel</a>\
+                            <a href="#" class="channel_' + index + '_moveupconfirm" id="channel_' + index + '_moveupconfirm" data-role="button" data-inline="true" data-rel="back" data-transition="flow" data-theme="f">Confirm</a>\
+                        </div>\
+                    </div>\
+                    <div data-role="popup" id="movechanneldownpopup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
+                        <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
+                            <h3>Move Down ' + channelstable[i].name + '</h3>\
+                        </div>\
+                        <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content">\
+                            <h3 class="ui-title">Are you sure you want to move this channel down?</h3>\
+                            <p>You know, gotta be sure.</p>\
+                            <a href="#" data-role="button" data-inline="true" data-rel="back" data-theme="c">Cancel</a>\
+                            <a href="#" class="channel_' + index + '_movedownconfirm" id="channel_' + index + '_movedownconfirm" data-role="button" data-inline="true" data-rel="back" data-transition="flow" data-theme="f">Confirm</a>\
+                        </div>\
+                    </div>\
                 </li>\
             </div><!--collapsible control item -->'
+
         $(divhtmlitemstring).appendTo("#channelset").trigger( "create" );
-        $('.' + 'channel' + index + 'deleteconfirm').click(function(){
-            alert("delete confirmed");
+
+        $('#' + 'channel_' + index + '_deleteconfirm').click(function(event){
+            alert("delete confirmed for channel " + this.id)
+           // wsgiExecuteQuery (controldatabase, 'delete from channels where name=\'' + this.id + '\'');
+
+            //alert('delete from channels where name=' + this.id)
+        })
+        $('#' + 'channel_' + index + '_moveupconfirm').click(function(event){
+            alert("move up confirmed for channel " + this.id)
+            //wsgiExecuteQuery (controldatabase, 'delete from channels where name=\'' this.id +'\'');
+            //UpdateChannelsTable()
+        })
+        $('#' + 'channel_' + index + '_movedownconfirm').click(function(event){
+            alert("move down confirmed for channel " + this.id)
+            //wsgiExecuteQuery (controldatabase, 'delete from channels where name=\'' this.id +'\'');
+            //UpdateChannelsTable()
         })
     }
 
@@ -95,10 +132,14 @@ function RenderChannels(channelstable) {
         //    //deleteChannelByName(channelsdata[i].name);
        //})
     }
-
+    alert('rendering')
     $('#channelset').collapsibleset('refresh')
     $('#channellistview').listview('refresh')
     UpdateChannelsData()
+}
+function AddChannel(){
+    query="insert into channels (\'name\') values(\'newchannel\')"
+    wsgiExecuteQuery (controldatabase,query)
 }
 
 $(document).ready(function(){
@@ -113,6 +154,13 @@ $(document).ready(function(){
     $('#datarefresh').click(function(event){
         UpdateChannelsTable()
     });
+    $('#addchannel').click(function(event){
+        AddChannel()
+        setTimeout(function(){
+            UpdateChannelsData()
+        },1000);
+    })
+
 
 });
 </script>
@@ -127,7 +175,7 @@ $(document).ready(function(){
             </li>
         </ul>
         <div data-role="button" data-theme="c" id="datarefresh">Refresh</div>
-        <div data-role="button" data-theme="c" id="datarefresh">Add Channel</div>
+        <div data-role="button" data-theme="c" id="addchannel">Add Channel</div>
     </div><!--/content-secondary-->
     <div class="content-primary">
         <ul data-role="listview" data-inset="true" data-dividertheme="c" id="channellistview">

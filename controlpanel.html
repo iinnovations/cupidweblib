@@ -72,7 +72,9 @@ if (authlevel > 0){
 // Define our usr for access control of features:
 
 // define some globals
-var activeindex=1
+var activeindex=1;
+var jqmpage=false;
+
 //var inputids=[]
 //var inputnames=[]
 //var inputgroups=[]
@@ -100,8 +102,6 @@ var stdmessage='You do not have sufficient authorization for this action'
 function UpdateControlModes() {
 	UpdateSelect("controlmode", ["auto","manual"])
 }
-
-jqmpage=false
 
 // Retrieve values for selected channel and load into indicators
 

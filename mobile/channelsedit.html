@@ -27,7 +27,6 @@
 <script>
 
 // define some globals
-var jqmpage=true;
 var channelsdata=[];
 var channelnames=[];
 var updatetimeout=100;
@@ -104,42 +103,34 @@ function RenderChannels(channelstable) {
 
         $('#' + 'channel_' + index + '_deleteconfirm').click(function(event){
             alert("delete confirmed for channel " + this.id)
-           // wsgiExecuteQuery (controldatabase, 'delete from channels where name=\'' + this.id + '\'');
+            callback=UpdateChannelsTable;
+            deleteChannel(this.id,callback);
 
-            //alert('delete from channels where name=' + this.id)
         })
         $('#' + 'channel_' + index + '_moveupconfirm').click(function(event){
-            alert("move up confirmed for channel " + this.id)
-            //wsgiExecuteQuery (controldatabase, 'delete from channels where name=\'' this.id +'\'');
-            //UpdateChannelsTable()
+//            alert("move up confirmed for channel " + this.id)
+            var arguments={}
+            arguments.tablename='channels';
+            arguments.row1=index-1;
+            arguments.row2=index;
+            arguments.uniqueindex='name';
+            var callback = UpdateChannelsTable;
+            wsgiSwapTableRows(controldatabase,arguments,callback)
         })
         $('#' + 'channel_' + index + '_movedownconfirm').click(function(event){
             alert("move down confirmed for channel " + this.id)
-            //wsgiExecuteQuery (controldatabase, 'delete from channels where name=\'' this.id +'\'');
-            //UpdateChannelsTable()
+            arguments.tablename='channels';
+            arguments.row1=index+1;
+            arguments.row2=index;
+            arguments.uniqueindex='name';
+            var callback = UpdateChannelsTable;
+            wsgiSwapTableRows(controldatabase,arguments,callback)
         })
     }
-
-    <!--$('#channelscontainer').html(divhtmlstring)-->
-    for (var i=0; i<channelsdata.length; i++){
-        var index=i+1;
-        //alert("delete channel " + index + " , " + channelsdata[i].name);
-        //$('.channelsname' + index + 'delete').click({index:1,i:i},function(event){
-        //    var index=event.data.index;
-        //    var i = event.data.i;
-        //    $("#mydialog").dialog("open");
-        //    alert("delete channel " + index + " , " + channelsdata[i].name);
-        //    //deleteChannelByName(channelsdata[i].name);
-       //})
-    }
-    alert('rendering')
-    $('#channelset').collapsibleset('refresh')
     $('#channellistview').listview('refresh')
-    UpdateChannelsData()
-}
-function AddChannel(){
-    query="insert into channels (\'name\') values(\'newchannel\')"
-    wsgiExecuteQuery (controldatabase,query)
+    $('#channelset').collapsibleset('refresh')
+
+    UpdateChannelsData({'jqmpage':true})
 }
 
 $(document).ready(function(){
@@ -149,19 +140,17 @@ $(document).ready(function(){
     UpdateChannelsTable()
     //UpdateChannelsTable({'timeout':updateinterval})
     setTimeout(function(){
-        UpdateChannelsData()
+        UpdateChannelsData({'jqmpage':true})
     },1000);
     $('#datarefresh').click(function(event){
         UpdateChannelsTable()
     });
     $('#addchannel').click(function(event){
-        AddChannel()
+        addChannel('newchannel')
         setTimeout(function(){
-            UpdateChannelsData()
+            UpdateChannelsData({'jqmpage':true})
         },1000);
     })
-
-
 });
 </script>
 

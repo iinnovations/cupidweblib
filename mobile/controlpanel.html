@@ -47,7 +47,9 @@
 //plotdefs.series.push([[['/var/www/data/controldata.db','channels','channel 1data']]])
 
 // define some globals
+// TODO : Prune out all or most of these unnecessary and evil globals
 var jqmpage=true;
+
 var inputids=[];
 var inputnames=[];
 var inputgroups=[];
@@ -58,7 +60,7 @@ var renderclassnames=[];
 
 var updatetimeout=100;
 var loginterval=30000;
-var updateinterval=5000;
+var updateinterval=10000;
 
 var setpointvalueseries=[];
 var controlvalueseries=[];
@@ -110,8 +112,8 @@ function RenderChannels(channelstable) {
                   <h4>Edit</h4>\
                   <ul data-role="listview" data-inset="false" class="controllist">\
                     <li >\
-                      <label for="channelsetpointvalueslider' + index + '" class="ui-biglabel" style="width:100%; padding-right:10px">Setpoint</label>\
-                      <input type="range" class="channelsetpointvalueslider' + index + '" id="channelsetpointvalueslider' + index + '"  value="60" min="0" max="100" />\
+                      <label for="channelssetpointvalue' + index + 'slider" class="ui-biglabel" style="width:100%; padding-right:10px">Setpoint</label>\
+                      <input type="range" class="channelssetpointvalue' + index + 'slider" id="channelssetpointvalue' + index + 'slider"  value="60" min="0" max="100" />\
                     </li>\
                     <li data-role="fieldcontain" >\
                         <label for="channelsenabled' + index +  'toggle"  style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>\
@@ -203,22 +205,22 @@ function RenderChannels(channelstable) {
 	$('#channelset').collapsibleset('refresh');
 
 
-	UpdateChannelsData()
+	UpdateChannelsData({'jqmpage':true})
 }
 
 
 $(document).ready(function(){
 	togglestolamps();
 	//// Control Algorithms
-	UpdateChannelsTable({'timeout':updateinterval});
+	UpdateChannelsTable({'timeout':updateinterval,'jqmpage':true});
 	setTimeout(function(){
-        UpdateControlRecipeNames({'timeout':updateinterval});
-        UpdateControlAlgorithms({'timeout':updateinterval});
-        UpdateInputsData({'timeout':updateinterval});
-        UpdateOutputsData({'timeout':updateinterval});
-        UpdatePlotMetadata({'timeout':updateinterval});
-        UpdateSystemStatusData({'timeout':updateinterval});
-        UpdateChannelsData({'timeout':updateinterval});
+        UpdateControlRecipeNames({'timeout':updateinterval,'jqmpage':true});
+        UpdateControlAlgorithms({'timeout':updateinterval,'jqmpage':true});
+        UpdateInputsData({'timeout':updateinterval,'jqmpage':true});
+        UpdateOutputsData({'timeout':updateinterval,'jqmpage':true});
+        UpdatePlotMetadata({'timeout':updateinterval,'jqmpage':true});
+        UpdateSystemStatusData({'timeout':updateinterval,'jqmpage':true});
+        UpdateChannelsData({'timeout':updateinterval,'jqmpage':true});
 	},1000);
 });
 </script>

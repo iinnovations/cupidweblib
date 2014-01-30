@@ -324,10 +324,24 @@ function wsgiGetTableNames (database,callback,callbackoptions) {
 			// Execute our callback function
 			callback(response,callbackoptions);										
 		}
-	});	
+	});
+}
+function wsgiSwapTableRows (database,arguments,callback,callbackoptions) {
+    $.ajax({
+        url: "/wsgisqlitequery",
+        type: "post",
+        datatype:"json",
+        data: {'database':database,'table':arguments.tablename,'specialaction':'switchtablerows','row1':arguments.row1,'row2':arguments.row2,'uniqueindex':arguments.uniqueindex},
+        success: function(response){
+            //alert("I worked");
+            // Execute our callback function
+            callback(response,callbackoptions);
+        }
+    });
 }
 function wsgiExecuteCallbackQuery (database,query,callback) {
 	// Get the data
+    callback = callback || logdone;
 	$.ajax({
 		url: "/wsgisqlitequery",
 		type: "post",
@@ -338,8 +352,9 @@ function wsgiExecuteCallbackQuery (database,query,callback) {
 		}
 	});	
 }
-function wsgiExecuteQuery (database,query) {
+function wsgiExecuteQuery (database,query,callback) {
 	// Get the data
+    callback=callback || logdone;
 	$.ajax({
 		url: "/wsgisqlitequery",
 		type: "post",
@@ -347,20 +362,21 @@ function wsgiExecuteQuery (database,query) {
 		data: {'database':database,'query':query},
 		success: function(response){
 			//alert("I worked");
-			// Execute our callback function										
+			callback(response);
 		}
 	});	
 }
-function wsgiExecuteQueryArray (database,queryarray) {
+function wsgiExecuteQueryArray (database,queryarray,callback) {
 	// Get the data
-   		$.ajax({
-        	url: "/wsgisqlitequery",
-        	type: "post",
-        	datatype:"json",						
-        	data: {'database':database,'queryarray':queryarray},
-        	success: function(response){
-        		//alert("I worked");
-				// Execute our callback function										
-			}
-    	});	
+    callback = callback || logdone;
+    $.ajax({
+        url: "/wsgisqlitequery",
+        type: "post",
+        datatype:"json",
+        data: {'database':database,'queryarray':queryarray},
+        success: function(response){
+            //alert("I worked");
+            callback(response)
+        }
+    });
 }

@@ -130,16 +130,16 @@ function RenderChannels(channelstable) {
                         </select> \
                     </li>\
                     <li data-role="fieldcontain">\
-                        <label for="channelsoutputsenabled' + index + 'toggle" style="width:45%; display:inline-block">\
+                        <label for="channelsenableoutputs' + index + 'toggle" style="width:45%; display:inline-block">\
                         <h3>Outputs:</h3></label>\
-                        <select id="channelsoutputsenabled' + index + 'toggle" class="channelsoutputsenabled' + index + 'toggle" id="channelselect channelsoutputsenabled' + index + 'toggle" data-role="slider">\
+                        <select id="channelsenableoutputs' + index + 'toggle" class="channelsenableoutputs' + index + 'toggle" data-role="slider">\
                         <option value="Off">Off</option>\
                         <option value="On">On</option>\
                         </select> \
                     </li>\
 					<li >\
 					  <label for="channelscontrolinput' + index + 'jqmselect" ><h3>Control Input</h3></label>\
-					  <select id="channelscontrolinput' + index + 'jqmselect" class="inputselect channelscontrolinput' + index + 'jqmselect" id="channelscontrolinput' + index + 'jqmselect">\
+					  <select id="channelscontrolinput' + index + 'jqmselect" class="inputselect channelscontrolinput' + index + 'jqmselect" >\
 						  <option value="standard">Output 1</option>\
 						  <option value="rush">Output</option>\
 						  <option value="express">Output 3</option>\
@@ -148,14 +148,14 @@ function RenderChannels(channelstable) {
                     </li><!-- list option set -->\
                     <li>\
 					  <label for="channelspositiveoutput' + index + 'jqmselect" class="ui-biglabel"><h3>Positive Output</h3></label>\
-					  <select id="channelspositiveoutput' + index + 'jqmselect" class="outputselect channelspositiveoutput' + index + 'jqmselect" id="channelspositiveoutput' + index + 'jqmselect">\
+					  <select id="channelspositiveoutput' + index + 'jqmselect" class="outputselect channelspositiveoutput' + index + 'jqmselect">\
 						  <option value="standard">Output 1</option>\
 						  <option value="rush">Output</option>\
 						  <option value="express">Output 3</option>\
 						  <option value="overnight">Output 4</option>\
 					  </select>\
 					  <label for="channelsnegativeoutput' + index + 'jqmselect" class="ui-biglabel">Negative Output</label>\
-					  <select id="channelsnegativeoutput' + index + 'jqmselect" class="outputselect channelsnegativeoutput' + index + 'jqmselect" id="channelsnegativeoutput' + index + 'jqmselect">\
+					  <select id="channelsnegativeoutput' + index + 'jqmselect" class="outputselect channelsnegativeoutput' + index + 'jqmselect" >\
 						  <option value="standard">Output 1</option>\
 						  <option value="rush">Output 2</option>\
 						  <option value="express">Output 3</option>\
@@ -164,14 +164,14 @@ function RenderChannels(channelstable) {
                     </li><!-- list option set -->\
                     <li data-role="field-contain">\
 					  <label for="channelscontrolalgorithm' + index + 'jqmselect" class="ui-biglabel">Control Algorithm</label>\
-					  <select id="channelscontrolalgorithm' + index + 'jqmselect" class="controlalgorithmselect channelscontrolalgorithm' + index + 'jqmselect" id="channelscontrolalgorithm' + index + 'jqmselect">\
+					  <select id="channelscontrolalgorithm' + index + 'jqmselect" class="controlalgorithmselect channelscontrolalgorithm' + index + 'jqmselect" >\
 						  <option value="standard">on/off two degree deadband</option>\
 						  <option value="rush">on/off three degree deadband</option>\
 						  <option value="express">on/off two degree deadband</option>\
 						  <option value="value4">two degree deadband</option>\
 					  </select>\
 					  <label for="channelscontrolrecipe' + index + 'jqmselect"  class="ui-biglabel">Control Recipe</label>\
-					  <select id="channelscontrolrecipe' + index + 'jqmselect" class="controlrecipeselect channelscontrolrecipe' + index + 'jqmselect" id="channelscontrolrecipe' + index + 'jqmselect">\
+					  <select id="channelscontrolrecipe' + index + 'jqmselect" class="controlrecipeselect channelscontrolrecipe' + index + 'jqmselect" >\
 						  <option value="standard">stdreflow</option>\
 						  <option value="rush">Four-day 65F ale</option>\
 						  <option value="express">Six-day 65F ale</option>\
@@ -201,9 +201,8 @@ function RenderChannels(channelstable) {
 	}
 
 	<!--$('#channelscontainer').html(divhtmlstring)-->
+    $('#channelset').trigger('create');
     $('#channellistview').listview('refresh');
-	$('#channelset').collapsibleset('refresh');
-
 
 	UpdateChannelsData({'jqmpage':true})
 }
@@ -241,10 +240,10 @@ $(document).ready(function(){
 		</li>
 		<li data-role="fieldcontain">
           <span class="justalamp">
-            <label for="enableoutputs" class="ui-biglabel" style="display:inline-block; width:50%; ">
+            <label for="systemstatusenableoutputs" class="ui-biglabel" style="display:inline-block; width:50%; ">
             Outputs
             </label>
-            <select name="systemstatusenableoutputs" class="systemstatusoutputsreadstatustoggle" data-role="slider">
+            <select name="systemstatusenableoutputs" class="systemstatusenableoutputstoggle" data-role="slider">
             <option value="Off">Off</option>
             <option value="On">On</option>
             </select> 
@@ -261,7 +260,6 @@ $(document).ready(function(){
 			  </select> 
             </span>
 		</li>
-
         <div data-role="collapsible" data-collapsed="true" data-inset="false" data-count-theme="b" data-content-theme="b">
            <h3>More</h3>
            <li data-role="fieldcontain" class="sm-inset-header">
@@ -422,9 +420,9 @@ $(document).ready(function(){
               </li><!-- Edit Collapsible set -->
             </div><!--collapsible control item -->
          
-        </div> <!-- collapsible channel controls item -->       
+        </div> <!-- collapsible channel controls item collapsible -->
 		<li data-role="fieldcontain">
-		  <a href="channelsedit.html">Add/Delete/Rename</a>
+		  <a href="channelsedit.html" data-ajax="false">Add/Delete/Rename</a>
 		</li>      
 	  </ul>
 	</div><!--content-primary-->

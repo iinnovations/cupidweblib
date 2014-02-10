@@ -75,8 +75,6 @@ input[type="text"]{width:75px;}
 <SCRIPT language="javascript">
 var editmode="off"
 var panelupdateperiod=2000
-var controldatabase='/var/www/data/controldata.db'
-var logdatabase='/var/www/data/logdata.db'
 var logdata=[]
 var channelsdata=[]
 
@@ -132,7 +130,6 @@ function GetAndRenderAlgorithmsData () {
 	var callback= RenderAlgorithmsData
 	wsgiCallbackTableData(controldatabase,'controlalgorithms',callback)
 }
-
 function RenderOutputsData (outputsdata) {
 	var table = document.getElementById('outputstable')
 	
@@ -273,10 +270,7 @@ function SetAlgorithmsData(){
 	}
 	wsgiExecuteQueryArray (controldatabase,queryarray)
 }
-function AddChannel(){
-	query="insert into channels (\'name\') values(\'newchannel\')"
-	wsgiExecuteQuery (controldatabase,query)
-}
+
 function RemoveChannel(){
 	// get the channel we want to delete
 	queryarray=['']
@@ -342,7 +336,7 @@ $(document).ready(function() {
 	$('#addchannelbutton').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
 		//alert('I am going to update now');		
-		AddChannel()	
+		addChannel()
 		setTimeout(function(){GetAndRenderChannelsData()},1000)	
 		}, stdmessage);
 	});	

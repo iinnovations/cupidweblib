@@ -7,7 +7,31 @@ recipedatabase='/var/www/data/recipedata.db';
 logdatabase='/var/www/data/logdata.db';
 infodatabase='/var/www/data/deviceinfo.db';
 systemdatabase='/var/www/data/systemdata.db';
+authdatabase='/var/www/data/authlog.db';
 
+// Set a function to translate aliases
+function dbAliasToPath(alias) {
+    switch (alias)
+    {
+        case 'controldata':
+            path = controldatabase;
+            break;
+        case 'recipedata':
+            path = recipedatabase;
+            break;
+        case 'systemdata':
+            path = systemdatabase;
+            break;
+        case 'logdata':
+            path = logdatabase;
+            break;
+        case 'authlog':
+            path = authdatabase;
+            break;
+    }
+    return path
+
+}
 // Define all the globals
 
 var inputs=[];
@@ -17,7 +41,7 @@ var controlrecipes=[];
 
 // Database table manipulation
 function dropTable(database,tablename) {
-     var query='drop \"' + tablename + '\" from \"' + database;
+    var query='drop table \"' + tablename  + '\"';
     wsgiExecuteQuery (database,query, callback);
 }
 function deleteRow(database,table,callback,identifier,value){
@@ -64,8 +88,17 @@ function addRow(database,table, callback, valuenames,values) {
 function addChannel(channelname, callback){
     addRow(controldatabase,'channels',callback, ['name'],[channelname])
 }
+function addAction(name, callback){
+    addRow(controldatabase,'actions',callback, ['name'],[name])
+}
 function deleteChannel(channelname, callback){
     deleteRow(controldatabase,'channels',callback,'name',channelname);
+}
+function deleteAction(name, callback){
+    deleteRow(controldatabase,'channels',callback,'name',name);
+}
+function deleteLog(logname, callback){
+    dropTable(logdatabase,logname);
 }
 // Dummy function for callback notification
 function logdone(data){
@@ -136,8 +169,8 @@ function setWidgetActions(options){
         //alert('i have a condition: ' + args.condition)
     }
     var $selectclasses= $(baseclass + 'select');
-    $selectclasses.unbind('change');
-    $selectclasses.on('change', function (event) {
+    $selectclasses.unbind('change.update');
+    $selectclasses.on('change.update', function (event) {
         //var data = event.data
         actionobj.value = $(this).val();
         // invoke ajax query with callback to update the interface when it's done
@@ -147,8 +180,8 @@ function setWidgetActions(options){
     });
     if (jqmpage) {
         var $toggleclasses = $(baseclass + 'toggle');
-        $toggleclasses.unbind('slidestop');
-        $toggleclasses.on('slidestop', function (event) {
+        $toggleclasses.unbind('slidestop.update');
+        $toggleclasses.on('slidestop.update', function (event) {
             //var data = event.data;
             actionobj.value = booleansToIntegerString($(this).val());
             // invoke ajax query with callback to update the interface when it's done
@@ -190,14 +223,15 @@ function setWidgetActions(options){
         });
 
         var $jqmselectclasses=$(baseclass + 'jqmselect')
-        $jqmselectclasses.unbind('change');
-        $jqmselectclasses.on('change', function (event) {
+        $jqmselectclasses.unbind('change.update');
+        $jqmselectclasses.on('change.update', function (event) {
             // var data = event.data
             actionobj.value = $(this).val();
             // invoke ajax query with callback to update the interface when it's done
             setTimeout(function () {
                 UpdateControl(actionobj, callback);
             }, updatetimeout);
+            $('#' + this.id).selectmenu('refresh');
         });
 
         // this class updates a field based on the same name
@@ -363,6 +397,111 @@ function RenderMetadata (metadata,options){
 	
 }
 
+//// Tables Data
+function UpdateTablesData(options) {
+	var callback=RenderTablesData;
+    if (! options.hasOwnProperty('database')){
+        options.database = 'controldata';
+    }
+    options.dbpath = dbAliasToPath(options.database)
+    wsgiGetTableNames (options.dbpath,callback,options)
+}
+function RenderTablesData(tablenames,options) {
+    options = options || {};
+    var jqmpage = options.jqmpage || false;
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+
+	if (options.timeout>0) {
+		setTimeout(function(){UpdateTablesData(options)},options.timeout);
+	}
+//	console.log(tablenames)
+	$('.' + options.database + 'tableselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+	    	UpdateSelect(this.id, tablenames);
+		}
+	});
+    $('.' + options.database + 'tablejqmselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+	    	UpdateSelect(this.id, tablenames);
+            $('#' + this.id).selectmenu("refresh");
+		}
+	});
+}
+
+//// Columns Data
+function UpdateColumnsData(options) {
+	var callback=RenderColumnsData;
+    if (! options.hasOwnProperty('database')){
+        options.database = 'controldata';
+    }
+    options.dbpath = dbAliasToPath(options.database)
+
+    if (! options.hasOwnProperty('table')){
+        options.table = 'channels';
+    }
+    wsgiCallbackTableData(options.dbpath,options.table,callback,options)
+}
+function RenderColumnsData(data,options) {
+    options = options || {};
+    var jqmpage = options.jqmpage || false;
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (options.timeout>0) {
+		setTimeout(function(){UpdateColumnsData(options)},options.timeout);
+	}
+    var columnnames=[];
+    $.each(data[0],function(key,value){
+        columnnames.push(key);
+    })
+//	console.log(columnnames)
+	$('.' + options.database + options.table + 'columnselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+	    	UpdateSelect(this.id, columnnames);
+		}
+	});
+    $('.' + options.database + options.table + 'columnjqmselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+	    	UpdateSelect(this.id, columnnames);
+            $('#' + this.id).selectmenu("refresh");
+		}
+	});
+
+    // we can pass a custom list of clasess to update
+    if (options.hasOwnProperty('classes')){
+        for (var i=0;i<options.classes.length;i++){
+            $('.' + options.classes[i]).each(function(){
+                if ($('#' + this.id).length > 0) {
+                    UpdateSelect(this.id, columnnames);
+                    if (jqmpage) {
+                        $('#' + this.id).selectmenu("refresh");
+                    }
+		        }
+            })
+        }
+    }
+}
+
 //// Control Algorithms
 function UpdateControlAlgorithms(options) {
 	  var callback=RenderControlAlgorithms;
@@ -389,7 +528,7 @@ function RenderControlAlgorithms(algorithmstable,options) {
 	}
 	var controlalgorithms=[];
 	for (var i=0; i<algorithmstable.length;i++){
-		controlalgorithms[i]=algorithmstable[i].name;
+		controlalgorithms.push(algorithmstable[i].name);
 	}
 	$('.controlalgorithmselect').each(function(){
 		if ($('#' + this.id).length > 0) {
@@ -547,7 +686,7 @@ function RenderInputsData(inputstable,options) {
 	});	
 }
 
-//// Indicators This is not written yet!
+//// Indicators
 function UpdateIndicatorsData(options) {
 	var callback=RenderIndicators;
 	wsgiCallbackTableData(controldatabase,'indicators',callback,options);
@@ -570,8 +709,35 @@ function RenderIndicators(indicatorsdata,options) {
 	if (options.timeout>0) {
 		setTimeout(function(){UpdateIndicatorsData(options)},options.timeout);
 	}
-	console.log('time to render')
+//	console.log('time to render')
     RenderWidgetsFromArray(controldatabase,'indicators',indicatorsdata,options);
+}
+
+//// Actions
+function UpdateActionsData(options) {
+	var callback=RenderActions;
+	wsgiCallbackTableData(controldatabase,'actions',callback,options);
+}
+function RenderActions(actionsdata,options) {
+    options = options || {};
+    var jqmpage = options.jqmpage || false;
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (options.timeout>0) {
+		setTimeout(function(){UpdateActionsData(options)},options.timeout);
+	}
+	console.log('time to render')
+    RenderWidgetsFromArray(controldatabase,'actions',actionsdata,options);
 }
 
 //// System Status
@@ -604,7 +770,6 @@ function RenderSystemStatusData(systemstatusdatalist,options) {
 }
 
 //// Metadata
-//// MetadatA
 function UpdatePlotMetadata(options) {
 	var callback=RenderPlotMetadata;
 	wsgiCallbackTableData(logdatabase,'metadata',callback,options);
@@ -716,7 +881,7 @@ var largeChannelOptionsObj={
 			tickOptions:{mark:'inside'}
 		},
 		 
-		yaxis:{min:30, max:450,
+		yaxis:{autoscale:true,
 			tickOptions:{mark:'inside'}
 		},  
 		y2axis:{

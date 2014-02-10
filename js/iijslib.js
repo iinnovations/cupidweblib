@@ -134,10 +134,7 @@ function UpdateSelect(inputid,choices){
 	// set previous value if exists in new choices array
 	if(choices.indexOf(curval)>=0){
 		document.getElementById(inputid).value=curval;
-	}	
-	
-	// with jquery
-	//var curval = $('#' + inputid).val()
+	}
 }
 function addRow(tableID,contentarray) {
  	// contentarray = [column 1, column2 ... column N]
@@ -258,7 +255,6 @@ function isNumber(n) {
 
 //////////////////////////////////////////////////
 // WSGI Data Retrieval
-
 
 // this is the old function, just in case we have problems with the function
 // passing options, the next below

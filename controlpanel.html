@@ -75,19 +75,10 @@ if (authlevel > 0){
 var activeindex=1;
 var jqmpage=false;
 
-//var inputids=[]
-//var inputnames=[]
-//var inputgroups=[]
-//var inputassignments=[]
-//var channellogdata=[]
-//var controldata=[]
 var updatetimeout=100
 var loginterval=10000
 var updateinterval=10000
-//var systemdata=[]
-//var controlrecipes=[]
-//var outputs=[]
-//var inputtable=[]
+
 var actauthlevel=2
 var stdmessage='You do not have sufficient authorization for this action'
 
@@ -102,15 +93,6 @@ var stdmessage='You do not have sufficient authorization for this action'
 function UpdateControlModes() {
 	UpdateSelect("controlmode", ["auto","manual"])
 }
-
-// Retrieve values for selected channel and load into indicators
-
-
-//logtablename=$('#channelselect').val() + "log"
-
-//GetAndRenderLogData(logtablename,['plot1'],[channelOptionsObj])
-
-
 
 // Extend jQuery with some easing (copied from jQuery UI)
 $.extend($.easing, {
@@ -128,7 +110,7 @@ $.extend($.easing, {
 //-------------------------------------------------------//
 
 $(function(){
-	$('#spdownbutton').click(function(){
+	$('#channelssetpointvalueincdown').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
     	console.log(authlevel);
 		var selectedchannelname=document.getElementById("channelselect").value;
@@ -143,7 +125,7 @@ $(function(){
        });
 	   }, stdmessage);
     });
-	$('#spupbutton').click(function(){
+	$('#channelssetpointvalueincup').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
@@ -157,7 +139,7 @@ $(function(){
         });
 		 }, stdmessage);
     });
-	$('#actiondownbutton').click(function(){
+	$('#channelsactionincdown').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
@@ -171,7 +153,7 @@ $(function(){
         });
 		}, stdmessage);
     });
-	$('#actionupbutton').click(function(){
+	$('#channelsactionincup').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
@@ -185,7 +167,7 @@ $(function(){
         });
 		}, stdmessage);
     });
-	$('#togglecontrolmode').click(function(){
+	$('#channelscontrolmodetoggle').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
@@ -199,7 +181,7 @@ $(function(){
         });
 		}, stdmessage);
     });
-	$('#controlrecipeselectset').click(function(){
+	$('#channelscontrolrecipeselectset').click(function(){
     	checkauth(authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
 		var newrecipe=document.getElementById("controlrecipeselect").value;
@@ -214,84 +196,7 @@ $(function(){
         });
 		}, stdmessage);
     });
-	$('#setchannelenabledbutton').click(function(){
-    	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value;
-		var enabledstatus=trueFalseToInteger(document.getElementById("channelenabled").checked);
-        $.ajax({
-        	url: "/wsgiupdatecontrol",
-            type: "post",
-            datatype:"json",
-            data: {'action':'setchannelenabled','newstatus':enabledstatus,'database':controldatabase,'channelname':selectedchannelname},
-            success: function(){
-            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout);
-            }
-        });
-		}, stdmessage);
-    });
-	$('#setchanneloutputsenabledbutton').click(function(){
-    	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value;
-		var enabledstatus=trueFalseToInteger(document.getElementById("channeloutputsenabled").checked);
-		//alert(enabledstatus)
-        $.ajax({
-        	url: "/wsgiupdatecontrol",
-            type: "post",
-            datatype:"json",
-            data: {'action':'setchanneloutputsenabled','newstatus':enabledstatus,'database':controldatabase,'channelname':selectedchannelname},
-            success: function(){
-            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout)
-            }
-        });
-	   }, stdmessage);
-    });
-	$('#setposoutbutton').click(function(){
-    	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value;
-		var selectedposout=document.getElementById("channelspositiveoutputselect").value;
-        $.ajax({
-        	url: "/wsgiupdatecontrol",
-            type: "post",
-            datatype:"json",
-            data: {'action':'setposoutput','database':controldatabase,'channelname':selectedchannelname,'outputname':selectedposout},
-            success: function(){
-            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout)
-            }
-        });
-		}, stdmessage);
-    });
-	$('#setnegoutbutton').click(function(){
-		checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value;
-		var selectednegout=document.getElementById("channelsnegativeoutputselect").value;
-		alert(selectednegout)
-        $.ajax({
-        	url: "/wsgiupdatecontrol",
-            type: "post",
-            datatype:"json",
-            data: {'action':'setnegoutput','database':controldatabase,'channelname':selectedchannelname,'outputname':selectednegout},
-            success: function(response){
-            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout)
-            }
-        });
-	   }, stdmessage);
-    });
-	$('#setcontrolinputbutton').click(function(){
-    	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value;
-		var selectedinput=document.getElementById("controlinput").value;
-		//alert(selectedinput)
-        $.ajax({
-        	url: "/wsgiupdatecontrol",
-            type: "post",
-            datatype:"json",
-            data: {'action':'setcontrolinput','controlinput':selectedinput,'database':controldatabase,'channelname':selectedchannelname},
-            success: function(){
-            setTimeout(UpdateChannelsData({'indexselector':'channelselect'}),updatetimeout)
-            }
-        });
-	  }, stdmessage);
-    });
+
 })
 	
 $(document).ready(function(){
@@ -309,6 +214,7 @@ $(document).ready(function(){
 	UpdateInputsData({'timeout':updateinterval})
 	UpdateOutputsData({'timeout':updateinterval})
 	UpdateSystemStatusData({'timeout':updateinterval})
+    UpdateInputsDataTable({'tablerowstart':2,'timeout':updateinterval})
 
 	// Just get one channel's worth of data. These are 1-indexed
 	// which matches up with rowID on table, and a selector with a 'none' first entry
@@ -371,8 +277,8 @@ $(document).ready(function(){
              <img src="images/cmstemplate/bg-th-left.gif" width="8" height="7" alt="" class="left" /> <img src="images/cmstemplate/bg-th-right.gif" width="7" height="7" alt="" class="right" />
         	   <table class="listing halflisting" cellpadding="0" cellspacing="0">
                  <tr>
-                   <th class="first firstnoborder">Channel</th>
-                   <th class="noborder" colspan="2"><select class="channelselect" id="channelselect" name="channelselect">
+                   <th class="first firstnoborder bighead">Channel</th>
+                   <th class="noborder" colspan="2"><select class="channelselect" id="channelselect" name="channelselect" style="width:175px; font-size: 14px">
 <option value="None" selected="selected">None</option></select></th>
                    <th colspan="2" width="10" class="last lastnoborder">&nbsp;</th>
                  </tr>
@@ -387,30 +293,31 @@ $(document).ready(function(){
             		<td><span class="channelssetpointvalue" id="channelssetpointvalue">value</span></td>
                     <td>F</td>
                     <td colspan="2" >
-                    <button id="spupbutton" type="button" style="width:40px; font-size:16px;font-weight:bolder">+</button>
-                    <button id="spdownbutton" type="button" style="width:40px; font-size:16px;font-weight:bolder">-</button></td>
+                    <button id="channelsetpointvalueincup" type="button" style="width:40px; font-size:16px;font-weight:bolder">+</button>
+                    <button id="channelsetpointvalueincdown" type="button" style="width:40px; font-size:16px;font-weight:bolder">-</button></td>
           		 </tr>
                  <tr>
             		<td>Action</td>
             		<td><span class="channelsaction" id="channelsaction">value</span></td>
                     <td>%</td>
-                    <td colspan="2" ><button id="actionupbutton" style="width:40px; font-size:16px;font-weight:bolder" data-iconpos="none">+</button>
-                    <button id="actiondownbutton" style="width:40px; font-size:16px;font-weight:bolder">-</button></td>
+                    <td colspan="2" >
+                    <button id="channelactionsincup" style="width:40px; font-size:16px;font-weight:bolder" data-iconpos="none">+</button>
+                    <button id="channelsactionincdown" style="width:40px; font-size:16px;font-weight:bolder">-</button></td>
           		 </tr>
           		 <tr>
             		<td>Control Mode</td>
-            		<td  colspan="2"><span class="channelsmode" id="channelsmode1">value</span></td>
-                    <td colspan="2" ><button id="togglecontrolmode" style="width:85px" >Toggle</button></td>
+            		<td  colspan="2"><span class="channelsmode" id="channelscontrolmode">value</span></td>
+                    <td colspan="2" ><button id="channelscontrolmodetoggle" style="width:85px" >Toggle</button></td>
           		 </tr>
           		 <tr>
             		<td>Control Algorithm</td>
-            		<td colspan="2" style="text-align:left"><select id="channelscontrolalgorithmselect" class="channelscontrolalgorithmselect controlalgorithmselect" ><option value="None">None</option></select></td>
-                    <td colspan="2" ><button id="controlalgorithmsetbutton" style="width:85px" >Set</button></td>
+            		<td colspan="2" style="text-align:left;"><select id="channelscontrolalgorithmselect" class="channelscontrolalgorithmselect controlalgorithmselect" style="width:125px"><option value="None">None</option></select></td>
+                    <td colspan="2" >&nbsp;</td>
           		 </tr>
                  <tr>
             		<td>Control Recipe</td>
-            		<td colspan="2" style="text-align:left"><select id="channelscontrolrecipeselect" class="channelscontrolrecipeselect controlrecipeselect" ><option value="None">None</option></select></td>
-                    <td colspan="2" ><button id="controlrecipeselectset" style="width:85px" >Set</button></td>
+            		<td colspan="2" style="text-align:left; "><select id="channelscontrolrecipeselect" class="channelscontrolrecipeselect controlrecipeselect" style="width:125px"><option value="None">None</option></select></td>
+                    <td colspan="2" >&nbsp;</td>
           		 </tr>
                  <tr>
                    <td width="90" >Recipe Stage</td>
@@ -420,29 +327,29 @@ $(document).ready(function(){
           		 <tr>
             		<td>Enabled</td>
             		<td colspan="2" ><input type="checkbox" class="regular-checkbox channelsenabledcheckbox" id="channelsenabledcheckbox"/><label for="channelsenabledcheckbox"></label></td>
-                    <td colspan="2"><button id="channelsenabledcheckboxset" style="width:85px" >Set</button></td>
+                    <td colspan="2">&nbsp;</td>
             		
                  </tr>
                  <tr>
             		<td>Outputs Enabled</td>
             		<td colspan="2" ><input id="channelsoutputsenabledcheckbox" class="regular-checkbox channelsoutputsenabledcheckbox" type="checkbox"/><label for="channelsoutputsenabledcheckbox"></label></td>
-                    <td colspan="2" ><button id="channelsoutputsenabledcheckboxset" style="width:85px">Set</button></td>
+                    <td colspan="2" >&nbsp;</td>
             		
                  </tr>  
                  <tr>
             		<td>Positive Output</td>
-            		<td colspan="2" style="text-align:left"><select class="outputselect channelspositiveoutputselect" id="channelspositiveoutputselect"><option value="None">None</option></select></td>
-                    <td colspan="2" ><button id="setposoutbutton" style="width:85px" type="button">Set</button></td>					
+            		<td colspan="2" style="text-align:left"><select class="outputselect channelspositiveoutputselect" id="channelspositiveoutputselect" style="width:125px"><option value="None">None</option></select></td>
+                    <td colspan="2" >&nbsp;</td>
           		 </tr>
                  <tr>
             		<td>Negative Output</td>
-            		<td colspan="2" style="text-align:left"><select class="outputselect channelsnegativeoutputselect" id="channelsnegativeoutputselect"><option value="None">None</option></select></td>
-                    <td colspan="2"><button id="setnegoutbutton" style="width:85px">Set</button></td>
+            		<td colspan="2" style="text-align:left"><select class="outputselect channelsnegativeoutputselect" id="channelsnegativeoutputselect" style="width:125px"><option value="None">None</option></select></td>
+                    <td colspan="2">&nbsp;</td>
           		 </tr>
                  <tr>
             		<td>Control Input</td>
-            		<td colspan="2" style="text-align:left"><select class="channelscontrolinputselect inputselect" id="channelscontrolinputselect"><option value="None">None</option></select></td>
-                    <td colspan="2" ><button id="setcontrolinputbutton" style="width:85px">Set</button></td>
+            		<td colspan="2" style="text-align:left"><select class="channelscontrolinputselect inputselect" id="channelscontrolinputselect" style="width:125px"><option value="None">None</option></select></td>
+                    <td colspan="2" >&nbsp;</td>
           		 </tr>
                  <tr>
             		<td>Status Message</td>
@@ -463,7 +370,7 @@ $(document).ready(function(){
                 <table class="listing halflisting" cellpadding="0" cellspacing="0">
                   <tr>
                     <th class="first firstnoborder" width="10">&nbsp;</th>
-                    <th class="noborder" colspan="2">Pi Control</th>
+                    <th class="noborder bighead" colspan="2">Pi Control</th>
                     <th class= "last lastnoborder" width="10">&nbsp;</th>
                   </tr>
                   <tr>
@@ -483,7 +390,7 @@ $(document).ready(function(){
                     <td width="125" colspan="2" class="systemstatuslastpicontrolpoll" id="systemstatuslastpicontrolpoll"></td>
                   </tr>
                   <tr>
-                    <td width="75" colspan="2">Poll Frequency</td>
+                    <td width="75" colspan="2">Poll Frequency (s)</td>
                     <td width="125" colspan="2" class="systemstatuspicontrolfreq" id="systemstatuspicontrolfreq"></td>
                   </tr>            
                 </table>
@@ -493,7 +400,7 @@ $(document).ready(function(){
                 <table class="listing halflisting" cellpadding="0" cellspacing="0">
                   <tr>
                     <th class="first firstnoborder" width="10">&nbsp;</th>
-                    <th class="noborder" colspan="2">Inputs Read</th>
+                    <th class="noborder bighead" colspan="2">Inputs Read</th>
                     <th class= "last lastnoborder" width="10">&nbsp;</th>
                   </tr>
                   <tr>
@@ -509,17 +416,17 @@ $(document).ready(function(){
                     <td width="125" colspan="2" class="systemstatuslastinputspoll" id="systemstatuslastinputspoll">Value</td>
                   </tr>
                   <tr>
-                    <td width="75" colspan="2">Poll Frequency</td>
+                    <td width="75" colspan="2">Poll Frequency (s)</td>
                     <td width="125" colspan="2" class="systemstatusinputsreadfreq" id="systemstatusinputsreadfreq">Value</td>
                   </tr>            
                 </table>
                </div>
                <div class="table halftable">
                 <img src="images/cmstemplate/bg-th-left.gif" width="8" height="7" alt="" class="left" /> <img src="images/cmstemplate/bg-th-right.gif" width="7" height="7" alt="" class="right" />
-                <table class="listing halflisting" id="inputstable" cellpadding="0" cellspacing="0">
+                <table class="listing halflisting" id="inputsdatatable" cellpadding="0" cellspacing="0">
                   <tr>
                     <th class="first firstnoborder" width="10">&nbsp;</th>
-                    <th class="noborder" colspan="4">Inputs Info</th>
+                    <th class="noborder" colspan="4">Inputs Data</th>
                     <th class= "last lastnoborder" width="10">&nbsp;</th>
                   </tr>
                   <tr>

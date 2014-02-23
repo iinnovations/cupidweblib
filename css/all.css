@@ -347,6 +347,9 @@ table.listing {
 	margin:0;
 	border:1px solid #9097A9;
 }
+table.listing td, th {
+    height:35px;
+}
 table.normlisting {
 	width:699px;
 }
@@ -359,7 +362,10 @@ table.fulllisting {
 
 table.listing th {
 	border-top:0 !important;
-	}
+}
+table.listing .bighead {
+	font-size: 16px!important;
+}
 table.listing th.full {border-left:0;border-right:0 !important;text-align:left;text-transform:uppercase;}
 div.table img.left {
 	position:absolute;

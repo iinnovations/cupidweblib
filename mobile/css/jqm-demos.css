@@ -653,6 +653,7 @@ h2.jqm-home-widget {
 		margin: 1.5em 5% 1.5em 0;
 		float: right;
 		font-weight: 700;
+        display:none;
 	}
 	.jqm-demos-home .jqm-footer p.jqm-version {
 		display: none;

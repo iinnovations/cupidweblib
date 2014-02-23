@@ -136,7 +136,7 @@ function UpdateSelect(inputid,choices){
 		document.getElementById(inputid).value=curval;
 	}
 }
-function addRow(tableID,contentarray) {
+function addTableRow(tableID,contentarray) {
  	// contentarray = [column 1, column2 ... column N]
 	// where column = [ value, label, type, [ choice array ]]
 	// choice array is only necessary for select-one
@@ -221,12 +221,12 @@ function addRow(tableID,contentarray) {
 }	
 function clearTable(tableid,headerrows) {
 	var table = document.getElementById(tableid);
-	// render recipenames for indicators
-	var controlrecipes=[];
-	for(var i = table.rows.length - 1; i > headerrows-1; i--)
-	{
-    	table.deleteRow(i);
-	}
+    if (table.rows.length > 0){
+        for(var i = table.rows.length - 1; i > headerrows-1; i--)
+        {
+            table.deleteRow(i);
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////

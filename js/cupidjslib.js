@@ -32,12 +32,54 @@ function dbAliasToPath(alias) {
     return path
 
 }
-// Define all the globals
 
+// Define all the globals
 var inputs=[];
 var outputs=[];
 var controlalgorithms=[];
 var controlrecipes=[];
+
+//////////////////////////////////////////////////////
+// Auth functions
+
+function handleUserAuths() {
+    // Define our usr for access control of features:
+    var username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+    var sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+    var appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+    var realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+
+    // Set IP of current session
+    if (username == 'viewer') {
+        authlevel=1
+    }
+    else if (username == 'controller') {
+        authlevel=2
+    }
+    else if (username == 'administrator') {
+        authlevel=3
+    }
+    else if (username == 'colin') {
+        authlevel=4
+    }
+    else {
+        authlevel=0
+    }
+}
+function logUserAuths() {
+    if (authlevel > 0){
+        //alert(appip + realip)
+        $.ajax({
+                url: "/wsgisessioncontrol",
+                type: "post",
+                datatype:"json",
+                data: {'sessionid':sessionid,'event':'access','username':username,'realIP':realip,'apparentIP':appip},
+                success: function(response){
+                    //alert("I logged access");
+                }
+        });
+    }
+}
 
 // Database table manipulation
 function dropTable(database,tablename) {
@@ -100,6 +142,7 @@ function deleteAction(name, callback){
 function deleteLog(logname, callback){
     dropTable(logdatabase,logname);
 }
+
 // Dummy function for callback notification
 function logdone(data){
 	console.log('done');
@@ -169,7 +212,7 @@ function setWidgetActions(options){
         //alert('i have a condition: ' + args.condition)
     }
     var $selectclasses= $(baseclass + 'select');
-    $selectclasses.unbind('change.update');
+    $selectclasses.off('change.update');
     $selectclasses.on('change.update', function (event) {
         //var data = event.data
         actionobj.value = $(this).val();
@@ -178,9 +221,28 @@ function setWidgetActions(options){
             UpdateControl(actionobj, callback);
         }, updatetimeout);
     });
+    var $checkboxclasses= $(baseclass + 'checkbox');
+    $checkboxclasses.off('click.update');
+    $checkboxclasses.on('click.update', function (event) {
+        //var data = event.data
+        if( $(this).attr('checked')) {
+            actionobj.value = 1
+        }
+        else {
+            actionobj.value = 0;
+        }
+
+        // invoke ajax query with callback to update the interface when it's done
+        setTimeout(function () {
+            UpdateControl(actionobj, callback);
+        }, updatetimeout);
+    });
+
+    // Actions for jqm objects. We pass the jqmpage boolean so that we don't
+    // attempt to use methods/properties that don't exist if we haven't loaded jqm
     if (jqmpage) {
         var $toggleclasses = $(baseclass + 'toggle');
-        $toggleclasses.unbind('slidestop.update');
+        $toggleclasses.off('slidestop.update');
         $toggleclasses.on('slidestop.update', function (event) {
             //var data = event.data;
             actionobj.value = booleansToIntegerString($(this).val());
@@ -191,7 +253,7 @@ function setWidgetActions(options){
         });
 
         var $amtoggleclasses=$(baseclass + 'automantoggle');
-        $amtoggleclasses.unbind('slidestop');
+        $amtoggleclasses.off('slidestop');
         $amtoggleclasses.on('slidestop', function (event) {
             //var data = event.data;
             actionobj.value = $(this).val();
@@ -202,21 +264,25 @@ function setWidgetActions(options){
         });
 
         var $slideclasses=$(baseclass + 'slider');
-        $slideclasses.unbind('slidestop');
-        $slideclasses.filter('.ui-slider-input').unbind('change');
-        // include change for input field and slidestop for slider
-        $slideclasses.filter('.ui-slider-input').on('change', function (event) {
-            actionobj.value = $(this).val();
-            // invoke ajax query with callback to update the interface when it's done
-            setTimeout(function () {
-                UpdateControl(actionobj, callback);
-            }, updatetimeout);
+        $slideclasses.off('change.update')
+        $slideclasses.off('slidestop.update')
+        $slideclasses.off('focus.update')
+         // include change for input field and slidestop for slider
+        $slideclasses.on('focus.update',function(){
+            $slideclasses.on('change.update', function () {
+                actionobj.value = $(this).val();
+    //            invoke ajax query with callback to update the interface when it's done
+                setTimeout(function () {
+                    UpdateControl(actionobj, callback);
+                }, updatetimeout);
+            });
         });
 
-        $slideclasses.on('slidestop', function (event) {
-            //var data = event.data
+        $slideclasses.off('slidestop.update');
+        $slideclasses.on('slidestop.update', function () {
+//            var data = event.data
             actionobj.value = $(this).val();
-            // invoke ajax query with callback to update the interface when it's done
+//            invoke ajax query with callback to update the interface when it's done
             setTimeout(function () {
                 UpdateControl(actionobj, callback);
             }, updatetimeout);
@@ -340,6 +406,9 @@ function testFunction(someoptions) {
 
 ////////////////////////////////////////////////////////////////////////////
 // Rendering database data to views
+
+// these first functions don't do any table creation.
+// they just load data into appropriately named fields
 
 // Version and about data
 function UpdateVersionsData(options) {
@@ -798,6 +867,62 @@ function RenderPlotMetadata(metadata,options) {
 	    //alert('.' + metadata[i].name.replace(' ','_') + 'points')
 	}
 }
+
+
+// These guys create tables and table elements and then render them using the above
+// functions, or not.
+
+
+//// Control Inputs - also do ROM display table at same time
+function UpdateInputsDataTable(options) {
+	var callback=RenderControlInputsTable
+	wsgiCallbackTableData(controldatabase,'inputsdata',callback,options)
+}
+function RenderControlInputsTable (datatable,options) {
+    var tableid = options.tableid || 'inputsdatatable'
+    var tablerowstart = options.tablerowstart || 1;
+    var dbrowstart = options.dbrowstart || 0;
+    var numdbrows = options.numdbrows || 999;
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (timeout>0) {
+		setTimeout(function(){UpdateInputsDataTable(options)},timeout);
+	}
+
+    if (datatable.length > numdbrows) {
+        var numrowstoget = numdbrows;
+    }
+    else {
+        var numrowstoget = datatable.length;
+    }
+	inputids=[]
+	for (var i=dbrowstart; i<numrowstoget;i++){
+		inputids[i]=datatable[i].id
+	}
+    // currently vanilla javascript. we'll jquery this shortly.
+    clearTable(tableid, tablerowstart);
+    for (var j=0;j<numrowstoget;j++)
+    {
+        addTableRow(tableid,[[datatable[j].id,"id","value"],[datatable[j].interface,"interface","value"],[datatable[j].type,"type","value"],[datatable[j].value,"value","value"],[datatable[j].unit,"unit","value"],[datatable[j].polltime,"time","value"]]);
+    }
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////
+// Misc
+
+// this function gets the current time and renders it to an html element
 
 function UpdateTimestamps(passedoptions){
 	//console.log(passedoptions.timeout);

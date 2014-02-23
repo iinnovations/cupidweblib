@@ -217,10 +217,10 @@
         togglestolamps()
         //// Control Algorithms
         //Just run this once so we don't overwrite edited values
-        UpdateActionsTable()
+        UpdateActionsTable({jqmpage:true})
         setTimeout(function(){UpdateTablesData({database:'controldata'})},2000)
         setTimeout(function(){UpdateColumnsData({database:'controldata',table:'channels'})},2000)
-//        setTimeout(function(){ UpdateActionsData({'jqmpage':true})},2000)
+        setTimeout(function(){ UpdateActionsData({'jqmpage':true,timeout:updateinterval})},2000)
 
     });
 </script>

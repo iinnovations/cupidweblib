@@ -216,7 +216,8 @@ function GetAndRenderChannelData(){
 }			
 
 function RenderChannelData(channeldata){
-	channelnames=[]
+    var channeldata = channeldata | []
+	var channelnames=[]
 	//alert(channelsdata.length)
 	for (var i=0; i<channeldata.length;i++){
 		channelnames[i]=channeldata[i].name

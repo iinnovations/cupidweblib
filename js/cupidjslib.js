@@ -608,12 +608,28 @@ function RenderControlAlgorithms(algorithmstable,options) {
 
 //// Channels Data
 function UpdateChannelsData(options) {
-	 var callback=RenderChannelsData;
+	var callback=RenderChannelsData;
 	wsgiCallbackTableData(controldatabase,'channels',callback,options)
 }
 function RenderChannelsData(channelsdata,options) {
+
     options = options || {};
     var jqmpage = options.jqmpage || false;
+
+    // Populate channel selector. We do this first because
+    // if we have an indexselector of channelselect, not having a
+    // value will cause an error
+
+    var channelnames=[];
+	for (var i=0;i<channelsdata.length;i++) {
+		channelnames.push(channelsdata[i].name);
+	}
+	$('.channelselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+			UpdateSelect(this.id, channelnames);
+		}
+	});
+
     var timeout=0;
 //    console.log(channelsdata)
     // Set interval function. We either pass a class to retrieve it from,
@@ -627,28 +643,32 @@ function RenderChannelsData(channelsdata,options) {
     if (options.timeout>0) {
         setTimeout(function(){UpdateChannelsData(options)},options.timeout)
     }
+
 	// Grab only a single channel if we pass that option
     // This first option grabs an element by the passed index
 	if (options.hasOwnProperty('index')) {
 		RenderWidgets(controldatabase,'channels',channelsdata[options.index-1],options);
+        if (options.hasOwnProperty('auxcallback')){
+            options.auxcallback(channelsdata[options.index-1])
+        }
 	}
 	else if (options.hasOwnProperty('indexselector')) {
         // We pass an index selector id and get the selected index value.
         // we get the channel based on the value of the selector
-		RenderWidgets(controldatabase,'channels',channelsdata[$('#'+options.indexselector).prop('selectedIndex')],options)
-	}
+        var selectedindex=$('#'+options.indexselector).prop('selectedIndex');
+		RenderWidgets(controldatabase,'channels',channelsdata[selectedindex],options)
+        if (options.hasOwnProperty('auxcallback')){
+            options.auxcallback(channelsdata[selectedindex])
+        }
+    }
 	else {
         RenderWidgetsFromArray(controldatabase,'channels',channelsdata,options)
+        if (options.hasOwnProperty('auxcallback')){
+            options.auxcallback(channelsdata)
+        }
 	}
-	var channelnames=[];
-	for (var i=0;i<channelsdata.length;i++) {
-		channelnames.push(channelsdata[i].name);
-	}
-	$('.channelselect').each(function(){
-		if ($('#' + this.id).length > 0) {
-			UpdateSelect(this.id, channelnames);
-		}
-	});
+
+
 }
 
 //// Control Recipes

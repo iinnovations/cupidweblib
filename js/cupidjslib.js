@@ -42,12 +42,10 @@ var controlrecipes=[];
 //////////////////////////////////////////////////////
 // Auth functions
 
-function handleUserAuths() {
+function handleUserAuths(username) {
     // Define our usr for access control of features:
-    var username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
-    var sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
-    var appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
-    var realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+
+    var authlevel=0
 
     // Set IP of current session
     if (username == 'viewer') {
@@ -65,6 +63,7 @@ function handleUserAuths() {
     else {
         authlevel=0
     }
+    return authlevel
 }
 function logUserAuths() {
     if (authlevel > 0){
@@ -667,8 +666,6 @@ function RenderChannelsData(channelsdata,options) {
             options.auxcallback(channelsdata)
         }
 	}
-
-
 }
 
 //// Control Recipes

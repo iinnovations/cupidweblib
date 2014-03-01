@@ -22,9 +22,17 @@
 
 <!--Record auth level-->
 <script type="text/javascript">
-handleUserAuths()
+
+var username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+var sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+var appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+var realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+
+authlevel = handleUserAuths(username)
+
 // <!--Log access-->
 logUserAuths()
+
 
 var actauthlevel=2
 var stdmessage="You do not have sufficient authorization for this function"
@@ -35,7 +43,7 @@ $(function()
             {
 	$('#spupclick').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
-        var selectedchannelname=document.getElementById("selectchannel").value
+        var selectedchannelname=document.getElementById("channelselect").value
 		
         $.ajax({
         	url: "/wsgiupdatecontrol",
@@ -43,21 +51,21 @@ $(function()
             datatype:"json",
             data: {'action':'spchange','subaction':'incup','database':controldatabase,'channelname':selectedchannelname},
             success: function(response){
-            setTimeout(UpdateChannelData,updatetimeout)
+            UpdateChannelsData({'indexselector':'channelselect','auxcallback':auxFunction})
             }
         });
 		}, stdmessage);
     });
 	$('#spdownclick').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
-        var selectedchannelname=document.getElementById("selectchannel").value
+        var selectedchannelname=document.getElementById("channelselect").value
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'spchange','subaction':'incdown','database':controldatabase,'channelname':selectedchannelname},
             success: function(response){
-            setTimeout(UpdateChannelData,updatetimeout)
+            UpdateChannelsData({'indexselector':'channelselect','auxcallback':auxFunction})
             }
         });
 		}, stdmessage);
@@ -65,14 +73,14 @@ $(function()
 	$('#actiondownclick').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
     	//alert('Im going to start processing');
-		var selectedchannelname=document.getElementById("selectchannel").value
+		var selectedchannelname=document.getElementById("channelselect").value
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'actiondown','database':controldatabase,'channelname':selectedchannelname},
             success: function(response){
-            	setTimeout(function(){UpdateChannelData()},updatetimeout)
+            	UpdateChannelsData({'indexselector':'channelselect','auxcallback':auxFunction})
             }
         });
 		}, stdmessage);
@@ -80,14 +88,14 @@ $(function()
 	$('#actionupclick').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
     	//alert('Im going to start processing');
-		var selectedchannelname=document.getElementById("selectchannel").value
+		var selectedchannelname=document.getElementById("channelselect").value
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'actionup','database':controldatabase,'channelname':selectedchannelname},
             success: function(response){
-            setTimeout(UpdateChannelData,updatetimeout)
+            UpdateChannelsData({'indexselector':'channelselect','auxcallback':auxFunction})
             }
         });
 		}, stdmessage);
@@ -95,14 +103,14 @@ $(function()
 	$('#actionoffclick').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
     	//alert('Im going to start processing');
-		var selectedchannelname=document.getElementById("selectchannel").value
+		var selectedchannelname=document.getElementById("channelselect").value
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'actionup','database':controldatabase,'channelname':selectedchannelname},
             success: function(response){
-            setTimeout(UpdateChannelData,updatetimeout)
+            UpdateChannelsData({'indexselector':'channelselect','auxcallback':auxFunction})
             }
         });
 		}, stdmessage);
@@ -110,14 +118,14 @@ $(function()
 	$('#togglecontrolmodebutton').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
     	//alert('Im going to start processing');
-		var selectedchannelname=document.getElementById("selectchannel").value
+		var selectedchannelname=document.getElementById("channelselect").value
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: {'action':'togglemode','database':controldatabase,'channelname':selectedchannelname},
             success: function(response){
-            setTimeout(UpdateChannelData,updatetimeout)
+            UpdateChannelsData({'indexselector':'channelselect','auxcallback':auxFunction})
             }
         });
 		}, stdmessage);

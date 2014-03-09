@@ -102,14 +102,14 @@ function RenderChannels(channelstable) {
 
         $('#' + 'channel_' + index + '_deleteconfirm').off('click.delete');
         $('#' + 'channel_' + index + '_deleteconfirm').on('click.delete',{'passindex':index,'name':channelstable[i].name}, function(event){
-            alert("delete confirmed for channel " + event.data.name)
+//            alert("delete confirmed for channel " + event.data.name)
             callback=UpdateChannelsTable;
             deleteChannel(event.data.name,callback);
         })
         $('#' + 'channel_' + index + '_moveupconfirm').off('click.moveup');
         $('#' + 'channel_' + index + '_moveupconfirm').on('click.moveup',{'passindex':index,'name':channelstable[i].name}, function(event){
             var passedindex = event.data.passindex
-            alert('move up confirmed for channel ' + event.data.name + ' using index ' + passedindex)
+//            alert('move up confirmed for channel ' + event.data.name + ' using index ' + passedindex)
             var arguments={}
             arguments.tablename='channels';
             arguments.row1=passedindex-1;
@@ -121,7 +121,7 @@ function RenderChannels(channelstable) {
         $('#' + 'channel_' + index + '_movedownconfirm').off('click.movedown')
         $('#' + 'channel_' + index + '_movedownconfirm').on('click.movedown',{'passindex':index,'name':channelstable[i].name},function(event){
             var passedindex = event.data.passindex
-            alert('move down confirmed for channel ' + event.data.name + ' using index ' + passedindex)
+//            alert('move down confirmed for channel ' + event.data.name + ' using index ' + passedindex)
             var arguments={}
             arguments.tablename='channels';
             arguments.row1=passedindex+1;
@@ -152,7 +152,7 @@ $(document).ready(function(){
     $('#addchannel').click(function(event){
         addChannel('newchannel')
         setTimeout(function(){
-            UpdateChannelsData({'jqmpage':true})
+            UpdateChannelsTable({'jqmpage':true})
         },1000);
     })
 });

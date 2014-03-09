@@ -1,3 +1,5 @@
+<?php require_once('../auth/user.php'); ?>
+<?php $user->require_login(); ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -163,7 +165,7 @@ $(document).ready(function(){
                 </li>
             </div>
             <li data-role="fieldcontain">
-                <a href="logviewer.html">Log Viewer</a>
+                <a href="logviewer.html" data-ajax="false">Log Viewer</a>
             </li>
         </ul>
 
@@ -210,11 +212,8 @@ $(document).ready(function(){
                 }
                 totalseries+=seriesnames[i].length;
             }
-
             GetAndRenderMultLogsData(logdatabase,{'tablenames':tablenames,'seriesnames':seriesnames,renderplotids:['fullplot'],renderplotoptions:[customOptionsObj]})
-
     });
-
 </script>
     <div data-role="content">
         <div class="content-primary">

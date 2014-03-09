@@ -8,10 +8,16 @@
 <script src="/js/cupidjslib.js" type="text/javascript"></script>
 
 <script type="text/javascript">
-// <!--Record auth level-->
-handleUserAuths()
+var sessiondata = {}
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+
+sessiondata.authlevel = handleUserAuths(sessiondata)
+
 // <!--Log access-->
-logUserAuths()
+logUserAuths(sessiondata)
 </script>
 
 <!-- InstanceBeginEditable name="doctitle" -->
@@ -54,15 +60,15 @@ $(document).ready(function() {
 
 	// Run once at page load
 
-	UpdateControlInputsTable()
+	UpdateInputsDataTable()
 
 	$('#inputsrefreshbutton').click(function(){
 		//alert('I am going to update now');	
-		UpdateControlInputsTable()
+		UpdateInputsDataTable()
 	});	
 	$('#channelsrefreshbutton').click(function(){
 		//alert('I am going to update now');	
-		GetAndRenderChannelsData()		
+		UpdateInputsInfoTable()
 	});	
 });
 

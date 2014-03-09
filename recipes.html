@@ -19,41 +19,16 @@
 
 <!--Record auth level-->
 <script type="text/javascript">
-// Define our usr for access control of features:
-var username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
-var sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
-var appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
-var realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+var sessiondata = {}
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
 
-// Set IP of current session
-if (username == 'viewer') {
-	authlevel=1
-}
-else if (username == 'controller') {
-	authlevel=2
-}
-else if (username == 'administrator') {
-	authlevel=3
-}
-else if (username == 'colin') {
-	authlevel=4
-}
-else {
-	authlevel=0
-}
-<!--Log access-->
-if (authlevel > 0){
-	//alert(appip + realip)
-	$.ajax({
-        	url: "/wsgisessioncontrol",
-        	type: "post",
-        	datatype:"json",						
-        	data: {'sessionid':sessionid,'event':'access','username':username,'realIP':realip,'apparentIP':appip},
-        	success: function(response){
-        		//alert("I logged access");								
-			}
-    });	
-}
+sessiondata.authlevel = handleUserAuths(sessiondata)
+
+// <!--Log access-->
+logUserAuths(sessiondata)
 </script>
 
 <!-- InstanceBeginEditable name="doctitle" -->

@@ -42,22 +42,22 @@ var controlrecipes=[];
 //////////////////////////////////////////////////////
 // Auth functions
 
-function handleUserAuths(username) {
+function handleUserAuths(sessiondata) {
     // Define our usr for access control of features:
-
+    sessiondata = sessiondata || {}
     var authlevel=0
 
     // Set IP of current session
-    if (username == 'viewer') {
+    if (sessiondata.username == 'viewer') {
         authlevel=1
     }
-    else if (username == 'controller') {
+    else if (sessiondata.username == 'controller') {
         authlevel=2
     }
-    else if (username == 'administrator') {
+    else if (sessiondata.username == 'administrator') {
         authlevel=3
     }
-    else if (username == 'colin') {
+    else if (sessiondata.username == 'colin') {
         authlevel=4
     }
     else {
@@ -65,14 +65,14 @@ function handleUserAuths(username) {
     }
     return authlevel
 }
-function logUserAuths() {
-    if (authlevel > 0){
+function logUserAuths(sessiondata) {
+    if (sessiondata.authlevel > 0){
         //alert(appip + realip)
         $.ajax({
                 url: "/wsgisessioncontrol",
                 type: "post",
                 datatype:"json",
-                data: {'sessionid':sessionid,'event':'access','username':username,'realIP':realip,'apparentIP':appip},
+                data: {'sessionid':sessiondata.sessionid,'event':'access','username':sessiondata.username,'realIP':sessiondata.realip,'apparentIP':sessiondata.appip},
                 success: function(response){
                     //alert("I logged access");
                 }

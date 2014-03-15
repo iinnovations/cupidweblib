@@ -1,4 +1,5 @@
-<?php require_once('auth/user.php'); ?>
+<?php require_once('/var/www/auth/user.php'); ?>
+<?php $user->require_login(); ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html><!-- InstanceBegin template="/Templates/main.dwt" codeOutsideHTMLIsLocked="false" -->
 <head>
@@ -17,43 +18,17 @@
 <script src="/js/iijslib.js" type="text/javascript"></script> 
 <script src="/js/cupidjslib.js" type="text/javascript"></script> 
 
-<!--Record auth level-->
 <script type="text/javascript">
-// Define our usr for access control of features:
-var username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
-var sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
-var appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
-var realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+var sessiondata = {}
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
 
-// Set IP of current session
-if (username == 'viewer') {
-	authlevel=1
-}
-else if (username == 'controller') {
-	authlevel=2
-}
-else if (username == 'administrator') {
-	authlevel=3
-}
-else if (username == 'colin') {
-	authlevel=4
-}
-else {
-	authlevel=0
-}
-<!--Log access-->
-if (authlevel > 0){
-	//alert(appip + realip)
-	$.ajax({
-        	url: "/wsgisessioncontrol",
-        	type: "post",
-        	datatype:"json",						
-        	data: {'sessionid':sessionid,'event':'access','username':username,'realIP':realip,'apparentIP':appip},
-        	success: function(response){
-        		//alert("I logged access");								
-			}
-    });	
-}
+sessiondata.authlevel = handleUserAuths(sessiondata)
+
+// <!--Log access-->
+logUserAuths(sessiondata)
 </script>
 
 <!-- InstanceBeginEditable name="doctitle" -->
@@ -64,7 +39,7 @@ if (authlevel > 0){
 @import "css/all.css";
 </style>
 <!-- InstanceBeginEditable name="head" -->
-<?php $user->require_login(); ?>
+
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript">
 </script>
 <style type="text/css">
@@ -82,8 +57,7 @@ var channelsdata=[]
 var inputids=[]
 var algorithmtypes=[]
 var outputnames=[]
-var controltypes=[]
-var controlalgorithms=[]
+
 var statusdata=[]
 var actauthlevel=2
 var tmpobj
@@ -92,45 +66,27 @@ var stdmessage='You do not have sufficient authorization for this action'
 
 // Here we define functions to get our shared variables
 
-function getControlTypes() {
-// Get the data
-   		$.ajax({
-        	url: "/wsgisqlitequery",
-        	type: "post",
-        	datatype:"json",						
-        	data: {'database':controldatabase,'table':'algorithmtypes'},
-        	success: function(response){
-        		//alert("I worked");
-				// Execute our callback function
-				algorithmtypes=[];
-				for(var i = 0; i < response.length ; i++)
-				{
-					algorithmtypes.push(response[i].type)
-				}
-			}
-    	});	
-}
-function GetAndRenderStatusData () {
+function GetAndRenderStatusTable () {
 	// set a callback function to render the data on success, then go get it
-	var callback= RenderStatusData
+	var callback= RenderStatusTable
 	wsgiCallbackTableData(controldatabase,'systemstatus',callback)
 }
-function GetAndRenderOutputsData () {
+function GetAndRenderOutputsTable () {
 	// set a callback function to render the data on success, then go get it
-	var callback= RenderOutputsData
+	var callback= RenderOutputsTable
 	wsgiCallbackTableData(controldatabase,'outputs',callback)
 }
-function GetAndRenderChannelsData () {
+function GetAndRenderChannelsTable () {
 	// set a callback function to render the data on success, then go get it
-	var callback= RenderChannelsData
+	var callback= RenderChannelsTable
 	wsgiCallbackTableData(controldatabase,'channels',callback)
 }
-function GetAndRenderAlgorithmsData () {
+function GetAndRenderAlgorithmsTable () {
 	// set a callback function to render the data on success, then go get it
-	var callback= RenderAlgorithmsData
+	var callback= RenderAlgorithmsTable
 	wsgiCallbackTableData(controldatabase,'controlalgorithms',callback)
 }
-function RenderOutputsData (outputsdata) {
+function RenderOutputsTable (outputsdata) {
 	var table = document.getElementById('outputstable')
 	
 	// render the output names to global variable
@@ -148,10 +104,10 @@ function RenderOutputsData (outputsdata) {
 			}
 			for (var i=0;i<outputsdata.length;i++)
 		    {
-				addRow('outputstable',[[outputsdata[i].outputindex,"outputindex","value"],[outputsdata[i].name,"outputname","text"],[outputsdata[i].enabled,"outputenabled","checkbox"],[outputsdata[i].status,"status","onoff"],[outputsdata[i].minontime,"minontime","text"],[outputsdata[i].minofftime,"minofftime","text"],[outputsdata[i].GPIO,"GPIO","value"],[outputsdata[i].mode,"mode","select-one",['manual','auto']]]);
+				addTableRow('outputstable',[[outputsdata[i].outputindex,"outputindex","value"],[outputsdata[i].name,"outputname","text"],[outputsdata[i].enabled,"outputenabled","checkbox"],[outputsdata[i].status,"status","onoff"],[outputsdata[i].minontime,"minontime","text"],[outputsdata[i].minofftime,"minofftime","text"],[outputsdata[i].GPIO,"GPIO","value"],[outputsdata[i].mode,"mode","select-one",['manual','auto']]]);
 		    }		
 }
-function RenderChannelsData (channelsdata) {
+function RenderChannelsTable (channelsdata) {
 	var table = document.getElementById('channelstable')
 	for(var i = table.rows.length - 1; i > 0; i--)
 			{
@@ -160,10 +116,10 @@ function RenderChannelsData (channelsdata) {
 
 			for (var i=0;i<channelsdata.length;i++)
 		    {
-				addRow('channelstable',[[0,"channelchecked","checkbox"],[channelsdata[i].channelindex,"channelindex","value"],[channelsdata[i].name,"channelname","text"],[channelsdata[i].controlinput,"controlinput","select-one",inputids],[channelsdata[i].enabled,"channelenabled","checkbox"],[channelsdata[i].controlalgorithm,"controlalgorithm","select-one", controlalgorithms],[channelsdata[i].positiveoutput,"positiveoutput","select-one",outputnames],[channelsdata[i].negativeoutput,"negativeoutput","select-one",outputnames]]);
+				addTableRow('channelstable',[[0,"channelchecked","checkbox"],[channelsdata[i].channelindex,"channelindex","value"],[channelsdata[i].name,"channelname","text"],[channelsdata[i].controlinput,"controlinput","select-one",inputids],[channelsdata[i].enabled,"channelenabled","checkbox"],[channelsdata[i].controlalgorithm,"controlalgorithm","select-one", controlalgorithms],[channelsdata[i].positiveoutput,"positiveoutput","select-one",outputnames],[channelsdata[i].negativeoutput,"negativeoutput","select-one",outputnames]]);
 		    }		
 }
-function RenderAlgorithmsData (algorithmsdata) {
+function RenderAlgorithmsTable (algorithmsdata) {
 	var table = document.getElementById('algorithmstable')
 	
 	// render algorithmnames for indicators
@@ -183,10 +139,10 @@ function RenderAlgorithmsData (algorithmsdata) {
 		// If input type is not one of type "text","checkbox", or "select-one", indicator is assumed
 		// IF indicator is assumed, third entry can be used to specify "boolean", "value" or "onoff" for indicator
 				
-		addRow('algorithmstable',[[algorithmsdata[i].name,"algorithmname","text"],[algorithmsdata[i].type,"type","select-one",algorithmtypes],[algorithmsdata[i].proportional,"proportional","text"],[algorithmsdata[i].integral,"integral","text"],[algorithmsdata[i].derivative,"derivative","text"],[algorithmsdata[i].deadbandhigh,"deadbandhigh","text"],[algorithmsdata[i].deadbandlow,"deadbandlow","text"],[algorithmsdata[i].dutypercent,"dutypercent","text"],[algorithmsdata[i].dutyperiod,"dutyperiod","text"]]);
+		addTableRow('algorithmstable',[[algorithmsdata[i].name,"algorithmname","text"],[algorithmsdata[i].type,"type","select-one",algorithmtypes],[algorithmsdata[i].proportional,"proportional","text"],[algorithmsdata[i].integral,"integral","text"],[algorithmsdata[i].derivative,"derivative","text"],[algorithmsdata[i].deadbandhigh,"deadbandhigh","text"],[algorithmsdata[i].deadbandlow,"deadbandlow","text"],[algorithmsdata[i].dutypercent,"dutypercent","text"],[algorithmsdata[i].dutyperiod,"dutyperiod","text"]]);
 		    }		
 }
-function RenderStatusData (statusdata) {
+function RenderStatusTable (statusdata) {
 	var table = document.getElementById('statustable')
 	
 	for(var i = table.rows.length - 1; i > 1; i--)
@@ -200,15 +156,15 @@ function RenderStatusData (statusdata) {
 				// If input type is not one of type "text","checkbox", or "select-one", indicator is assumed
 				// IF indicator is assumed, third entry can be used to specify "boolean", "value" or "onoff" for indicator
 				
-				addRow('statustable',[[statusdata[i].picontrolenabled,"picontrolenabled","checkbox"],[statusdata[i].picontrolstatus,"picontrolstatus","onoff"],[statusdata[i].picontrolfreq,"picontrolfreq","text"],[statusdata[i].lastpicontrolpoll,"lastpicontrolpoll","value"],[statusdata[i].inputsreadenabled,"inputsreadenabled","checkbox"],[statusdata[i].ipnutsreadstatus,"inputsreadstatus","onoff"],[statusdata[i].inputsreadfreq,"inputsreadfreq","text"],[statusdata[i].lastinputspoll,"lastinputspoll","value"],[statusdata[i].enableoutputs,"enableoutputs","checkbox"],[statusdata[i].systemmessage,"systemmessage","value"]]);
+				addTableRow('statustable',[[statusdata[i].picontrolenabled,"picontrolenabled","checkbox"],[statusdata[i].picontrolstatus,"picontrolstatus","onoff"],[statusdata[i].picontrolfreq,"picontrolfreq","text"],[statusdata[i].lastpicontrolpoll,"lastpicontrolpoll","value"],[statusdata[i].inputsreadenabled,"inputsreadenabled","checkbox"],[statusdata[i].ipnutsreadstatus,"inputsreadstatus","onoff"],[statusdata[i].inputsreadfreq,"inputsreadfreq","text"],[statusdata[i].lastinputspoll,"lastinputspoll","value"],[statusdata[i].enableoutputs,"enableoutputs","checkbox"],[statusdata[i].systemmessage,"systemmessage","value"]]);
 		    }		
 }
 //// Control Inputs - also do ROM display table at same time
-function UpdateControlInputs() {
-	var callback=RenderControlInputs
+function UpdateControlInputsTable() {
+	var callback=RenderControlInputsTable
 	wsgiCallbackTableData(controldatabase,'inputsdata',callback)
 }
-function RenderControlInputs (databaseinputstable) {
+function RenderControlInputsTable (databaseinputstable) {
 	inputids=[]
 	for (var i=0; i<databaseinputstable.length;i++){
 		inputids[i]=databaseinputstable[i].id
@@ -291,71 +247,71 @@ $(document).ready(function() {
 
 	$('#statusrefreshbutton').click(function(){
 		//alert('I am going to update now');	
-		GetAndRenderStatusData()		
+		GetAndRenderStatusTable()
 	});	
 	$('#channelsrefreshbutton').click(function(){
 		//alert('I am going to update now');	
-		GetAndRenderChannelsData()		
+		GetAndRenderChannelsTable()
 	});	
 	$('#outputsrefreshbutton').click(function(){
 		//alert('I am going to update now');		
-		GetAndRenderOutputsData()		
+		GetAndRenderOutputsTable()
 	});	
 	$('#algorithmsrefreshbutton').click(function(){
 		//alert('I am going to update now');		
-		GetAndRenderalgorithmsData()		
+		GetAndRenderAlgorithmsTable()
 	});	
 	$('#statussetdatabutton').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
 		//alert('I am going to update now');	
 		SetStatusData()	
-		setTimeout(function(){GetAndRenderStatusData()},1000)
+		setTimeout(function(){GetAndRenderStatusTable()},1000)
 		}, stdmessage);	
 	});	
 	$('#channelssetdatabutton').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
 		//alert('I am going to update now');	
 		SetChannelsData()
-		setTimeout(function(){GetAndRenderChannelsData()},1000)	
+		setTimeout(function(){GetAndRenderChannelsTable()},1000)
 		}, stdmessage);	
 	});	
 	$('#outputssetdatabutton').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
 		//alert('I am going to update now');		
 		SetOutputsData()
-		setTimeout(function(){GetAndRenderOutputsData()},1000)	
+		setTimeout(function(){GetAndRenderOutputsTable()},1000)
 		}, stdmessage);
 	});	
 	$('#algorithmssetdatabutton').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
 		//alert('I am going to update now');		
 		SetalgorithmsData()	
-		setTimeout(function(){GetAndRenderalgorithmsData()},1000)	
+		setTimeout(function(){GetAndRenderAlgorithmsTable()},1000)
 		}, stdmessage);
 	});	
 	$('#addchannelbutton').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
 		//alert('I am going to update now');		
 		addChannel()
-		setTimeout(function(){GetAndRenderChannelsData()},1000)	
+		setTimeout(function(){GetAndRenderChannelsTable()},1000)
 		}, stdmessage);
 	});	
 		$('#removechannelbutton').click(function(){
 		checkauth(authlevel, actauthlevel, function(){
 		//alert('I am going to update now');		
 		RemoveChannel()	
-		setTimeout(function(){GetAndRenderChannelsData()},1000)	
+		setTimeout(function(){GetAndRenderChannelsTable()},1000)
 		}, stdmessage);
 	});	
 	// Run once at page load
 
 	//getinputid()
-	getControlTypes()
-	GetAndRenderOutputsData ()
-	GetAndRenderAlgorithmsData ()
-	GetAndRenderStatusData ()
-	UpdateControlInputs()
-	setTimeout(function(){GetAndRenderChannelsData ()},1000)
+
+	GetAndRenderOutputsTable ()
+	GetAndRenderAlgorithmsTable ()
+	GetAndRenderStatusTable ()
+
+	setTimeout(function(){GetAndRenderChannelsTable ()},1000)
 	
 });
 

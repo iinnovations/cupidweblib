@@ -1,4 +1,4 @@
-<?php require_once('../auth/user.php'); ?>
+<?php require_once('/var/www/auth/user.php'); ?>
 <?php $user->require_login(); ?>
 <!DOCTYPE html>
 <html>
@@ -22,59 +22,25 @@
 
 // plotting stuff
 $(document).ready(function(){
-  // Some simple loops to build up data arrays.
-  var cosPoints = [];
-  for (var i=0; i<2*Math.PI; i+=0.4){ 
-    cosPoints.push([i, Math.cos(i)]); 
-  }
-    
-  var sinPoints = []; 
-  for (var i=0; i<2*Math.PI; i+=0.4){ 
-     sinPoints.push([i, 2*Math.sin(i-.8)]); 
-  }
-    
-  var powPoints1 = []; 
-  for (var i=0; i<2*Math.PI; i+=0.4) { 
-      powPoints1.push([i, 2.5 + Math.pow(i/4, 2)]); 
-  }
-    
-  var powPoints2 = []; 
-  for (var i=0; i<2*Math.PI; i+=0.4) { 
-      powPoints2.push([i, -2.5 - Math.pow(i/4, 2)]); 
-  } 
- 
-  var plot3 = $.jqplot('plot1', [cosPoints, sinPoints, powPoints1, powPoints2], 
-    { 
-      series:[ 
-          {
-            // Change our line width and use a diamond shaped marker.
-            lineWidth:2, 
-            markerOptions: { style:'dimaond' }
-          }, 
-          {
-            // Don't show a line, just show markers.
-            // Make the markers 7 pixels with an 'x' style
-            showLine:false, 
-            markerOptions: { size: 7, style:"x" }
-          },
-          { 
-            // Use (open) circlular markers.
-            markerOptions: { style:"circle" }
-          }, 
-          {
-            // Use a thicker, 5 pixel line and 10 pixel
-            // filled square markers.
-            lineWidth:5, 
-            markerOptions: { style:"filledSquare", size:10 }
-          }
-      ]
-    }
-  );
-    
+
 });
 </script>
 </head>
 <body>
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {}
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+
+sessiondata.authlevel = handleUserAuths(sessiondata)
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+</script>
+
 <div data-role="page" class="type-home" id="main">
 	<div data-role="content">
 		<div class="content-secondary">

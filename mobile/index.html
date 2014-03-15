@@ -1,10 +1,9 @@
-<?php require_once('auth/user.php'); ?>
+<?php require_once('../auth/user.php'); ?>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1" >
-
 
 <meta http-equiv="cache-control" content="max-age=0" />
 <meta http-equiv="cache-control" content="no-cache" />
@@ -33,6 +32,19 @@
 
 </head>
 <body>
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {}
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+
+sessiondata.authlevel = handleUserAuths(sessiondata)
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+</script>
 <div data-role="page" class="type-home">
 	<div data-role="content">
 		<div class="content-secondary">
@@ -56,8 +68,8 @@
 					<li data-role="list-divider">Control and Monitoring</li>
 					<li><a href="controlpanel.html" data-ajax="false">Main Control Panel</a></li>
 					<li><a href="dataviewer.html" data-ajax="false">Datalog Viewer</a></li>
-					<li><a href="recipes.html" data-ajax="false">Control Recipes</a></li>
-					<li><a href="temprecipes.html" data-ajax="false">Temperature Profile Recipes</a></li>
+					<li><a href="controlrecipes.html" data-ajax="false">Control Recipes</a></li>
+					<li><a href="setpointrecipes.html" data-ajax="false">Temperature Profile Recipes</a></li>
 
 					<li data-role="list-divider">CuPID Settings and Configuration</li>
                     <li><a href="io.html">Inputs/Outputs</a></li>

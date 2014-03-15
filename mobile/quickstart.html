@@ -1,4 +1,5 @@
-<?php require_once('../auth/user.php'); ?>
+<?php require_once('/var/www/auth/user.php'); ?>
+<?php $user->require_login(); ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,6 +17,19 @@
     <script src="/js/cupidjslib.js" type="text/javascript"></script>
 
 <body>
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {}
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+
+sessiondata.authlevel = handleUserAuths(sessiondata)
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+</script>
 
 <script>
     var updateinterval=3000
@@ -34,10 +48,10 @@ $(document).ready(function() {
 		<ul data-role="listview" data-inset="true">
             <li data-role="list-divider">
               <h4>Your CuPID</h4></li>
-            
+
 			<li data-role="fieldcontain">Device Name  :      <span class="metadatadevicename" > </span></li>
 			<li data-role="fieldcontain">Device Group  :    <span class="metadatagroupname"> </span></li>
-            
+
             <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
 			  <div data-role="collapsible" data-collapsed="true"  >
 			    <h3><span class="versionsitem1">&nbsp;</span></h3>
@@ -57,9 +71,9 @@ $(document).ready(function() {
 		</div><!--/content-secondary-->
         <div class="content-primary" >
 		<ul data-role="listview" data-inset="true" data-dividertheme="c">
-           <li data-role="list-divider" ><h4>Topics</h4></li>	
+           <li data-role="list-divider" ><h4>Topics</h4></li>
            <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
-			  <div data-role="collapsible" data-collapsed="true"  >
+			  <div data-role="collapsible" data-collapsed="false"  >
 			    <h3>Network Connectivity (LAN)</h3>
                 <p>Your CuPID Control will come configured as DHCP (it will automatically attempt to obtain whatever IP the network gateway feels like assigning it). If you have a password on your network, you'll first need to tell your CuPID what that is to gain access to the network. To add your password and connect to the network of your choice, simply click the Wireless configuration icon on the desktop and add the information to the network configuration. Select connect and you should be good to go. The connection status will display your IP, which you can use to connect to your Pi on your LAN, e.g. with http://192.168.1.56, or whatever IP you receive.</p>
                 <p>If you wish to configure a static IP, you have two basic choices: configure your CuPID or configure your router. To configure the CuPID, open up the text file /etc/network/interfaces and uncomment the manual configuration lines and comment out the automatic configuration. Instructions in the file should make this clear, and with any luck we'll throw this configuration into our interface in the very near future. Alternatively, if you don't want to mess with this little text file and are comfortable editing your router's configuration, you can create an IP reservation in your router/gateway and you'll get the same IP every time. Same result.</p>

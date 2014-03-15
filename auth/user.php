@@ -257,12 +257,12 @@ class user {
 	}
 
 	protected function sqlite(){ // returns the database object for usersdb
-		return new PDO('sqlite:'.dirname(dirname(dirname(__FILE__))).'/wwwsafe/users.db');
+		return new PDO('sqlite:'.'/var'.'/wwwsafe/users.db');
 	}
 	
 	// This is the new dedicated authlog function
 	protected function sqliteauthlog(){ // returns the database object for usersdb
-		return new PDO('sqlite:'.dirname(dirname(__FILE__)).'/data/authlog.db');
+		return new PDO('sqlite:'.'/var/www'.'/data/authlog.db');
 	}
 
     protected function mail($to,$subject,$body){ // sends an html email
@@ -350,7 +350,8 @@ class user {
         if($result){
             $name=strtolower($result['name']);
             // delete temp entry and set password
-            $password=md5(sha1($name).$this->config['password']['salt'].sha1('temppassword'));
+
+            $password=md5(sha1($name).$this->config['password']['salt'].sha1($reset));
             $q=$db->prepare("UPDATE users SET temp='', password=? WHERE temp=?");
             $q->execute(array($password,$result['temp']));
 
@@ -470,7 +471,7 @@ class user {
 		$q->execute(array('a='.$activate.'&e='.$email,$_SESSION['user']['id']));
 		if($q->rowCount()!=0){
 			$subject='Account Change at '.$this->config['site']['name'];
-			$message='<p>A request was made to change the e-mail address associated with your account from '.$_SESSION['user']['email'].' to '.$email.'. Please click the link below to confirm the new address.</p>'."\r\n";
+			$message='<p>A request was made to change the e-mail address associated with your account from '.$_SESSION['user']['email'].' to '.$email.'. Please click the link below to confirm the new password: '.$temppassword.'.</p>'."\r\n";
 			$message.="\t".'<p><a href="http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['activate'].'?activate='.$activate.'">http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['activate'].'?activate='.$activate.'</a></p>';
             $mailstatus=@$this->gmail($email,$subject,$message);
             if($mailstatus=='success'){
@@ -496,7 +497,7 @@ class user {
         $q->execute(array('r='.$reset,$name));
         if($q->rowCount()!=0){
             $subject='Account Change at '.$this->config['site']['name'];
-            $message='<p>A request was made to reset the password for the account id'.$name.'. Please click the link below to confirm the new address.</p>'."\r\n";
+            $message='<p>A request was made to reset the password for the account id '.$name.'. Please click the link below to confirm the new password '.$reset.'</p>'."\r\n";
             $message.="\t".'<p><a href="http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['doreset'].'?reset='.$reset.'">http://'.$_SERVER['SERVER_NAME'].'/'.$this->config['pages']['doreset'].'?reset='.$reset.'</a></p>';
             $mailstatus=@$this->gmail($email,$subject,$message);
             if($mailstatus=='success'){

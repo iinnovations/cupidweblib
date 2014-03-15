@@ -1,4 +1,4 @@
-<?php require_once('../auth/user.php'); ?>
+<?php require_once('/var/www/auth/user.php'); ?>
 <?php $user->require_login(); ?>
 <!DOCTYPE html>
 <html>
@@ -24,6 +24,19 @@
     <script src="/js/cupidjslib.js" type="text/javascript"></script>
 </head>
 <body>
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {}
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+
+sessiondata.authlevel = handleUserAuths(sessiondata)
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+</script>
 
 <div data-role="page" class="type-home" id="main">
 <script>

@@ -15,6 +15,20 @@
 	<script src="/js/cupidjslib.js" type="text/javascript"></script>
 </head>
 <body>
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {}
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+
+sessiondata.authlevel = handleUserAuths(sessiondata)
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+</script>
+
 <div data-role="page" class="type-home" id="main">
 <script>
  var updateinterval=3000
@@ -26,7 +40,6 @@ $(document).ready(function(){
   UpdateMetadata({'timeout':updateinterval}) 
 })
 </script>
-
 
 	<div data-role="content">
       <div class="content-secondary">
@@ -54,6 +67,23 @@ $(document).ready(function(){
 			<li data-role="fieldcontain">Hardware: <span class="versionsversion3">&nbsp;</span></li>
           </ul>
 		</div><!--/content-secondary-->
+        <div class="content-primary">
+		<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">
+            <li data-role="list-divider">
+            <h4>About CuPID Controls</h4></li>
+            <li>CuPID Controls<p>CuPID Controls is an <a href="interfaceinnovations.org">Interface Innovations</a> venture focused on bringing high-quality,
+                affordable and powerful control hardware and software into the open-source hardware community.</p>
+            </li>
+            <li>On the webs
+                <p>Find us online at our blog at <a href="cupidcontrols.com">CuPIDcontrols.com</a>, or on our product page at
+                <a href="interfaceinnovations.org/cupidcontrols.html">interfaceinnovations.org/cupidcontrols.html</a> </p>
+            </li>
+            <li>Contact Us
+                <p>Feel free to contact us at <a href="mailto:info@interfaceinnovations.org">info@interfaceinnovations.org</a></p>
+            </li>
+            <li><p>Copyright Interface Innovaitons, LLC</p></li>
+          </ul>
+		</div><!--/content-primary-->
 	</div><!--content-->
 </div><!-- page -->
 </body>

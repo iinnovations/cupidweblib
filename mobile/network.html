@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>About</title>
+	<title>CuPID Network Status</title>
 	<link rel="stylesheet" href="css/jquery.mobile-1.2.1.css" />
 	<link rel="stylesheet" href="css/jqm-docs.css" />
     <link rel="stylesheet" href="css/CuPID.css" />
@@ -30,78 +30,29 @@ logUserAuths(sessiondata)
 </script>
 
 <div data-role="page" class="type-home" id="main">
-<script type="text/javascript" language="JavaScript" src="http://j.maxmind.com/app/geoip.js"> </script>
-<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false">    </script>
-
 <script>
-var updateinterval=3000
+ var updateinterval=3000
 $(document).ready(function(){
-            var map;
-            function initialize() {
-                var options =
-    {
-        zoom: 2,
-        center: new google.maps.LatLng(geoip_latitude(), geoip_longitude()),
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        mapTypeControl: true,
-        mapTypeControlOptions:
-        {
-            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-            poistion: google.maps.ControlPosition.TOP_RIGHT,
-            mapTypeIds: [google.maps.MapTypeId.ROADMAP,
-              google.maps.MapTypeId.TERRAIN,
-              google.maps.MapTypeId.HYBRID,
-              google.maps.MapTypeId.SATELLITE]
-        },
-        navigationControl: true,
-        navigationControlOptions:
-        {
-            style: google.maps.NavigationControlStyle.ZOOM_PAN
-        },
-        scaleControl: true,
-        disableDoubleClickZoom: true,
-        draggable: false,
-        streetViewControl: true,
-        draggableCursor: 'move'
-    };
-                map = new google.maps.Map(document.getElementById("map"), options);
-                // Add Marker and Listener
-                var latlng = new google.maps.LatLng(geoip_latitude(), geoip_longitude());
-                var marker = new google.maps.Marker
-    (
-        {
-            position: latlng,
-            map: map,
-            title: 'Click me'
-        }
-    );
-                var infowindow = new google.maps.InfoWindow({
-                    content: 'You Are Here'
-                });
-                google.maps.event.addListener(marker, 'click', function () {
-                    // Calling the open method of the infoWindow
-                    infowindow.open(map, marker);
-                });
-            }
-            window.onload = initialize;
+ 
   togglestolamps()
   //// Control Algorithms
   UpdateVersionsData({'timeout':updateinterval})  
   UpdateMetadata({'timeout':updateinterval}) 
 })
 </script>
+
 	<div data-role="content">
       <div class="content-secondary">
 		<ul data-role="listview" data-inset="true">
             <li data-role="list-divider">
-              <h4>Your CuPID</h4></li>
+              <h4>Network Status</h4></li>
             
-			<li data-role="fieldcontain">Device Name:       <span class="metadatadevicename">&nbsp;</span></li>
-			<li data-role="fieldcontain">Device Group:       <span class="metadatadevicegroup">None</span></li>
+			<li data-role="fieldcontain"><table width="90%"><tr><td>Network Role :       <span class="netconfignettype">&nbsp</span></td><td align="right">Station</td></tr></table></li>
+			<li data-role="fieldcontain"><table width="90%"><tr><td>Wlan IP :       <span class="netconfigaddress">&nbsp;</span></td><td align="right">XXX.XXX.XXX.XXX</td></tr></table></li>
             
             <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
 			  <div data-role="collapsible" data-collapsed="true"  >
-			    <h3><span class="versionsitem1">&nbsp;</span></h3>
+			    <h3><span class="networkinterfaces">blurg</span></h3>
                 <p><strong>Version time:    </strong><span class="versionsversiontime1">&nbsp;</span></p>
                 <p><strong>Update time:    </strong><span class="versionsupdatetime1">&nbsp;</span></p>
                 <p><strong>Commit hex:   </strong><span class="versionsversion1">&nbsp;</span></p>
@@ -114,13 +65,6 @@ $(document).ready(function(){
 			  </div>
             </div>
 			<li data-role="fieldcontain">Hardware: <span class="versionsversion3">&nbsp;</span></li>
-            <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
-                <div data-role="collapsible" data-collapsed="false">
-                    <h3><span class="versionsitem1">Location Data</span></h3>
-                     <p><div id="map" style="height: 300px; width: 100%">&nbsp;</div></p>
-                </div>
-            </div>
-            <li data-role="fieldcontain">&nbsp;</li>
           </ul>
 		</div><!--/content-secondary-->
         <div class="content-primary">

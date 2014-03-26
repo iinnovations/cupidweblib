@@ -51,8 +51,26 @@ class user {
 	);
 
 	function __construct(){ // generates the user class and determines what we are doing
+        function getRealIpAddr()
+            {
+                if (!empty($_SERVER['HTTP_CLIENT_IP']))   //check ip from share internet
+            {
+             $ip=$_SERVER['HTTP_CLIENT_IP'];
+            }
+            elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))   //to check ip is pass from proxy
+            {
+                $ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+            }
+            else
+            {
+                $ip=$_SERVER['REMOTE_ADDR'];
+            }
+            return $ip;
+        }
 		session_name($this->config['site']['cookie']);
 		session_start();
+		$_SESSION['user']['realip'] = getRealIpAddr();
+    	$_SESSION['user']['appip'] = $_SERVER['REMOTE_ADDR'];
 		$this->set_actions();
 		if(isset($_GET['logout'])){
 			$this->logout();
@@ -147,23 +165,7 @@ class user {
 
 	
 	private function login(){ // processes the login form
-		function getRealIpAddr()
-			{
-    			if (!empty($_SERVER['HTTP_CLIENT_IP']))   //check ip from share internet
-        	{
-         	 $ip=$_SERVER['HTTP_CLIENT_IP'];
-        	}
-        	elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))   //to check ip is pass from proxy
-        	{
-          		$ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
-        	}
-        	else
-        	{
-          		$ip=$_SERVER['REMOTE_ADDR'];
-    		}
-    		return $ip;
-		}
-		
+
 		if(!isset($_POST['name'])||!isset($_POST['password']))
 			die();
 		$name=strtolower($_POST['name']);

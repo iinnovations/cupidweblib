@@ -150,18 +150,6 @@ logUserAuths(sessiondata)
             $(divhtmlitemstring).appendTo("#outputset").trigger( "create" );
         }
 
-        <!--$('#channelscontainer').html(divhtmlstring)-->
-        for (var i=0; i<channelsdata.length; i++){
-            var index=i+1;
-            //alert("delete channel " + index + " , " + channelsdata[i].name);
-            //$('.channelsname' + index + 'delete').click({index:1,i:i},function(event){
-            //    var index=event.data.index;
-            //    var i = event.data.i;
-            //    $("#mydialog").dialog("open");
-            //    alert("delete channel " + index + " , " + channelsdata[i].name);
-            //    //deleteChannelByName(channelsdata[i].name);
-            //})
-        }
 
         $('#outputset').collapsibleset('refresh')
         $('#outputslistview').listview('refresh')

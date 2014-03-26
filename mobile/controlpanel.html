@@ -227,10 +227,10 @@ function RenderChannels(channelstable) {
 $(document).ready(function(){
 	togglestolamps();
 	//// Control Algorithms
-	UpdateChannelsTable({'timeout':updateinterval,'jqmpage':true});
+	UpdateChannelsTable();
 	setTimeout(function(){
-        UpdateControlRecipeNames({'timeout':updateinterval,'jqmpage':true});
-        UpdateControlAlgorithms({'timeout':updateinterval,'jqmpage':true});
+        UpdateControlRecipeData({'timeout':updateinterval,'jqmpage':true});
+        UpdateControlAlgorithmsData({'timeout':updateinterval,'jqmpage':true});
         UpdateInputsData({'timeout':updateinterval,'jqmpage':true});
         UpdateOutputsData({'timeout':updateinterval,'jqmpage':true});
         UpdatePlotMetadata({'timeout':updateinterval,'jqmpage':true});

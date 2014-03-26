@@ -9,35 +9,14 @@ infodatabase='/var/www/data/deviceinfo.db';
 systemdatabase='/var/www/data/systemdata.db';
 authdatabase='/var/www/data/authlog.db';
 
-// Set a function to translate aliases
-function dbAliasToPath(alias) {
-    switch (alias)
-    {
-        case 'controldata':
-            path = controldatabase;
-            break;
-        case 'recipedata':
-            path = recipedatabase;
-            break;
-        case 'systemdata':
-            path = systemdatabase;
-            break;
-        case 'logdata':
-            path = logdatabase;
-            break;
-        case 'authlog':
-            path = authdatabase;
-            break;
-    }
-    return path
-
-}
-
-// Define all the globals
+// Define all the globals.
+// Not sure all are still necessary
 var inputs=[];
 var outputs=[];
 var controlalgorithms=[];
 var controlrecipes=[];
+var algorithmtypes=[]
+var modes=['auto','manual'];
 
 //////////////////////////////////////////////////////
 // Auth functions
@@ -80,6 +59,7 @@ function logUserAuths(sessiondata) {
     }
 }
 
+//////////////////////////////////////////////////////
 // Database table manipulation
 function dropTable(database,tablename) {
     var query='drop table \"' + tablename  + '\"';
@@ -89,7 +69,7 @@ function deleteRow(database,table,callback,identifier,value){
     var query='delete from \"' + table + '\" where \"' + identifier + '\"=\"' + value + '\"';
     wsgiExecuteQuery (database,query,callback);
 }
-function addRow(database,table, callback, valuenames,values) {
+function addRow(database, table, callback, valuenames,values) {
     var valuenames=valuenames || [];
     var values=values || [];
     var query='insert into \"' + table + '\"'
@@ -147,6 +127,9 @@ function logdone(data){
 	console.log('done');
     console.log(data)
 }
+
+////////////////////////////////////////////////////////
+// Widgets!
 
 // Jquerymobile render of toggles into lamps
 // Still haven't successfully removed hover behaviors
@@ -234,7 +217,25 @@ function setWidgetActions(options){
         // invoke ajax query with callback to update the interface when it's done
         setTimeout(function () {
             UpdateControl(actionobj, callback);
-        }, updatetimeout);
+        }, updateTimeout);
+    });
+
+    // set actions for update buttons on text fields
+    var $updatetextclasses=$(baseclass + 'textupdate')
+    $updatetextclasses.unbind('click');
+    $updatetextclasses.click(function (event) {
+        // Need to switch value to text field on this one
+        actionobj.value = $(baseclass + 'text').val();
+        alert(actionobj.value)
+        // invoke ajax query with callback to update the interface when it's done
+        UpdateControl(actionobj, callback);
+        var updateoncomplete = true;
+        if (updateoncomplete){
+            //alert('update on complete!')
+            setTimeout(function () {
+                setWidgetValues(baseclass,actionobj.value,options)
+            }, updateTimeout);
+        }
     });
 
     // Actions for jqm objects. We pass the jqmpage boolean so that we don't
@@ -469,10 +470,9 @@ function RenderMetadata (metadata,options){
 function UpdateTablesData(options) {
 	var callback=RenderTablesData;
     if (! options.hasOwnProperty('database')){
-        options.database = 'controldata';
+        options.database = controldatabase;
     }
-    options.dbpath = dbAliasToPath(options.database)
-    wsgiGetTableNames (options.dbpath,callback,options)
+    wsgiGetTableNames (options.database,callback,options)
 }
 function RenderTablesData(tablenames,options) {
     options = options || {};
@@ -508,17 +508,20 @@ function RenderTablesData(tablenames,options) {
 }
 
 //// Columns Data
+// With database and table, update named selectors
+// with all available columns. This is used for offering all
+// database fields as criteria.
+
 function UpdateColumnsData(options) {
 	var callback=RenderColumnsData;
     if (! options.hasOwnProperty('database')){
-        options.database = 'controldata';
+        options.database = controldatabase;
     }
-    options.dbpath = dbAliasToPath(options.database)
 
     if (! options.hasOwnProperty('table')){
         options.table = 'channels';
     }
-    wsgiCallbackTableData(options.dbpath,options.table,callback,options)
+    wsgiCallbackTableData(options.database,options.table,callback,options)
 }
 function RenderColumnsData(data,options) {
     options = options || {};
@@ -571,11 +574,11 @@ function RenderColumnsData(data,options) {
 }
 
 //// Control Algorithms
-function UpdateControlAlgorithms(options) {
-	  var callback=RenderControlAlgorithms;
+function UpdateControlAlgorithmsData(options) {
+	  var callback=RenderControlAlgorithmsData;
 	  wsgiCallbackTableData(controldatabase,'controlalgorithms',callback,options);
 }
-function RenderControlAlgorithms(algorithmstable,options) {
+function RenderControlAlgorithmsData(algorithmstable,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
 
@@ -592,7 +595,7 @@ function RenderControlAlgorithms(algorithmstable,options) {
     }
 
 	if (options.timeout>0) {
-		setTimeout(function(){UpdateControlAlgorithms(options)},options.timeout);
+		setTimeout(function(){UpdateControlAlgorithmsData(options)},options.timeout);
 	}
 	var controlalgorithms=[];
 	for (var i=0; i<algorithmstable.length;i++){
@@ -601,6 +604,41 @@ function RenderControlAlgorithms(algorithmstable,options) {
 	$('.controlalgorithmselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, controlalgorithms);
+		}
+	});
+}
+
+//// Control Algorithm Types
+function UpdateControlAlgorithmTypesData(options) {
+	  var callback=RenderControlAlgorithmTypesData;
+	  wsgiCallbackTableData(controldatabase,'algorithmtypes',callback,options);
+}
+function RenderControlAlgorithmTypesData(datatable,options) {
+    options = options || {};
+    var jqmpage = options.jqmpage || false;
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+
+	if (options.timeout>0) {
+		setTimeout(function(){UpdateControlAlgorithmTypesData(options)},options.timeout);
+	}
+	algorithmtypes=[];
+	for (var i=0; i<datatable.length;i++){
+		algorithmtypes.push(datatable[i].name);
+	}
+	$('.algorithmtypeselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+	    	UpdateSelect(this.id, algorithmtypes);
 		}
 	});
 }
@@ -666,14 +704,19 @@ function RenderChannelsData(channelsdata,options) {
             options.auxcallback(channelsdata)
         }
 	}
+    // Update selectors
+    UpdateControlRecipeData()
+    UpdateOutputsData()
+    UpdateInputsData()
+
 }
 
 //// Control Recipes
-function UpdateControlRecipeNames(options) {
-	  var callback=RenderControlRecipeNames;
+function UpdateControlRecipeData(options) {
+	  var callback=RenderControlRecipeData;
 	  wsgiGetTableNames(recipedatabase,callback,options)
 }
-function RenderControlRecipeNames(recipenames,options) {
+function RenderControlRecipeData(recipenames,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
 
@@ -688,15 +731,15 @@ function RenderControlRecipeNames(recipenames,options) {
     else {
         timeout=0;
     }
-	var renderrecipenames=['none'];
-	renderrecipenames.push(recipenames);
+	controlrecipes=['none'];
+	controlrecipes.push(recipenames);
 	if (options.timeout>0) {
-		setTimeout(function(){UpdateControlRecipeNames(options)},options.timeout)
+		setTimeout(function(){UpdateControlRecipeData(options)},options.timeout)
 	}
 
 	$('.controlrecipeselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, renderrecipenames)
+	    	UpdateSelect(this.id, controlrecipes)
 		}
 	});
 }
@@ -744,7 +787,6 @@ function UpdateInputsData(options) {
 function RenderInputsData(inputstable,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
-
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
     if (options.hasOwnProperty('timeoutclass')) {
@@ -759,15 +801,15 @@ function RenderInputsData(inputstable,options) {
 	if (options.timeout>0) {
 		setTimeout(function(){UpdateInputsData(options)},options.timeout)
 	}
-	var inputs=['none'];
+	inputs=['none'];
 	for (var i=0; i<inputstable.length;i++){
 		inputs.push(inputstable[i].id);
 	}
+
     RenderWidgetsFromArray(controldatabase,'inputsdata',inputstable,options)
 	$('.inputselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, inputs);
-			//console.log(inputs)
 		}
 	});	
 }
@@ -831,7 +873,7 @@ function UpdateSystemStatusData(options) {
 	var callback=RenderSystemStatusData;
 	wsgiCallbackTableData(controldatabase,'systemstatus',callback,options);
 }
-function RenderSystemStatusData(systemstatusdatalist,options) {
+function RenderSystemStatusData(datatable,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
 
@@ -851,8 +893,8 @@ function RenderSystemStatusData(systemstatusdatalist,options) {
 	}
 	// Option for controls (as opposed to indicators (not implemented yet
     // var updatesliders = options.updatesliders || true;
-	var systemstatusdata=systemstatusdatalist[0];
-	RenderWidgets(controldatabase, 'systemstatus', systemstatusdata,options);
+	var systemstatusdata=datatable[0];
+	RenderWidgets(controldatabase, 'systemstatus', datatable, options);
 }
 
 //// Metadata
@@ -887,13 +929,19 @@ function RenderPlotMetadata(metadata,options) {
 
 
 // These guys create tables and table elements and then render them using the above
-// functions, or not.
+// functions, or not. The key part is creating table elements that can be automatically
+// rendered. Eventually this will be a generic 'render table' function, but custom displays
+// will always be necessary, as we don't want to render EVERYTHING at all times, and we also
+// want to render things like text entry fields and selects
 
 
 //// Control Inputs - also do ROM display table at same time
 function UpdateInputsDataTable(options) {
 	var callback=RenderControlInputsTable
-	wsgiCallbackTableData(controldatabase,'inputsdata',callback,options)
+    options=options || {}
+    options.tablename='inputsdata';
+    options.database=controldatabase;
+	wsgiCallbackTableData(options.database,options.tablename,callback,options)
 }
 function RenderControlInputsTable (datatable,options) {
     var tableid = options.tableid || 'inputsdatatable'
@@ -922,19 +970,232 @@ function RenderControlInputsTable (datatable,options) {
     else {
         var numrowstoget = datatable.length;
     }
-	inputids=[]
-	for (var i=dbrowstart; i<numrowstoget;i++){
-		inputids[i]=datatable[i].id
-	}
-    // currently vanilla javascript. we'll jquery this shortly.
     clearTable(tableid, tablerowstart);
-    for (var j=0;j<numrowstoget;j++)
+    for (var j=dbrowstart;j<numrowstoget;j++)
     {
-        addTableRow(tableid,[[datatable[j].id,"id","value"],[datatable[j].interface,"interface","value"],[datatable[j].type,"type","value"],[datatable[j].value,"value","value"],[datatable[j].unit,"unit","value"],[datatable[j].polltime,"time","value"]]);
+        addTableRow(tableid,[
+            {value:datatable[j].name,cellclass:tablename + "interface" + String(j+1),type:"value"},
+            {value:datatable[j].address,cellclass:options.tablename + "address" + String(j+1),type:"value"},
+            {value:datatable[j].type,cellclass:options.tablename + "type" + String(j+1),type:"value"},
+            {value:datatable[j].value,cellclass:options.tablename + "value" + String(j+1),type:"value"},
+            {value:datatable[j].unit,cellclass:options.tablename + "unit" + String(j+1),type:"value"},
+            {value:datatable[j].polltime,cellclass:options.tablename + "polltime" + String(j+1),type:"value"}
+        ]);
     }
+    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }
 
+function UpdateIOInfoTable(options) {
+	var callback=RenderIOInfoTable
+    options=options || {}
+    options.tablename='ioinfo';
+    options.database=controldatabase;
+	wsgiCallbackTableData(options.database,options.tablename,callback,options)
+}
+function RenderIOInfoTable (datatable,options) {
+    var tableid = options.tableid || 'ioinfotable'
+    var tablerowstart = options.tablerowstart || 1;
+    var dbrowstart = options.dbrowstart || 0;
+    var numdbrows = options.numdbrows || 999;
 
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (timeout>0) {
+		setTimeout(function(){UpdateIOInfoTable(options)},timeout);
+	}
+
+    if (datatable.length > numdbrows) {
+        var numrowstoget = numdbrows;
+    }
+    else {
+        var numrowstoget = datatable.length;
+    }
+
+    // currently vanilla javascript. we'll jquery this shortly.
+    clearTable(tableid, tablerowstart);
+    for (var j=dbrowstart;j<numrowstoget;j++)
+    {
+        if (options.editmode){
+           addTableRow(tableid,[
+               {value:datatable[j].id,cellclass:options.tablename + "id" + String(j+1),type:"value"},
+               {value:datatable[j].name,cellclass:options.tablename + "name" + String(j+1) + 'text',type:"text"},
+               {value:'Update',cellclass:options.tablename + "name" + String(j+1) + 'textupdate',type:"button"}
+           ]);
+           //setWidgetActions({database:controldatabase,tablename:options.tablename,baseclass:'.' + options.tablename + "name" + String(j+1)})
+        }
+        else {
+            addTableRow(tableid,[
+                {value:datatable[j].id,cellclass:options.tablename + "id" + String(j+1),type:"value"},
+                {value:datatable[j].name,cellclass:options.tablename + "name" + String(j+1),type:"value"}
+            ]);
+        }
+    }
+    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+}
+
+function UpdateOutputsTable(options) {
+	var callback=RenderOutputsTable
+    options=options || {}
+    options.tablename='outputs';
+    options.database=controldatabase;
+	wsgiCallbackTableData(options.database,options.tablename,callback,options)
+}
+function RenderOutputsTable (datatable,options) {
+    var tableid = options.tableid || 'outputstable'
+    var tablerowstart = options.tablerowstart || 1;
+    var dbrowstart = options.dbrowstart || 0;
+    var numdbrows = options.numdbrows || 999;
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (timeout>0) {
+		setTimeout(function(){UpdateOutputsTable(options)},timeout);
+	}
+
+    if (datatable.length > numdbrows) {
+        var numrowstoget = numdbrows;
+    }
+    else {
+        var numrowstoget = datatable.length;
+    }
+
+    clearTable(tableid, tablerowstart);
+    for (var j=dbrowstart;j<numrowstoget;j++)
+    {
+        addTableRow(tableid,[{value:datatable[j].name, cellclass:options.tablename + "name" + String(j+1),type:"value"},
+            {value:datatable[j].id, cellclass:options.tablename + "id" + String(j+1),type:"value"},
+            {value:datatable[j].interface, cellclass:options.tablename + "interface" + String(j+1),type:"value"},
+            {value:datatable[j].type, cellclass:options.tablename + "type" + String(j+1),type:"value"},
+            {value:datatable[j].address, cellclass:options.tablename + "address" + String(j+1),type:"value"},
+            {value:datatable[j].enabled, cellclass:options.tablename + "enabled" + String(j+1) + 'checkbox',type:"checkbox"},
+            {value:datatable[j].status, cellclass:options.tablename + "status" + String(j+1),type:"onoff"},
+            {value:datatable[j].mode, cellclass:options.tablename + "mode" + String(j+1) + 'select',cellid:options.tablename + "mode" + String(j+1) + 'select',type:"select-one",choices:modes}])
+    }
+    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+}
+
+function UpdateChannelsTable(options) {
+	var callback=RenderChannelsTable
+    options=options || {}
+    options.tablename='channels';
+    options.database=controldatabase;
+	wsgiCallbackTableData(options.database,options.tablename,callback,options)
+}
+function RenderChannelsTable (datatable,options) {
+    var tableid = options.tableid || 'channelstable';
+    var tablerowstart = options.tablerowstart || 1;
+    var dbrowstart = options.dbrowstart || 0;
+    var numdbrows = options.numdbrows || 999;
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (timeout>0) {
+		setTimeout(function(){UpdateChannelsTable(options)},timeout);
+	}
+
+    if (datatable.length > numdbrows) {
+        var numrowstoget = numdbrows;
+    }
+    else {
+        var numrowstoget = datatable.length;
+    }
+    clearTable(tableid, tablerowstart);
+    for (var j=dbrowstart;j<numrowstoget;j++)
+    {
+        addTableRow(tableid,[
+        {value:datatable[j].channelindex, cellclass:options.tablename + "channelindex" + String(j+1),type:"value"},
+        {value:datatable[j].name, cellclass:options.tablename + "name" + String(j+1),type:"value"},
+        {value:datatable[j].controlinput, cellclass:options.tablename + "controlinput" + String(j+1) + 'select inputselect',cellid:options.tablename + "controlinput" + String(j+1) + 'select',type:"select-one",choices:inputs},
+        {value:datatable[j].enabled, cellclass:options.tablename + "enabled" + String(j+1) + 'checkbox',type:"checkbox"},
+        {value:datatable[j].outputsenabled, cellclass:options.tablename + "outputsenabled" + String(j+1) + 'checkbox',type:"checkbox"},
+        {value:datatable[j].controlalgorithm, cellclass:options.tablename + "controlalgorithm" + String(j+1) + 'select controlalgorithmselect',cellid:options.tablename + "controlalgorithm" + String(j+1) +'select', type:"select-one",choices:controlalgorithms},
+        {value:datatable[j].controlrecipe, cellclass:options.tablename + "controlrecipe" + String(j+1) + 'select controlrecipeselect',cellid:options.tablename + "controlrecipe" + String(j+1) + 'select',type:"select-one",choices:controlrecipes},
+        {value:datatable[j].controlvalue, cellclass:options.tablename + "controlvalue" + String(j+1),type:"value"},
+        {value:datatable[j].setpointvalue, cellclass:options.tablename + "setpointvalue" + String(j+1),type:"value"},
+        {value:datatable[j].posoutput, cellclass:options.tablename + "posoutput" + String(j+1) + 'select outputselect',cellid:options.tablename + "posoutput" + String(j+1) + 'select',type:"select-one",choices:outputs},
+        {value:datatable[j].netoutput, cellclass:options.tablename + "negoutput" + String(j+1) + 'select outputselect',cellid:options.tablename + "negoutput" + String(j+1) + 'select',type:"select-one",choices:outputs}])
+    }
+    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+}
+
+function UpdateControlAlgorithmsTable(options) {
+	var callback=RenderControlAlgorithmsTable
+    options=options || {}
+    options.tablename='controlalgorithms';
+    options.database=controldatabase;
+	wsgiCallbackTableData(options.database,options.tablename,callback,options)
+}
+function RenderControlAlgorithmsTable (datatable,options) {
+    var tableid = options.tableid || 'controlalgorithmstable'
+    var tablerowstart = options.tablerowstart || 1;
+    var dbrowstart = options.dbrowstart || 0;
+    var numdbrows = options.numdbrows || 999;
+    console.log(datatable)
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (timeout>0) {
+		setTimeout(function(){UpdateControlAlgorithmsTable(options)},timeout);
+	}
+    if (datatable.length > numdbrows) {
+        var numrowstoget = numdbrows;
+    }
+    else {
+        var numrowstoget = datatable.length;
+    }
+
+    clearTable(tableid, tablerowstart);
+    for (var j=dbrowstart;j<numrowstoget;j++)
+    {
+       addTableRow(tableid,[{value:datatable[j].name,cellclass:options.tablename + "name" + String(j+1),type:"text"},
+            {value:datatable[j].type,cellclass:options.tablename + "type" + String(j+1) + 'select algorithmtypeselect',cellid:options.tablename + "type" + String(j+1) + 'select',type:"select-one",choices:algorithmtypes},
+            {value:datatable[j].proportional,cellclass:options.tablename + "proportional" + String(j+1),type:"text"},
+            {value:datatable[j].integral,cellclass:options.tablename + "integral" + String(j+1),type:"text"},
+            {value:datatable[j].derivative,cellclass:options.tablename + "derivative" + String(j+1),type:"text"},
+            {value:datatable[j].deadbandhigh,cellclass:options.tablename + "deadbandhigh" + String(j+1),type:"text"},
+            {value:datatable[j].deadbandlow,cellclass:options.tablename + "deadbandlow" + String(j+1),type:"text"},
+            {value:datatable[j].dutypercent,cellclass:options.tablename + "dutypercent" + String(j+1),type:"text"},
+            {value:datatable[j].dutyperiod,cellclass:options.tablename + "dutyperiod" + String(j+1),type:"text"}
+       ]);
+    }
+    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+    UpdateControlAlgorithmTypesData()
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // Misc
@@ -1152,8 +1413,77 @@ function RenderLogData (returnedlogdata,options) {
     }
 }
 
+/////////////////////////////////////////////////////////
+// Map Stuff
+function makeUserServerMap(locations,labels,content) {
+    var options =
+    {
+        zoom: 4,
+        center: new google.maps.LatLng(locations[0][0],locations[0][1]),
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        mapTypeControl: true,
+        mapTypeControlOptions:
+        {
+            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+            poistion: google.maps.ControlPosition.TOP_RIGHT,
+            mapTypeIds: [google.maps.MapTypeId.ROADMAP,
+              google.maps.MapTypeId.TERRAIN,
+              google.maps.MapTypeId.HYBRID,
+              google.maps.MapTypeId.SATELLITE]
+        },
+        navigationControl: true,
+        navigationControlOptions:
+        {
+            style: google.maps.NavigationControlStyle.ZOOM_PAN
+        },
+        scaleControl: true,
+        disableDoubleClickZoom: false,
+        draggable: true,
+        streetViewControl: true,
+        draggableCursor: 'move'
+    };
+                map = new google.maps.Map(document.getElementById("map"), options);
+                // Add Marker and Listener
+
+                var userlatlng = new google.maps.LatLng(locations[1][0],locations[1][1]);
+                var serverlatlng = new google.maps.LatLng(locations[0][0],locations[0][1]);
+                var usermarker = new google.maps.Marker
+                (
+                    {
+                        position: userlatlng,
+                        map: map,
+                        title: labels[0]
+                    }
+                );
+                var servermarker = new google.maps.Marker
+                (
+                    {
+                        position: serverlatlng,
+                        map: map,
+                        title: labels[1]
+                    }
+                );
+    var serverwindow = new google.maps.InfoWindow({
+        content: content[0]
+    });
+    var userwindow = new google.maps.InfoWindow({
+        content: content[1]
+    });
+    google.maps.event.addListener(servermarker, 'click', function () {
+        // Calling the open method of the infoWindow
+        serverwindow.open(map, servermarker);
+    });
+        google.maps.event.addListener(usermarker, 'click', function () {
+        // Calling the open method of the infoWindow
+        userwindow.open(map, usermarker);
+    });
+}
+
 ////////////////////////////////////////////////////
 // Modify database
+
+// should probably do some documentation here on what the
+// possible actions are
 
 function UpdateControl(actionobj,callback) {
         $.ajax({
@@ -1166,3 +1496,4 @@ function UpdateControl(actionobj,callback) {
             }
        });
 }
+

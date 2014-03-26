@@ -109,15 +109,15 @@ function trueFalseToInteger (boolean) {
 ////////////////////////////////////////////////////////
 // HTML DOM manipulation
 
-function addInput(object,choices,classname){
+function addInput(object,choices,classname,inputid){
+    var inputid = inputid ||'';
     var newDiv=document.createElement('div');
-    var selectHTML = "<select>";
+    var selectHTML = '<select class="' + classname + '" id="' + inputid +'">';
     for(var i=0; i<choices.length; i=i+1){
         selectHTML+= "<option value='"+choices[i]+"'>"+choices[i]+"</option>";
     }
         selectHTML += "</select>";
     newDiv.innerHTML= selectHTML;
-	newDiv.className=classname;
 	//newDiv.firstChild.value='auto' THIS WORKS
     //document.getElementById(divName).appendChild(newDiv);
 	object.appendChild(newDiv);
@@ -150,52 +150,54 @@ function addTableRow(tableID,contentarray) {
     for(var i=0; i<contentarray.length; i++) {
  		  //alert(table.name);
           var newcell = row.insertCell(i);
-		  
-		  // determine if input or indicator
-		  
- 		  var label=contentarray[i][1];
+		  var cellclass = contentarray[i].cellclass || ''
+          var cellid = contentarray[i].cellid || ''
+          var celltype = contentarray[i].type || 'value'
+          //var cellvalue = contentarray[i].value || ''
+          var cellvalue = contentarray[i].value
+          var choices = contentarray[i].choices || []
 		  
 		  // Act depending on type of cell
 		  var textvalue='empty';
-          switch(contentarray[i][2]) {
+          switch(celltype) {
               case "text": 		// text is an entry field
 			  		var element1 = document.createElement("input");
-		  			element1.className=label;
+		  			element1.className=cellclass;
                     element1.type="text";
 					newcell.appendChild(element1);
-					element1.value = contentarray[i][0];
+					element1.value = cellvalue;
                     break;
               case "checkbox":
 			  		var element1 = document.createElement("input");
-		  			element1.className=label;
+		  			element1.className=cellclass;
 			  		element1.type="checkbox";
 					newcell.appendChild(element1);
 					
-                    if (contentarray[i][0]==1) {
+                    if (cellvalue==1) {
 						element1.checked=true;
 						element1.value=true;
 					}
-					else if (contentarray[i][0]==0 ){
+					else if (cellvalue==0 ){
 						element1.checked=false;
 						element1.value=false;
 					} 
                     break;
               case "select-one":
-                    addInput(newcell,contentarray[i][3],label);
-					newcell.firstChild.firstChild.value=contentarray[i][0];
+                    addInput(newcell,choices,cellclass,cellid);
+					newcell.firstChild.firstChild.value=cellvalue;
                     break;
 			  case "value": // value is not editable
 			        //alert(element1.className)
 					var element1 = document.createElement("div");
-					element1.className=label;
+					element1.className=cellclass;
 					newcell.appendChild(element1);
-					element1.innerHTML = contentarray[i][0];
+					element1.innerHTML = cellvalue;
 					break;
 			  case "boolean":
-			        if (contentarray[i][0]==1) {
+			        if (cellvalue==1) {
 						textvalue="T";
 					}
-					else if (contentarray[i][0]==0 ){
+					else if (cellvalue==0 ){
 						textvalue="F";
 					} 
 					else {
@@ -204,16 +206,19 @@ function addTableRow(tableID,contentarray) {
 					newcell.innerHTML = textvalue;
 					break;
 			  case "onoff":
-			        if (contentarray[i][0]==1) {
+			        if (cellvalue==1) {
 						textvalue="On";
 					}
-					else if (contentarray[i][0]==0 ){
+					else if (cellvalue==0 ){
 						textvalue="Off";
 					} 
 					else {
 						textvalue="Error";
 					}
 					newcell.innerHTML = textvalue;
+					break;
+              case "button":
+					newcell.innerHTML = '<button class="' + cellclass + '">'+ cellvalue +'</button>';
 					break;
           }	// end switch
 		  //alert('type= ' + contentarray[i][2] + '. value in= ' + contentarray[i][0] + '. value out= ' + textvalue)

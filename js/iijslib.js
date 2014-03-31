@@ -153,7 +153,6 @@ function addTableRow(tableID,contentarray) {
 		  var cellclass = contentarray[i].cellclass || ''
           var cellid = contentarray[i].cellid || ''
           var celltype = contentarray[i].type || 'value'
-          //var cellvalue = contentarray[i].value || ''
           var cellvalue = contentarray[i].value
           var choices = contentarray[i].choices || []
 		  
@@ -187,11 +186,11 @@ function addTableRow(tableID,contentarray) {
 					newcell.firstChild.firstChild.value=cellvalue;
                     break;
 			  case "value": // value is not editable
-			        //alert(element1.className)
 					var element1 = document.createElement("div");
 					element1.className=cellclass;
 					newcell.appendChild(element1);
 					element1.innerHTML = cellvalue;
+
 					break;
 			  case "boolean":
 			        if (cellvalue==1) {
@@ -201,9 +200,13 @@ function addTableRow(tableID,contentarray) {
 						textvalue="F";
 					} 
 					else {
+                        alert()
 						textvalue="Error";
+                        alert('Error: ' + cellvalue + ' ' + cellclass)
 					}
 					newcell.innerHTML = textvalue;
+                    newcell.className = cellclass;
+
 					break;
 			  case "onoff":
 			        if (cellvalue==1) {
@@ -215,7 +218,10 @@ function addTableRow(tableID,contentarray) {
 					else {
 						textvalue="Error";
 					}
-					newcell.innerHTML = textvalue;
+					var element1 = document.createElement("div");
+					element1.className=cellclass;
+					newcell.appendChild(element1);
+					element1.innerHTML = textvalue;
 					break;
               case "button":
 					newcell.innerHTML = '<button class="' + cellclass + '">'+ cellvalue +'</button>';
@@ -263,21 +269,6 @@ function isNumber(n) {
 
 // this is the old function, just in case we have problems with the function
 // passing options, the next below
-
-//function wsgiCallbackTableData (database,table,callback) {
-	// Get the data
-	//alert(database + ' ' + table + ' ' + callback)
-//	$.ajax({
-//		url: "/wsgisqlitequery",
-//		type: "post",
-//		datatype:"json",						
-//		data: {'database':database,'table':table},
-//		success: function(response){
-//			// Execute our callback function
-//			callback(response);										
-//		}
-//	});	
-//}
 
 function wsgiCallbackTableData (database,table,callback,callbackoptionsarg) {
 	// Get the data

@@ -191,16 +191,17 @@ $(document).ready(function() {
 
     UpdateChannelsTable();
     UpdateOutputsTable();
+    UpdateInputsTable();
     UpdateControlAlgorithmsTable({tablerowstart:2});
     UpdateSystemStatusData();
-    UpdateChannelsData();
+
 
     // Run these periodically. Delay slightly
     setTimeout(function(){
+        UpdateChannelsData();
+        UpdateControlAlgorithmsData();
 
-
-
-    },500)
+    },50000)
 });
 
 </script>
@@ -347,6 +348,41 @@ $(document).ready(function() {
       	<table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td>
+      		  <h2>Inputs</h2>
+            </td>
+            <td align="right">
+              <button id="inputsrefreshbutton">Reload Inputs Data</button>
+              <button id="inputssetdatabutton">Set New Inputs Data</button>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="table fulltable"> <img src="images/cmstemplate/bg-th-left.gif" width="8" height="7" alt="" class="left" /> <img src="images/cmstemplate/bg-th-right.gif" width="7" height="7" alt="" class="right" />
+        <table class="listing fulllisting" cellpadding="0" cellspacing="0" id="inputstable">
+          <tr>
+            <th class="first">Name</th>
+            <th>ID</th>
+            <th>Interface</th>
+            <th>Type</th>
+            <th>Address</th>
+            <th>Value</th>
+            <th class="last">Polltime</th>
+          </tr>
+          <tr>
+            <td>value </td>
+            <td>value</td>
+            <td>value</td>
+            <td>value</td>
+            <td>value</td>
+            <td>value</td>
+            <td>value</td>
+          </tr>
+        </table>
+      </div> <!-- full table -->
+      <div class="fullcontent">
+      	<table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td>
       		  <h2>Outputs</h2>
             </td>
             <td align="right">          
@@ -364,13 +400,11 @@ $(document).ready(function() {
             <th>Interface</th>
             <th>Type</th>
             <th>Address</th>
-            <th>Enabled</th>
-            <th>Status</th>
-            <th class="last">Mode</th>
+            <th>Value</th>
+            <th class="last">Polltime</th>
           </tr>
           <tr>
             <td>value </td>
-            <td>value</td>
             <td>value</td>
             <td>value</td>
             <td>value</td>

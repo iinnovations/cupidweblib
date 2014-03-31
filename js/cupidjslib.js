@@ -151,12 +151,16 @@ function noclicky(){
 // table-to-widget renders below
 function setWidgetValues(baseclass,value,options) {
     var jqmpage = options.jqmpage || false;
+    var onoffvalue = booleanBinaryToOnOff(value);
     value = value || 0;
+    var text = String(value) || '';
+
 
 //    alert(' set widget values')
 
-    $(baseclass).html(value);
-    $(baseclass + 'text').val(value);
+    $(baseclass).html(text);
+    $(baseclass + 'onoff').html(onoffvalue);
+    $(baseclass + 'text').val(text);
     $(baseclass + 'select').val(value);
     $(baseclass + 'checkbox').attr("checked",booleanBinaryToTrueFalse(value));
 
@@ -782,7 +786,7 @@ function RenderOutputsData(outputstable,options) {
 //// Inputs
 function UpdateInputsData(options) {
 	var callback = RenderInputsData;
-	wsgiCallbackTableData(controldatabase,'inputsdata',callback,options)
+	wsgiCallbackTableData(controldatabase,'inputs',callback,options)
 }
 function RenderInputsData(inputstable,options) {
     options = options || {};
@@ -806,7 +810,7 @@ function RenderInputsData(inputstable,options) {
 		inputs.push(inputstable[i].id);
 	}
 
-    RenderWidgetsFromArray(controldatabase,'inputsdata',inputstable,options)
+    RenderWidgetsFromArray(controldatabase,'inputs',inputstable,options)
 	$('.inputselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, inputs);
@@ -936,15 +940,15 @@ function RenderPlotMetadata(metadata,options) {
 
 
 //// Control Inputs - also do ROM display table at same time
-function UpdateInputsDataTable(options) {
-	var callback=RenderControlInputsTable
+function UpdateInputsTable(options) {
+	var callback=RenderInputsTable
     options=options || {}
-    options.tablename='inputsdata';
+    options.tablename='inputs';
     options.database=controldatabase;
 	wsgiCallbackTableData(options.database,options.tablename,callback,options)
 }
-function RenderControlInputsTable (datatable,options) {
-    var tableid = options.tableid || 'inputsdatatable'
+function RenderInputsTable (datatable,options) {
+    var tableid = options.tableid || 'inputstable'
     var tablerowstart = options.tablerowstart || 1;
     var dbrowstart = options.dbrowstart || 0;
     var numdbrows = options.numdbrows || 999;
@@ -961,7 +965,7 @@ function RenderControlInputsTable (datatable,options) {
         timeout=0;
     }
 	if (timeout>0) {
-		setTimeout(function(){UpdateInputsDataTable(options)},timeout);
+		setTimeout(function(){UpdateinputsTable(options)},timeout);
 	}
 
     if (datatable.length > numdbrows) {
@@ -973,13 +977,13 @@ function RenderControlInputsTable (datatable,options) {
     clearTable(tableid, tablerowstart);
     for (var j=dbrowstart;j<numrowstoget;j++)
     {
-        addTableRow(tableid,[
-            {value:datatable[j].name,cellclass:tablename + "interface" + String(j+1),type:"value"},
-            {value:datatable[j].address,cellclass:options.tablename + "address" + String(j+1),type:"value"},
-            {value:datatable[j].type,cellclass:options.tablename + "type" + String(j+1),type:"value"},
-            {value:datatable[j].value,cellclass:options.tablename + "value" + String(j+1),type:"value"},
-            {value:datatable[j].unit,cellclass:options.tablename + "unit" + String(j+1),type:"value"},
-            {value:datatable[j].polltime,cellclass:options.tablename + "polltime" + String(j+1),type:"value"}
+        addTableRow(tableid,[{value:datatable[j].name, cellclass:options.tablename + "name" + String(j+1) + 'text',type:"value"},
+            {value:datatable[j].id, cellclass:options.tablename + "id" + String(j+1),type:"value"},
+            {value:datatable[j].interface, cellclass:options.tablename + "interface" + String(j+1),type:"value"},
+            {value:datatable[j].type, cellclass:options.tablename + "type" + String(j+1),type:"value"},
+            {value:datatable[j].address, cellclass:options.tablename + "address" + String(j+1),type:"value"},
+            {value:datatable[j].value, cellclass:options.tablename + "value" + String(j+1),type:"value"},
+            {value:datatable[j].polltime, cellclass:options.tablename + "polltime" + String(j+1) + "text",type:"value"}
         ]);
     }
     RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
@@ -1080,14 +1084,14 @@ function RenderOutputsTable (datatable,options) {
     clearTable(tableid, tablerowstart);
     for (var j=dbrowstart;j<numrowstoget;j++)
     {
-        addTableRow(tableid,[{value:datatable[j].name, cellclass:options.tablename + "name" + String(j+1),type:"value"},
+        addTableRow(tableid,[{value:datatable[j].name, cellclass:options.tablename + "name" + String(j+1) + 'text',type:"value"},
             {value:datatable[j].id, cellclass:options.tablename + "id" + String(j+1),type:"value"},
             {value:datatable[j].interface, cellclass:options.tablename + "interface" + String(j+1),type:"value"},
             {value:datatable[j].type, cellclass:options.tablename + "type" + String(j+1),type:"value"},
             {value:datatable[j].address, cellclass:options.tablename + "address" + String(j+1),type:"value"},
-            {value:datatable[j].enabled, cellclass:options.tablename + "enabled" + String(j+1) + 'checkbox',type:"checkbox"},
-            {value:datatable[j].status, cellclass:options.tablename + "status" + String(j+1),type:"onoff"},
-            {value:datatable[j].mode, cellclass:options.tablename + "mode" + String(j+1) + 'select',cellid:options.tablename + "mode" + String(j+1) + 'select',type:"select-one",choices:modes}])
+            {value:datatable[j].value, cellclass:options.tablename + "value" + String(j+1),type:"value"},
+            {value:datatable[j].polltime, cellclass:options.tablename + "polltime" + String(j+1) + "text",type:"value"}
+        ])
     }
     RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }
@@ -1140,7 +1144,7 @@ function RenderChannelsTable (datatable,options) {
         {value:datatable[j].controlvalue, cellclass:options.tablename + "controlvalue" + String(j+1),type:"value"},
         {value:datatable[j].setpointvalue, cellclass:options.tablename + "setpointvalue" + String(j+1),type:"value"},
         {value:datatable[j].posoutput, cellclass:options.tablename + "posoutput" + String(j+1) + 'select outputselect',cellid:options.tablename + "posoutput" + String(j+1) + 'select',type:"select-one",choices:outputs},
-        {value:datatable[j].netoutput, cellclass:options.tablename + "negoutput" + String(j+1) + 'select outputselect',cellid:options.tablename + "negoutput" + String(j+1) + 'select',type:"select-one",choices:outputs}])
+        {value:datatable[j].negoutput, cellclass:options.tablename + "negoutput" + String(j+1) + 'select outputselect',cellid:options.tablename + "negoutput" + String(j+1) + 'select',type:"select-one",choices:outputs}])
     }
     RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }

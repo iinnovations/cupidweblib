@@ -159,7 +159,7 @@ logUserAuths(sessiondata)
     //// Inputs
     function UpdateInputsTable(){
         var callback=RenderInputsTable;
-        wsgiCallbackTableData(controldatabase,'inputsdata',callback);
+        wsgiCallbackTableData(controldatabase,'inputs',callback);
     };
     function RenderInputsTable(datatable){
         var divhtmlstring;
@@ -169,20 +169,20 @@ logUserAuths(sessiondata)
             var index=i+1;
             divhtmlitemstring = '\
             <div data-role="collapsible" data-collapsed="true" data-count-theme="a" ><!--control item -->\
-                        <h3><span class= "inputsdataid' + index + '">inputname</span></h3>\
+                        <h3><span class= "inputsid' + index + '">inputname</span></h3>\
                 <li data-role="fieldcontain" class="sm-inset-header">\
                         <fieldset>\
                         <div class="ui-biglabel" >Name</div>\
                 <li data-role="fieldcontain" >\
                         <div class="ui-grid-a">\
-                        <div class="ui-block-a ui-buttontextpartner"><input type="text" class="inputsdataname' + index + 'text"  value="name" ></div>\
+                        <div class="ui-block-a ui-buttontextpartner"><input type="text" class="inputsname' + index + 'text"  value="name" ></div>\
                 <div class="ui-block-b inputsname' + index + 'textupdate"  id="channelsname' + index + 'textupdate"  ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>\
                 </div>\
                 </li>\
                 <li data-role="fieldcontain" class="sm-inset-header">\
                         <label for="inputsenabledtoggle" style="width:50%; display:inline-block">\
                         <h3>Enabled:</h3></label>\
-                <select name="inputsenabledtoggle" class="inputsdataenabled' + index + 'toggle" id="inputsdataenabled' + index + 'toggle" data-role="slider">\
+                <select name="inputsenabledtoggle" class="inputsenabled' + index + 'toggle" id="inputsenabled' + index + 'toggle" data-role="slider">\
                         <option value="Off">Off</option>\
                 <option value="On">On</option>\
                 </select>\
@@ -190,25 +190,25 @@ logUserAuths(sessiondata)
                 <li data-role="fieldcontain" class="sm-inset-header">\
                         <fieldset class="ui-grid-a">\
                         <div class="ui-block-a ui-biglabel">ID</div>\
-                <div class="ui-block-b ui-biglabel datafield inputsdataid' + index + '">GPIO1</div>\
+                <div class="ui-block-b ui-biglabel datafield inputsid' + index + '">GPIO1</div>\
                 </fieldset>\
                 </li>\
                 <li data-role="fieldcontain" class="sm-inset-header">\
                         <fieldset class="ui-grid-a">\
                         <div class="ui-block-a ui-biglabel ">Interface</div>\
-                <div class="ui-block-b ui-biglabel datafield inputsdatainterface' + index + '">GPIO</div>\
+                <div class="ui-block-b ui-biglabel datafield inputsinterface' + index + '">GPIO</div>\
                 </fieldset>\
                 </li>\
                 <li data-role="fieldcontain" class="sm-inset-header">\
                         <fieldset class="ui-grid-a">\
                         <div class="ui-block-a ui-biglabel">Type</div>\
-                <div class="ui-block-b ui-biglabel datafield inputsdatatype' + index + '">18</div>\
+                <div class="ui-block-b ui-biglabel datafield inputstype' + index + '">18</div>\
                 </fieldset>\
                 </li>\
                 <li data-role="fieldcontain" class="sm-inset-header">\
                         <fieldset class="ui-grid-a">\
                         <div class="ui-block-a ui-biglabel">Address</div>\
-                <div class="ui-block-b ui-biglabel datafield inputsdataaddress' + index + '">18</div>\
+                <div class="ui-block-b ui-biglabel datafield inputsaddress' + index + '">18</div>\
                 </fieldset>\
                 </li>\
                 </fieldset>\
@@ -388,13 +388,13 @@ logUserAuths(sessiondata)
                             <li data-role="fieldcontain" >
                                 <div class="ui-grid-a">
                                     <div class="ui-block-a ui-buttontextpartner"><input type="text" class="inputsnametext"  value="name" ></div>
-                                    <div class="ui-block-b inputsnametextupdate" id="channelsnametextupdate" ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>
+                                    <div class="ui-block-b inputsnametextupdate" id="inputsnametextupdate" ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>
                                 </div>
                             </li>
                             <li data-role="fieldcontain" class="sm-inset-header">
                                 <label for="inputsenabledtoggle" style="width:50%; display:inline-block">
                                     <h3>Enabled:</h3></label>
-                                <select name="inputsenabledtoggle" class="inputsenabledtoggle" id="channelsoutputsenabledtoggle" data-role="slider">
+                                <select name="inputsenabledtoggle" class="inputsenabledtoggle" id="inputsenabledtoggle" data-role="slider">
                                     <option value="Off">Off</option>
                                     <option value="On">On</option>
                                 </select>

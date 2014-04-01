@@ -129,79 +129,92 @@ var stdmessage='You do not have sufficient authorization for this action'
 $(document).ready(function() {		
 // button responses	
 
+    // Refresh data
 	$('#statusrefreshbutton').click(function(){
 		//alert('I am going to update now');	
 		UpdateSystemStatusData()
 	});	
 	$('#channelsrefreshbutton').click(function(){
 		//alert('I am going to update now');	
-		UpdateChannelsTable()
+		UpdateChannelsTable({editable:true})
 	});	
 	$('#outputsrefreshbutton').click(function(){
 		//alert('I am going to update now');		
 		UpdateOutputsTable()
-	});	
+	});
+    $('#inputsrefreshbutton').click(function(){
+		//alert('I am going to update now');
+		UpdateInputsTable()
+	});
 	$('#algorithmsrefreshbutton').click(function(){
 		//alert('I am going to update now');		
-		UpdateControlAlgorithmsTable({tablerowstart:2});
+		UpdateControlAlgorithmsTable({tablerowstart:2, editable:true});
 	});
 
+
+    // Set new data
 	$('#statussetdatabutton').click(function(){
-		checkauth(authlevel, actauthlevel, function(){
+		checkauth(sessiondata.authlevel, actauthlevel, function(){
 		//alert('I am going to update now');	
 		SetStatusData()	
 		setTimeout(function(){GetAndRenderStatusTable()},1000)
 		}, stdmessage);	
 	});	
 	$('#channelssetdatabutton').click(function(){
-		checkauth(authlevel, actauthlevel, function(){
+		checkauth(sessiondata.authlevel, actauthlevel, function(){
 		//alert('I am going to update now');	
 		SetChannelsData()
 		setTimeout(function(){GetAndRenderChannelsTable()},1000)
 		}, stdmessage);	
 	});	
 	$('#outputssetdatabutton').click(function(){
-		checkauth(authlevel, actauthlevel, function(){
+		checkauth(sessiondata.authlevel, actauthlevel, function(){
 		//alert('I am going to update now');		
 		SetOutputsData()
 		setTimeout(function(){GetAndRenderOutputsTable()},1000)
 		}, stdmessage);
 	});	
 	$('#algorithmssetdatabutton').click(function(){
-		checkauth(authlevel, actauthlevel, function(){
+		checkauth(sessiondata.authlevel, actauthlevel, function(){
 		//alert('I am going to update now');		
 		SetalgorithmsData()
 		setTimeout(function(){GetAndRenderAlgorithmsTable()},1000)
 		}, stdmessage);
 	});	
 	$('#addchannelbutton').click(function(){
-		checkauth(authlevel, actauthlevel, function(){
+		checkauth(sessiondata.authlevel, actauthlevel, function(){
 		//alert('I am going to update now');		
 		addChannel()
 		setTimeout(function(){GetAndRenderChannelsTable()},1000)
 		}, stdmessage);
 	});	
 		$('#removechannelbutton').click(function(){
-		checkauth(authlevel, actauthlevel, function(){
+		checkauth(sessiondata.authlevel, actauthlevel, function(){
 		//alert('I am going to update now');		
 		RemoveChannel()	
 		setTimeout(function(){GetAndRenderChannelsTable()},1000)
 		}, stdmessage);
-	});	
+	});
 
-    UpdateChannelsTable();
-    UpdateOutputsTable();
-    UpdateInputsTable();
-    UpdateControlAlgorithmsTable({tablerowstart:2});
     UpdateSystemStatusData();
+    UpdateChannelsTable({editable:true});
+    UpdateControlAlgorithmsTable({tablerowstart:2, editable:true});
 
 
     // Run these periodically. Delay slightly
     setTimeout(function(){
-        UpdateChannelsData();
-        UpdateControlAlgorithmsData();
+        UpdateOutputsTable();
+        UpdateInputsTable();
+        UpdateControlRecipeData();
+//        UpdateChannelsData();
+//        UpdateControlAlgorithmsData();
+//        UpdateControlAlgorithmsData()
+//        UpdateInputsData()
+//        UpdateOutputsData()
+//        UpdateControlRecipeData()
+//        UpdateControlAlgorithmTypesData()
 
-    },50000)
+    },2000)
 });
 
 </script>
@@ -324,8 +337,8 @@ $(document).ready(function() {
                 <th>Output Enabled</th>
                 <th>Control Algorithm</th>
                 <th>Control Recipe</th>
-                <th>Setpoint Value</th>
                 <th>Control Value</th>
+                <th>Setpoint Value</th>
                 <th>Pos. Output</th>
                 <th class="last">Neg. Output.</th>
             </tr>

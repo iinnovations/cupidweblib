@@ -14,17 +14,20 @@
 <style>
     body {
         font-family: Arial, Helvetica, Sans-serif;
-        font-size: 20px;
+        font-size: 16px;
         font-weight:bold;
     }
     td {
         padding:5px;
         text-align: center;
-        height: 75px;
+        height: 50px;
+    }
+    .pinlabel {
+        font-size: 14px;
     }
     .lightindicator {
-        width:60px;
-        height:50px;
+        width:50px;
+        height:40px;
         text-align: center;
         vertical-align: middle;
         moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
@@ -48,7 +51,7 @@
         font-family: Arial, Helvetica, Sans-serif;
         font-size: 24px;
         font-weight: bold;
-        line-height: 50px;
+        line-height: 38px;
         text-indent:0;
         border:1px solid #777777;
         display:inline-block;
@@ -57,6 +60,9 @@
         background:-moz-linear-gradient( center top, #999999 5%, #333333 100% );
         filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#999999', endColorstr='#333333');
         background-color:#ededed;
+    }
+    .canpress {
+        cursor: pointer;
     }
     .lightindicator.on, .lightindicator.input {
         background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #77ff77), color-stop(1, #00cc00) );
@@ -69,6 +75,12 @@
         background:-moz-linear-gradient( center top, #dddddd 5%, #777777 100% );
         filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dddddd', endColorstr='#777777');
         background-color:#ededed;
+    }
+    .lightindicator.GND {
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #aaaaaa), color-stop(1, #444444) );
+        background:-moz-linear-gradient( center top, #444444 5%, #000000 100% );
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa', endColorstr='#444444');
+        background-color:#000000;
     }
     .lightindicator.blue, .lightindicator.SPI, .lightindicator.I2C {
         background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #77aaff), color-stop(1, #0033ff) );
@@ -95,6 +107,7 @@
         background-color:#ededed;
     }
     .gpiobox {
+        width:220px;
         border-width:2px;
         border-style:solid;
         border-color:#444444;
@@ -126,7 +139,16 @@
 
 </style>
 <!-- InstanceBeginEditable name="head" -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+  ga('create', 'UA-48449692-4', 'cupidcontrol.com');
+  ga('send', 'pageview');
+
+</script>
 <script type="text/javascript">
 
 //------------------------------------------------------------------------//
@@ -208,8 +230,8 @@ function updatestatusdata(statusdata){
 //-------------------------------------------------------//
 
 $(function(){
-	$('#togglegpio18').click(function(){
-		alert('hithere')
+	$('.canpress').click(function(){
+		alert('No touchy my Pi!')
     });
     $('#valuesrefreshbutton').click(function(){
 		//alert('hithere')
@@ -228,7 +250,7 @@ $(document).ready(function(){
 </head>
 <body>
 <div id="main" align="center" style="padding-top: 50px">
-<table width="800">
+<table width="600">
     <tr><td align="center" colspan="3"><button id="valuesrefreshbutton" class="lightindicator blue" style="padding 0 25px 0 25px; width:150px; height:55px">Reload</button></td></tr>
     <tr><td style="height: 10px"></td></tr>
     <tr>
@@ -240,7 +262,7 @@ $(document).ready(function(){
                         <td width="100px">3.3V</td>
                     </tr>
                     <tr>
-                        <td><div class="lightindicator I2C">I2C</div></td>
+                        <td><div class="lightindicator I2C nobutton ">I2C</div></td>
                         <td>GPIO 0</td>
                     </tr>
                     <tr>
@@ -256,15 +278,15 @@ $(document).ready(function(){
                         <td>NC</td>
                     </tr>
                     <tr>
-                        <td><div class="GPIO17mode lightindicator">X</div></td>
+                        <td><div class="GPIO17mode lightindicator canpress">X</div></td>
                         <td>GPIO 17</td>
                     </tr>
                     <tr>
-                        <td><div class="GPIO21mode lightindicator">X</div></td>
+                        <td><div class="GPIO21mode lightindicator canpress">X</div></td>
                         <td>GPIO 21</td>
                     </tr>
                     <tr>
-                        <td><div class="GPIO22mode lightindicator">X</div></td>
+                        <td><div class="GPIO22mode lightindicator canpress">X</div></td>
                         <td>GPIO 22</td>
                     </tr>
                    <tr>
@@ -290,28 +312,28 @@ $(document).ready(function(){
                 </table>
             </div>
         </td>
-        <td width="250px" align="center">
+        <td align="center">
             <div class="gpiobox" align="center">
                 <table width="90%" align="center">
                     <tr>
-                        <td>1</td>
+                        <td class="pinlabel">1</td>
                         <td align="center"><div class="pink lightindicator">&nbsp</div></td>
                         <td width="1px">&nbsp;</td>
                         <td align="center"><div class="red lightindicator">&nbsp</div></td>
-                         <td>2</td>
+                         <td class="pinlabel">2</td>
                     </tr>
                     <tr>
                         <td>3</td>
                         <td align="center"><div class="I2C lightindicator">&nbsp;</div></td>
                         <td width="0px">&nbsp;</td>
-                        <td align="center"><div class="GND lightindicator">&nbsp</div></td>
+                        <td align="center"><div class="lightindicator">&nbsp</div></td>
                         <td>4</td>
                     </tr>
                     <tr>
                         <td>5</td>
                         <td align="center"><div class="I2C lightindicator">&nbsp;</div></td>
                         <td>&nbsp;</td>
-                        <td align="center"><div class="lightindicator">&nbsp</div></td>
+                        <td align="center"><div class="GND lightindicator">&nbsp</div></td>
                         <td>6</td>
                     </tr>
                     <tr>
@@ -323,37 +345,37 @@ $(document).ready(function(){
                     </tr>
                     <tr>
                         <td>9</td>
-                        <td align="center"><div class="GPIO18value lightindicator">&nbsp;</div></td>
+                        <td align="center"><div class="GPIO18value lightindicator canpress">&nbsp;</div></td>
                         <td>&nbsp;</td>
                         <td align="center"><div class="UART lightindicator">&nbsp</div></td>
                         <td>10</td>
                     </tr>
                     <tr>
                         <td>11</td>
-                        <td align="center"><div class="GPIO17value lightindicator">X</div></td>
+                        <td align="center"><div class="GPIO17value lightindicator canpress">X</div></td>
                         <td>&nbsp;</td>
-                        <td align="center"><div class="GPIO18value lightindicator">X</div></td>
+                        <td align="center"><div class="GPIO18value lightindicator canpress">X</div></td>
                         <td>12</td>
                     </tr>
                     <tr>
                         <td>13</td>
-                        <td align="center"><div class="GPIO21value lightindicator">X</div></td>
+                        <td align="center"><div class="GPIO21value lightindicator canpress">X</div></td>
                         <td>&nbsp;</td>
                         <td align="center"><div class="lightindicator">&nbsp;</div></td>
                         <td>14</td>
                     </tr>
                     <tr>
                         <td>15</td>
-                        <td align="center"><div class="GPIO22value lightindicator">X</div></td>
+                        <td align="center"><div class="GPIO22value lightindicator canpress">X</div></td>
                         <td>&nbsp;</td>
-                        <td align="center"><div class="GPIO23value lightindicator">X</div></td>
+                        <td align="center"><div class="GPIO23value lightindicator canpress">X</div></td>
                         <td>16</td>
                     </tr>
                     <tr>
                         <td>17</td>
                         <td align="center"><div class="lightindicator">&nbsp</div></td>
                         <td>&nbsp;</td>
-                        <td align="center"><div class="GPIO24value lightindicator">X</div></td>
+                        <td align="center"><div class="GPIO24value lightindicator canpress">X</div></td>
                         <td>18</td>
                     </tr>
                     <tr>
@@ -366,7 +388,7 @@ $(document).ready(function(){
                     <tr><td>21</td>
                         <td align="center"><div class="lightindicator SPI">&nbsp;</div></td>
                         <td>&nbsp;</td>
-                        <td align="center"><div class="lightindicator SPI">&nbsp;</div></td>
+                        <td align="center"><div class="lightindicator GPIO25value canpress">X</div></td>
                         <td>22</td>
                     </tr>
                     <tr>
@@ -411,7 +433,7 @@ $(document).ready(function(){
                     </tr>
                     <tr>
                         <td>GPIO18</td>
-                        <td><div class="GPIO18mode lightindicator">X</div></td>
+                        <td><div class="GPIO18mode lightindicator canpress">X</div></td>
                     </tr>
                     <tr>
                         <td>NC</td>
@@ -419,11 +441,11 @@ $(document).ready(function(){
                     </tr>
                     <tr>
                         <td>GPIO23</td>
-                        <td><div class="GPIO23mode lightindicator">X</div></td>
+                        <td><div class="GPIO23mode lightindicator canpress">X</div></td>
                     </tr>
                     <tr>
                         <td>GPI24</td>
-                        <td><div class="GPIO24mode lightindicator">X</div></td>
+                        <td><div class="GPIO24mode lightindicator canpress">X</div></td>
                     </tr>
                     <tr>
                         <td>NC</td>

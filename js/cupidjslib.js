@@ -10,11 +10,14 @@ systemdatabase='/var/www/data/systemdata.db';
 authdatabase='/var/www/data/authlog.db';
 
 // Define all the globals.
-// Not sure all are still necessary
-var inputs=[];
-var outputs=[];
-var controlalgorithms=[];
-var controlrecipes=[];
+// We define these globally so that when we render tables that need them
+// they can grab them if they have already been defined. This way we don't need
+// to refetch selector data every time we build a table from scratch.
+
+var inputnames=[];
+var outputnames=[];
+var controlalgorithmnames=[];
+var controlrecipenames=[];
 var algorithmtypes=[]
 var modes=['auto','manual'];
 
@@ -103,7 +106,7 @@ function addRow(database, table, callback, valuenames,values) {
     else {
         query+=' default values';
     }
-    console.log(query)
+//    console.log(query)
     wsgiExecuteQuery (database,query, callback);
 }
 function addChannel(channelname, callback){
@@ -125,7 +128,7 @@ function deleteLog(logname, callback){
 // Dummy function for callback notification
 function logdone(data){
 	console.log('done');
-    console.log(data)
+//    console.log(data)
 }
 
 ////////////////////////////////////////////////////////
@@ -405,7 +408,7 @@ function testFunction(someoptions) {
 	if (someoptions.option > 0){
 	    alert(someoptions.option);
     }
-    console.log('still printing');
+//    console.log('still printing');
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -582,7 +585,7 @@ function UpdateControlAlgorithmsData(options) {
 	  var callback=RenderControlAlgorithmsData;
 	  wsgiCallbackTableData(controldatabase,'controlalgorithms',callback,options);
 }
-function RenderControlAlgorithmsData(algorithmstable,options) {
+function RenderControlAlgorithmsData(datatable,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
 
@@ -601,13 +604,13 @@ function RenderControlAlgorithmsData(algorithmstable,options) {
 	if (options.timeout>0) {
 		setTimeout(function(){UpdateControlAlgorithmsData(options)},options.timeout);
 	}
-	var controlalgorithms=[];
-	for (var i=0; i<algorithmstable.length;i++){
-		controlalgorithms.push(algorithmstable[i].name);
+	controlalgorithmnames=['none'];
+	for (var i=0; i<datatable.length;i++){
+		controlalgorithmnames.push(datatable[i].name);
 	}
 	$('.controlalgorithmselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, controlalgorithms);
+	    	UpdateSelect(this.id, controlalgorithmnames);
 		}
 	});
 }
@@ -636,7 +639,7 @@ function RenderControlAlgorithmTypesData(datatable,options) {
 	if (options.timeout>0) {
 		setTimeout(function(){UpdateControlAlgorithmTypesData(options)},options.timeout);
 	}
-	algorithmtypes=[];
+	algorithmtypes=['none'];
 	for (var i=0; i<datatable.length;i++){
 		algorithmtypes.push(datatable[i].name);
 	}
@@ -661,7 +664,7 @@ function RenderChannelsData(channelsdata,options) {
     // if we have an indexselector of channelselect, not having a
     // value will cause an error
 
-    var channelnames=[];
+    channelnames=[];
 	for (var i=0;i<channelsdata.length;i++) {
 		channelnames.push(channelsdata[i].name);
 	}
@@ -672,7 +675,6 @@ function RenderChannelsData(channelsdata,options) {
 	});
 
     var timeout=0;
-//    console.log(channelsdata)
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
     if (options.hasOwnProperty('timeoutclass')) {
@@ -708,11 +710,6 @@ function RenderChannelsData(channelsdata,options) {
             options.auxcallback(channelsdata)
         }
 	}
-    // Update selectors
-    UpdateControlRecipeData()
-    UpdateOutputsData()
-    UpdateInputsData()
-
 }
 
 //// Control Recipes
@@ -735,15 +732,16 @@ function RenderControlRecipeData(recipenames,options) {
     else {
         timeout=0;
     }
-	controlrecipes=['none'];
-	controlrecipes.push(recipenames);
+	controlrecipenames=['none'];
+	controlrecipenames.push(recipenames);
+//    console.log(controlrecipenames)
 	if (options.timeout>0) {
 		setTimeout(function(){UpdateControlRecipeData(options)},options.timeout)
 	}
 
 	$('.controlrecipeselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, controlrecipes)
+	    	UpdateSelect(this.id, controlrecipenames)
 		}
 	});
 }
@@ -771,14 +769,14 @@ function RenderOutputsData(outputstable,options) {
 	if (options.timeout>0) {
 		setTimeout(function(){UpdateOutputsData(options)},options.timeout);
 	}
-	var outputs=['none'];
+	outputnames=['none'];
 	for (var i=0; i<outputstable.length;i++){
-		outputs.push(outputstable[i].name);
+		outputnames.push(outputstable[i].name);
 	}
     RenderWidgetsFromArray(controldatabase,'outputs',outputstable,options)
 	$('.outputselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, outputs);
+	    	UpdateSelect(this.id, outputnames);
 		}
 	});	
 }
@@ -805,15 +803,15 @@ function RenderInputsData(inputstable,options) {
 	if (options.timeout>0) {
 		setTimeout(function(){UpdateInputsData(options)},options.timeout)
 	}
-	inputs=['none'];
+	inputnames=['none'];
 	for (var i=0; i<inputstable.length;i++){
-		inputs.push(inputstable[i].id);
+		inputnames.push(inputstable[i].id);
 	}
 
     RenderWidgetsFromArray(controldatabase,'inputs',inputstable,options)
 	$('.inputselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, inputs);
+	    	UpdateSelect(this.id, inputnames);
 		}
 	});	
 }
@@ -868,7 +866,7 @@ function RenderActions(actionsdata,options) {
 	if (options.timeout>0) {
 		setTimeout(function(){UpdateActionsData(options)},options.timeout);
 	}
-	console.log('time to render')
+//	console.log('time to render')
     RenderWidgetsFromArray(controldatabase,'actions',actionsdata,options);
 }
 
@@ -897,8 +895,7 @@ function RenderSystemStatusData(datatable,options) {
 	}
 	// Option for controls (as opposed to indicators (not implemented yet
     // var updatesliders = options.updatesliders || true;
-	var systemstatusdata=datatable[0];
-	RenderWidgets(controldatabase, 'systemstatus', datatable, options);
+	RenderWidgets(controldatabase, 'systemstatus', datatable[0], options);
 }
 
 //// Metadata
@@ -953,6 +950,17 @@ function RenderInputsTable (datatable,options) {
     var dbrowstart = options.dbrowstart || 0;
     var numdbrows = options.numdbrows || 999;
 
+    // populate selectors
+    inputnames=['none'];
+	for (var i=0; i<datatable.length;i++){
+		inputnames.push(datatable[i].name);
+	}
+	$('.inputselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+	    	UpdateSelect(this.id, inputnames);
+		}
+	});
+
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
     if (options.hasOwnProperty('timeoutclass')) {
@@ -982,11 +990,73 @@ function RenderInputsTable (datatable,options) {
             {value:datatable[j].interface, cellclass:options.tablename + "interface" + String(j+1),type:"value"},
             {value:datatable[j].type, cellclass:options.tablename + "type" + String(j+1),type:"value"},
             {value:datatable[j].address, cellclass:options.tablename + "address" + String(j+1),type:"value"},
-            {value:datatable[j].value, cellclass:options.tablename + "value" + String(j+1),type:"value"},
+            {value:datatable[j].value, cellclass:options.tablename + "text" + String(j+1),type:"value"},
             {value:datatable[j].polltime, cellclass:options.tablename + "polltime" + String(j+1) + "text",type:"value"}
         ]);
     }
-    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+//    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+}
+
+
+function UpdateOutputsTable(options) {
+	var callback=RenderOutputsTable
+    options=options || {}
+    options.tablename='outputs';
+    options.database=controldatabase;
+	wsgiCallbackTableData(options.database,options.tablename,callback,options)
+}
+function RenderOutputsTable (datatable,options) {
+    var tableid = options.tableid || 'outputstable'
+    var tablerowstart = options.tablerowstart || 1;
+    var dbrowstart = options.dbrowstart || 0;
+    var numdbrows = options.numdbrows || 999;
+
+     // populate selectors
+    outputnames=['none'];
+	for (var i=0; i<datatable.length;i++){
+		outputnames.push(datatable[i].name);
+	}
+	$('.outputselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+	    	UpdateSelect(this.id, outputnames);
+		}
+	});
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (timeout>0) {
+		setTimeout(function(){UpdateOutputsTable(options)},timeout);
+	}
+
+    if (datatable.length > numdbrows) {
+        var numrowstoget = numdbrows;
+    }
+    else {
+        var numrowstoget = datatable.length;
+    }
+
+    clearTable(tableid, tablerowstart);
+    for (var j=dbrowstart;j<numrowstoget;j++)
+    {
+        addTableRow(tableid,[{value:datatable[j].name, cellclass:options.tablename + "name" + String(j+1) + 'text',type:"value"},
+            {value:datatable[j].id, cellclass:options.tablename + "id" + String(j+1),type:"value"},
+            {value:datatable[j].interface, cellclass:options.tablename + "interface" + String(j+1),type:"value"},
+            {value:datatable[j].type, cellclass:options.tablename + "type" + String(j+1),type:"value"},
+            {value:datatable[j].address, cellclass:options.tablename + "address" + String(j+1),type:"value"},
+            {value:datatable[j].value, cellclass:options.tablename + "value" + String(j+1),type:"value"},
+            {value:datatable[j].polltime, cellclass:options.tablename + "polltime" + String(j+1) + "text",type:"value"}
+        ])
+    }
+//    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }
 
 function UpdateIOInfoTable(options) {
@@ -1043,57 +1113,7 @@ function RenderIOInfoTable (datatable,options) {
             ]);
         }
     }
-    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
-}
-
-function UpdateOutputsTable(options) {
-	var callback=RenderOutputsTable
-    options=options || {}
-    options.tablename='outputs';
-    options.database=controldatabase;
-	wsgiCallbackTableData(options.database,options.tablename,callback,options)
-}
-function RenderOutputsTable (datatable,options) {
-    var tableid = options.tableid || 'outputstable'
-    var tablerowstart = options.tablerowstart || 1;
-    var dbrowstart = options.dbrowstart || 0;
-    var numdbrows = options.numdbrows || 999;
-
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (timeout>0) {
-		setTimeout(function(){UpdateOutputsTable(options)},timeout);
-	}
-
-    if (datatable.length > numdbrows) {
-        var numrowstoget = numdbrows;
-    }
-    else {
-        var numrowstoget = datatable.length;
-    }
-
-    clearTable(tableid, tablerowstart);
-    for (var j=dbrowstart;j<numrowstoget;j++)
-    {
-        addTableRow(tableid,[{value:datatable[j].name, cellclass:options.tablename + "name" + String(j+1) + 'text',type:"value"},
-            {value:datatable[j].id, cellclass:options.tablename + "id" + String(j+1),type:"value"},
-            {value:datatable[j].interface, cellclass:options.tablename + "interface" + String(j+1),type:"value"},
-            {value:datatable[j].type, cellclass:options.tablename + "type" + String(j+1),type:"value"},
-            {value:datatable[j].address, cellclass:options.tablename + "address" + String(j+1),type:"value"},
-            {value:datatable[j].value, cellclass:options.tablename + "value" + String(j+1),type:"value"},
-            {value:datatable[j].polltime, cellclass:options.tablename + "polltime" + String(j+1) + "text",type:"value"}
-        ])
-    }
-    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+//    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }
 
 function UpdateChannelsTable(options) {
@@ -1108,6 +1128,18 @@ function RenderChannelsTable (datatable,options) {
     var tablerowstart = options.tablerowstart || 1;
     var dbrowstart = options.dbrowstart || 0;
     var numdbrows = options.numdbrows || 999;
+    var editable = options.editable || false;
+
+    // populate selectors
+    var channelnames=[];
+	for (var i=0; i<datatable.length;i++){
+		channelnames.push(datatable[i].name);
+	}
+	$('.channelselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+	    	UpdateSelect(this.id, channelnames);
+		}
+	});
 
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
@@ -1133,20 +1165,40 @@ function RenderChannelsTable (datatable,options) {
     clearTable(tableid, tablerowstart);
     for (var j=dbrowstart;j<numrowstoget;j++)
     {
-        addTableRow(tableid,[
-        {value:datatable[j].channelindex, cellclass:options.tablename + "channelindex" + String(j+1),type:"value"},
-        {value:datatable[j].name, cellclass:options.tablename + "name" + String(j+1),type:"value"},
-        {value:datatable[j].controlinput, cellclass:options.tablename + "controlinput" + String(j+1) + 'select inputselect',cellid:options.tablename + "controlinput" + String(j+1) + 'select',type:"select-one",choices:inputs},
-        {value:datatable[j].enabled, cellclass:options.tablename + "enabled" + String(j+1) + 'checkbox',type:"checkbox"},
-        {value:datatable[j].outputsenabled, cellclass:options.tablename + "outputsenabled" + String(j+1) + 'checkbox',type:"checkbox"},
-        {value:datatable[j].controlalgorithm, cellclass:options.tablename + "controlalgorithm" + String(j+1) + 'select controlalgorithmselect',cellid:options.tablename + "controlalgorithm" + String(j+1) +'select', type:"select-one",choices:controlalgorithms},
-        {value:datatable[j].controlrecipe, cellclass:options.tablename + "controlrecipe" + String(j+1) + 'select controlrecipeselect',cellid:options.tablename + "controlrecipe" + String(j+1) + 'select',type:"select-one",choices:controlrecipes},
-        {value:datatable[j].controlvalue, cellclass:options.tablename + "controlvalue" + String(j+1),type:"value"},
-        {value:datatable[j].setpointvalue, cellclass:options.tablename + "setpointvalue" + String(j+1),type:"value"},
-        {value:datatable[j].posoutput, cellclass:options.tablename + "posoutput" + String(j+1) + 'select outputselect',cellid:options.tablename + "posoutput" + String(j+1) + 'select',type:"select-one",choices:outputs},
-        {value:datatable[j].negoutput, cellclass:options.tablename + "negoutput" + String(j+1) + 'select outputselect',cellid:options.tablename + "negoutput" + String(j+1) + 'select',type:"select-one",choices:outputs}])
+        if (editable){
+            addTableRow(tableid,[
+                {value:datatable[j].channelindex, cellclass:options.tablename + "channelindex" + String(j+1),type:"value"},
+                {value:datatable[j].name, cellclass:options.tablename + "name" + String(j+1),type:"text"},
+                {value:datatable[j].controlinput, cellclass:options.tablename + "controlinput" + String(j+1) + 'select inputselect',cellid:options.tablename + "controlinput" + String(j+1) + 'select',type:"select-one",choices:inputnames},
+                {value:datatable[j].enabled, cellclass:options.tablename + "enabled" + String(j+1) + 'checkbox',type:"checkbox"},
+                {value:datatable[j].outputsenabled, cellclass:options.tablename + "outputsenabled" + String(j+1) + 'checkbox',type:"checkbox"},
+                {value:datatable[j].controlalgorithm, cellclass:options.tablename + "controlalgorithm" + String(j+1) + 'select controlalgorithmselect',cellid:options.tablename + "controlalgorithm" + String(j+1) +'select', type:"select-one",choices:controlalgorithmnames},
+                {value:datatable[j].controlrecipe, cellclass:options.tablename + "controlrecipe" + String(j+1) + 'select controlrecipeselect',cellid:options.tablename + "controlrecipe" + String(j+1) + 'select',type:"select-one",choices:controlrecipenames},
+                {value:datatable[j].controlvalue, cellclass:options.tablename + "controlvalue" + String(j+1),type:"value"},
+                {value:datatable[j].setpointvalue, cellclass:options.tablename + "setpointvalue" + String(j+1),type:"value"},
+                {value:datatable[j].positiveoutput, cellclass:options.tablename + "positiveoutput" + String(j+1) + 'select outputselect',cellid:options.tablename + "positiveoutput" + String(j+1) + 'select',type:"select-one",choices:outputnames},
+                {value:datatable[j].negativeoutput, cellclass:options.tablename + "negativeoutput" + String(j+1) + 'select outputselect',cellid:options.tablename + "negativeoutput" + String(j+1) + 'select',type:"select-one",choices:outputnames}
+            ]);
+        }
+        else{
+            addTableRow(tableid,[
+                {value:datatable[j].channelindex, cellclass:options.tablename + "channelindex" + String(j+1),type:"value"},
+                {value:datatable[j].name, cellclass:options.tablename + "name" + String(j+1),type:"value"},
+                {value:datatable[j].controlinput, cellclass:options.tablename + "controlinput" + String(j+1),cellid:options.tablename + "controlinput" + String(j+1),type:"value"},
+                {value:datatable[j].enabled, cellclass:options.tablename + "enabled" + String(j+1) + 'checkbox',type:"checkbox"},
+                {value:datatable[j].outputsenabled, cellclass:options.tablename + "outputsenabled" + String(j+1) + 'checkbox',type:"checkbox"},
+                {value:datatable[j].controlalgorithm, cellclass:options.tablename + "controlalgorithm" + String(j+1),cellid:options.tablename + "controlalgorithm" + String(j+1), type:"value"},
+                {value:datatable[j].controlrecipe, cellclass:options.tablename + "controlrecipe" + String(j+1),cellid:options.tablename + "controlrecipe" + String(j+1),type:"value"},
+                {value:datatable[j].controlvalue, cellclass:options.tablename + "controlvalue" + String(j+1),type:"value"},
+                {value:datatable[j].setpointvalue, cellclass:options.tablename + "setpointvalue" + String(j+1),type:"value"},
+                {value:datatable[j].positiveoutput, cellclass:options.tablename + "positiveoutput" + String(j+1),cellid:options.tablename + "positiveoutput" + String(j+1),type:"value"},
+                {value:datatable[j].negativeoutput, cellclass:options.tablename + "negativeoutput" + String(j+1),cellid:options.tablename + "negativeoutput" + String(j+1),type:"value"}
+            ]);
+        }
     }
-    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+    // I don't think this is necessary.
+//    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+
 }
 
 function UpdateControlAlgorithmsTable(options) {
@@ -1161,7 +1213,19 @@ function RenderControlAlgorithmsTable (datatable,options) {
     var tablerowstart = options.tablerowstart || 1;
     var dbrowstart = options.dbrowstart || 0;
     var numdbrows = options.numdbrows || 999;
-    console.log(datatable)
+    var editable = options.editable || false;
+
+     // populate selectors
+    controlalgorithmnames=[];
+	for (var i=0; i<datatable.length;i++){
+		controlalgorithmnames.push(datatable[i].name);
+	}
+	$('.controlalgorithmselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+	    	UpdateSelect(this.id, controlalgorithmnames);
+		}
+	});
+
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
     if (options.hasOwnProperty('timeoutclass')) {
@@ -1186,19 +1250,32 @@ function RenderControlAlgorithmsTable (datatable,options) {
     clearTable(tableid, tablerowstart);
     for (var j=dbrowstart;j<numrowstoget;j++)
     {
-       addTableRow(tableid,[{value:datatable[j].name,cellclass:options.tablename + "name" + String(j+1),type:"text"},
-            {value:datatable[j].type,cellclass:options.tablename + "type" + String(j+1) + 'select algorithmtypeselect',cellid:options.tablename + "type" + String(j+1) + 'select',type:"select-one",choices:algorithmtypes},
-            {value:datatable[j].proportional,cellclass:options.tablename + "proportional" + String(j+1),type:"text"},
-            {value:datatable[j].integral,cellclass:options.tablename + "integral" + String(j+1),type:"text"},
-            {value:datatable[j].derivative,cellclass:options.tablename + "derivative" + String(j+1),type:"text"},
-            {value:datatable[j].deadbandhigh,cellclass:options.tablename + "deadbandhigh" + String(j+1),type:"text"},
-            {value:datatable[j].deadbandlow,cellclass:options.tablename + "deadbandlow" + String(j+1),type:"text"},
-            {value:datatable[j].dutypercent,cellclass:options.tablename + "dutypercent" + String(j+1),type:"text"},
-            {value:datatable[j].dutyperiod,cellclass:options.tablename + "dutyperiod" + String(j+1),type:"text"}
-       ]);
+       if (editable) {
+           addTableRow(tableid,[{value:datatable[j].name,cellclass:options.tablename + "name" + String(j+1),type:"text"},
+                {value:datatable[j].type,cellclass:options.tablename + "type" + String(j+1) + 'text',type:"value"},
+                {value:datatable[j].proportional,cellclass:options.tablename + "proportional" + String(j+1),type:"text"},
+                {value:datatable[j].integral,cellclass:options.tablename + "integral" + String(j+1),type:"text"},
+                {value:datatable[j].derivative,cellclass:options.tablename + "derivative" + String(j+1),type:"text"},
+                {value:datatable[j].deadbandhigh,cellclass:options.tablename + "deadbandhigh" + String(j+1),type:"text"},
+                {value:datatable[j].deadbandlow,cellclass:options.tablename + "deadbandlow" + String(j+1),type:"text"},
+                {value:datatable[j].dutypercent,cellclass:options.tablename + "dutypercent" + String(j+1),type:"text"},
+                {value:datatable[j].dutyperiod,cellclass:options.tablename + "dutyperiod" + String(j+1),type:"text"}
+           ]);
+       }
+       else{
+           addTableRow(tableid,[{value:datatable[j].name,cellclass:options.tablename + "name" + String(j+1) + "text",type:"value"},
+                {value:datatable[j].type,cellclass:options.tablename + "type" + String(j+1) + 'text',type:"value"},
+                {value:datatable[j].proportional,cellclass:options.tablename + "proportional" + String(j+1),type:"value"},
+                {value:datatable[j].integral,cellclass:options.tablename + "integral" + String(j+1),type:"value"},
+                {value:datatable[j].derivative,cellclass:options.tablename + "derivative" + String(j+1),type:"value"},
+                {value:datatable[j].deadbandhigh,cellclass:options.tablename + "deadbandhigh" + String(j+1),type:"value"},
+                {value:datatable[j].deadbandlow,cellclass:options.tablename + "deadbandlow" + String(j+1),type:"value"},
+                {value:datatable[j].dutypercent,cellclass:options.tablename + "dutypercent" + String(j+1),type:"value"},
+                {value:datatable[j].dutyperiod,cellclass:options.tablename + "dutyperiod" + String(j+1),type:"value"}
+           ]);
+       }
     }
-    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
-    UpdateControlAlgorithmTypesData()
+//    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }
 
 ////////////////////////////////////////////////////////////////////////////

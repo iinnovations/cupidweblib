@@ -74,6 +74,7 @@ function booleanBinaryToOnOff(value) {
     var string="Value Error";
 	if (value==0) { string = "Off" }
 	else if (value==1) { string = "On" }
+    else { string = "Err"}
 	return string;
 }
 function booleanBinaryToTrueFalseString(value) {
@@ -200,7 +201,6 @@ function addTableRow(tableID,contentarray) {
 						textvalue="F";
 					} 
 					else {
-                        alert()
 						textvalue="Error";
                         alert('Error: ' + cellvalue + ' ' + cellclass)
 					}

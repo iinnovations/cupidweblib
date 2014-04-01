@@ -182,12 +182,12 @@ $(document).ready(function(){
 		GetAndRenderLogData({'channelnameid':'channelselect','renderplotids':['chart1'], 'seriesnames':['controlvalue','setpointvalue','action'],'renderplotoptions':[largeChannelOptionsObj]})
 	})
 	
-	UpdateControlRecipeNames({'timeout':updateinterval})
+	UpdateControlRecipeData({'timeout':updateinterval})
   	UpdateControlAlgorithmsData({'timeout':updateinterval})
 	UpdateInputsData({'timeout':updateinterval})
 	UpdateOutputsData({'timeout':updateinterval})
 	UpdateSystemStatusData({'timeout':updateinterval})
-    UpdateInputsDataTable({'tablerowstart':2,'timeout':updateinterval})
+    UpdateInputsTable({'tablerowstart':2,'timeout':updateinterval})
 
 	// Just get one channel's worth of data. These are 1-indexed
 	// which matches up with rowID on table, and a selector with a 'none' first entry
@@ -394,33 +394,7 @@ $(document).ready(function(){
                   </tr>            
                 </table>
                </div>
-               <div class="table halftable">
-                <img src="images/cmstemplate/bg-th-left.gif" width="8" height="7" alt="" class="left" /> <img src="images/cmstemplate/bg-th-right.gif" width="7" height="7" alt="" class="right" />
-                <table class="listing halflisting" id="inputsdatatable" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <th class="first firstnoborder" width="10">&nbsp;</th>
-                    <th class="noborder" colspan="4">Inputs Data</th>
-                    <th class= "last lastnoborder" width="10">&nbsp;</th>
-                  </tr>
-                  <tr>
-                    <th>Input</th>
-                    <th>Interface</th>
-                    <th>Type</th>
-                    <th>Value</th>
-                    <th>Unit</th>
-                    <th width="85">Time</th>
-                  </tr>
-                  <tr>
-                    <td>Value</td>
-                    <td>Value</td>
-                    <td>Value</td>
-                    <td>Value</td>
-                    <td>Value</td>
-                    <td>Value</td>
-                  </tr> 
-                 
-                </table>
-              </div> <!-- half table -->
+
 	          </td>
             </tr>
           </table>

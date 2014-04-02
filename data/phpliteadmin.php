@@ -45,7 +45,7 @@
 // Please see http://code.google.com/p/phpliteadmin/wiki/Configuration for more details
 
 //password to gain access
-$password = 'basepi';
+$password = 'abadpassword';
 
 // Theme! If you want to change theme, save the CSS file in same folder of phpliteadmin or in folder 'themes'
 $theme = 'phpliteadmin.css';
@@ -87,7 +87,7 @@ $allowed_extensions = array('db','db3','sqlite','sqlite3');
 //END USER-DEFINED VARIABLES
 
 // load optional configuration file
-$config_filename = './phpliteadmin.config.php';
+$config_filename = '/var/wwwsafe/phpliteadmin.config.php';
 if (is_readable($config_filename)) {
 	include_once $config_filename;
 }

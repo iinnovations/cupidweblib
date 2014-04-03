@@ -3,9 +3,9 @@
 <html>
 <head>
 
-<script src="/mobile/js/jquery-1.7.1.min.js"></script>
-<script src="/js/iijslib.js" type="text/javascript"></script> 
-<script src="/js/cupidjslib.js" type="text/javascript"></script> 
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<!--<script src="/js/iijslib.js" type="text/javascript"></script> -->
+<!--<script src="/js/cupidjslib.js" type="text/javascript"></script> -->
 
 <title>CuPID Standalone IO</title>
 
@@ -155,16 +155,17 @@
 // The execution of our basic functions to get data for the tables/charts
 //------------------------------------------------------------------------//
 
+var runqueries=true;
 // Load all possible values into selectors
 function wsgigpioactions (commands,callback) {
 	// Get the data
-    commands=commands || ['testcommand1','testcommand2']
+    commands=commands || {command:'testcommand'}
     callback = callback || logdone;
     $.ajax({
         url: "/wsgigpioactions",
         type: "post",
         datatype:"json",
-        data: {'commands':commands},
+        data: commands,
         success: function(response){
             //alert("I worked");
             callback(response)
@@ -225,13 +226,64 @@ function updatestatusdata(statusdata){
     })
 }
 
+function getGPIOfromid(clickid) {
+    if (clickid.search('mode') > 0){
+            var mode = 'mode';
+            // Chop up string
+            // starts with GPIO
+            // double-digit number
+            if (clickid.search('mode') == 6) {
+                var GPIOnum = clickid.slice(4,6);
+                var GPIOid = clickid.slice(0,6);
+            }
+            // single digit number
+            else {
+                var GPIOnum = clickid.slice(4,5);
+                var GPIOid  =clickid.slice(0,5);
+            }
+        }
+        else if (clickid.search('value') > 0) {
+            var mode = 'value';
+            // Chop up string
+            // starts with GPIO
+            // double-digit number
+            if (clickid.search('value') == 6) {
+                var GPIOnum = clickid.slice(4,6);
+                var GPIOid = clickid.slice(0,6);
+            }
+            // single digit number
+            else {
+                var GPIOnum = clickid.slice(4,5);
+                var GPIOid  =clickid.slice(0,5);
+            }
+        }
+    return {GPIOnum:GPIOnum, mode:mode, GPIOid:GPIOid}
+}
 //-------------------------------------------------------//
 // All of the button functions
 //-------------------------------------------------------//
 
 $(function(){
 	$('.canpress').click(function(){
-        alert('You clicky ' + this.id + ' !')
+        var clickid = this.id
+        result = getGPIOfromid(clickid)
+        if (result.mode == 'mode'){
+            action = 'toggleGPIOmode'
+        }
+        else if (result.mode == 'value') {
+            action = 'toggleGPIOvalue'
+        }
+        command = {action:'toggleGPIOvalue',GPIOid:result.GPIOid}
+
+        if (runqueries) {
+            alert('running command:')
+            alert('action: ' + action + ' , GPIOnum: ' + result.GPIOnum)
+            wsgigpioactions(command,updatestatusdata)
+        }
+        else {
+            alert('queries not activated for command:')
+            alert('action: ' + action + ' , GPIOnum: ' + result.GPIOnum)
+        }
 
     });
     $('#valuesrefreshbutton').click(function(){
@@ -445,7 +497,7 @@ $(document).ready(function(){
                         <td><div class="GPIO23mode lightindicator canpress">X</div></td>
                     </tr>
                     <tr>
-                        <td>GPI24</td>
+                        <td>GPIO24</td>
                         <td><div class="GPIO24mode lightindicator canpress">X</div></td>
                     </tr>
                     <tr>

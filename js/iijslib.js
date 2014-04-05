@@ -8,6 +8,15 @@ var stdauthmessage='You do not have sufficient authorization for this action';
 
 // Value processing
 
+function getNameFromPath(path){
+    path  = path.replace(/\//g,' ')
+    path = path.trim()
+
+    var mysplit = path.split(' ')
+    var name = mysplit[mysplit.length-1]
+    var cleanname = name.split('.')[0]
+    return cleanname
+}
 function pad(num, size) {
     var s = num+"";
     while (s.length < size) s = "0" + s;

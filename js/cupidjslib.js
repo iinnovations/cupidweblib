@@ -119,7 +119,7 @@ function deleteChannel(channelname, callback){
     deleteRow(controldatabase,'channels',callback,'name',channelname);
 }
 function deleteAction(name, callback){
-    deleteRow(controldatabase,'channels',callback,'name',name);
+    deleteRow(controldatabase,'actions',callback,'name',name);
 }
 function deleteLog(logname, callback){
     dropTable(logdatabase,logname);
@@ -519,6 +519,9 @@ function RenderTablesData(tablenames,options) {
 // with all available columns. This is used for offering all
 // database fields as criteria.
 
+// So for the database controldata, table channels, the selector would be
+// constroldatachannelscolumnselect. Add that class and it will be rendered
+
 function UpdateColumnsData(options) {
 	var callback=RenderColumnsData;
     if (! options.hasOwnProperty('database')){
@@ -552,13 +555,14 @@ function RenderColumnsData(data,options) {
     $.each(data[0],function(key,value){
         columnnames.push(key);
     })
-//	console.log(columnnames)
-	$('.' + options.database + options.table + 'columnselect').each(function(){
+	var cleandbname = getNameFromPath(options.database)
+    console.log('.' + cleandbname + options.table + 'columnselect')
+	$('.' + cleandbname + options.table + 'columnselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, columnnames);
 		}
 	});
-    $('.' + options.database + options.table + 'columnjqmselect').each(function(){
+    $('.' + cleandbname + options.table + 'columnjqmselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, columnnames);
             $('#' + this.id).selectmenu("refresh");

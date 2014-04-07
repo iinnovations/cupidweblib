@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>CuPID Network Status</title>
+	<title>CuPID Network Edit</title>
 	<link rel="stylesheet" href="css/jquery.mobile-1.2.1.css" />
 	<link rel="stylesheet" href="css/jqm-docs.css" />
     <link rel="stylesheet" href="css/CuPID.css" />
@@ -36,10 +36,9 @@ $(document).ready(function(){
  
   togglestolamps()
   //// Control Algorithms
-  UpdateNetStatusData({timeout:updateinterval,jqmpage:true})
-  UpdateNetConfigData({timeout:updateinterval,jqmpage:true})
-  UpdateVersionsData({'timeout':updateinterval,jqmpage:true})
-  UpdateMetadata({'timeout':updateinterval,jqmpage:true})
+  UpdateNetStatusData({timeout:updateinterval, jqmpage:true})
+  UpdateNetConfigData({timeout:updateinterval, jqmpage:true})
+  UpdateNetAuthsData({timeout:updateinterval, jqmpage:true})
 })
 </script>
 
@@ -71,29 +70,25 @@ $(document).ready(function(){
                     </select>
                 </span>
             </li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td>WAN latency(ms) :   </td><td align="right"><span class="netstatuslatency">&nbsp;</span></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td>LAN IP :       </td><td align="right"><span class="netstatusIPAddress">&nbsp;</span></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td>SSID :       </td><td align="right"><span class="netstatusnetworkSSID">&nbsp;</span></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td>Online since :       </td><td align="right"><span class="netstatusonlinetime">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td><span class="wirelessSSID1">&nbsp;</span></td><td align="right"><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td><span class="wirelessSSID2">&nbsp;</span></td><td align="right"><span class="netstatusIPAddress">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td><span class="wirelessSSID3">&nbsp;</span></td><td align="right"><span class="netstatusnetworkSSID">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td><span class="wirelessSSID4">&nbsp;</span></td><td align="right"><span class="netstatusonlinetime">&nbsp;</span></td></tr></table></li>
 
             <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
 			  <div data-role="collapsible" data-collapsed="true"  >
-                <h3>Config</h3>
-                <table width="90%"><tr><td width="60%"><p><strong>Enabled:    </strong></p></td>
-                    <td><span class="justalamp">
-                    <select name="netconfigenabledtoggle" class="netconfigenabledtoggle" data-role="slider">
-                        <option value="Off">Off</option>
-                        <option value="On">On</option>
-                    </select>
-                </span></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>SSID:    </strong></p></td><td><p><span class="netconfigSSID">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>Net Type:   </strong></p></td><td><p><span class="netconfigaddtype">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>Address Type:   </strong></p></td><td><p><span class="netconfigaddtype">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>Address:   </strong></p></td><td><p><span class="netconfigaddress">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>Gateway:   </strong></p></td><td><p><span class="netconfiggateway">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>AP Revert:   </strong></p></td><td><p><span class="netconfigaprevert">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>>AP Revert Time:   </strong></p></td><td><p><span class="netconfigapreverttime">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>Pingthreshold:   </strong></p></td><td><p><span class="netconfigpingthreshold">&nbsp;</span></p></td></tr></table>
+                <h3>Known Network Settings</h3>
+                <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID1">&nbsp;</span></strong></p></td>
+                    <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td>
+                </tr></table>
+                <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID2">&nbsp;</span></strong></p></td>
+                    <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td>
+                </tr></table>
+                <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID3">&nbsp;</span></strong></p></td>
+                    <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td>
+                </tr></table>
+                <table width="90%"><a data-theme="e" data-role="button" data-icon="check">Add Network</a></td>
+                </tr></table>
 			  </div>
             </div>
             <li data-role="fieldcontain">

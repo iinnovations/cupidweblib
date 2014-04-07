@@ -8,6 +8,7 @@ logdatabase='/var/www/data/logdata.db';
 infodatabase='/var/www/data/deviceinfo.db';
 systemdatabase='/var/www/data/systemdata.db';
 authdatabase='/var/www/data/authlog.db';
+safedatabaes='/var/wwwsafe/safedata.db'
 
 // Define all the globals.
 // We define these globally so that when we render tables that need them
@@ -374,6 +375,7 @@ function RenderWidgetsFromArray(database,tablename,data,options) {
             var baseclass='.' + tablename + key + index;
             setWidgetValues(baseclass,value,options);
             setWidgetActions({'baseclass':baseclass,'database':database,'tablename':tablename,'key':key,'condition':'rowid='+index,'callback':callback,'jqmpage':jqmpage});
+            console.log(baseclass)
         })
     }
     togglestolamps();
@@ -900,6 +902,91 @@ function RenderSystemStatusData(datatable,options) {
 	// Option for controls (as opposed to indicators (not implemented yet
     // var updatesliders = options.updatesliders || true;
 	RenderWidgets(controldatabase, 'systemstatus', datatable[0], options);
+}
+
+//// Network Status
+function UpdateNetStatusData(options) {
+	var callback=RenderNetStatusData;
+	wsgiCallbackTableData(systemdatabase,'netstatus',callback,options);
+}
+function RenderNetStatusData(datatable,options) {
+    options = options || {};
+    var jqmpage = options.jqmpage || false;
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (timeout>0) {
+		setTimeout(function(){UpdateNetStatusData(options)},timeout);
+	}
+	// Option for controls (as opposed to indicators (not implemented yet
+    // var updatesliders = options.updatesliders || true;
+	RenderWidgets(controldatabase, 'netstatus', datatable[0], options);
+}
+
+//// Netauths Data
+function UpdateNetAuthsData(options) {
+	var callback=RenderNetAuthsData;
+    options.table = options.table || 'wireless'
+	wsgiCallbackTableData(safedatabaes,options.table,callback,options);
+}
+function RenderNetAuthsData(datatable,options) {
+    options = options || {};
+    var jqmpage = options.jqmpage || false;
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (timeout>0) {
+		setTimeout(function(){UpdateNetAuthsData(options)},timeout);
+	}
+	// Option for controls (as opposed to indicators (not implemented yet
+    // var updatesliders = options.updatesliders || true;
+    RenderWidgetsFromArray(systemdatabase, options.table, datatable, options)
+}
+
+//// Netconfig Status
+function UpdateNetConfigData(options) {
+	var callback=RenderNetConfigData;
+	wsgiCallbackTableData(systemdatabase,'netconfig',callback,options);
+}
+function RenderNetConfigData(datatable,options) {
+    options = options || {};
+    var jqmpage = options.jqmpage || false;
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    else {
+        timeout=0;
+    }
+	if (timeout>0) {
+		setTimeout(function(){UpdateNetConfigData(options)},timeout);
+	}
+	// Option for controls (as opposed to indicators (not implemented yet
+    // var updatesliders = options.updatesliders || true;
+	RenderWidgets(systemdatabase, 'netconfig', datatable[0], options);
 }
 
 //// Metadata

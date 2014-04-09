@@ -8,7 +8,7 @@ logdatabase='/var/www/data/logdata.db';
 infodatabase='/var/www/data/deviceinfo.db';
 systemdatabase='/var/www/data/systemdata.db';
 authdatabase='/var/www/data/authlog.db';
-safedatabaes='/var/wwwsafe/safedata.db'
+safedatabase='/var/wwwsafe/safedata.db'
 
 // Define all the globals.
 // We define these globally so that when we render tables that need them
@@ -375,7 +375,7 @@ function RenderWidgetsFromArray(database,tablename,data,options) {
             var baseclass='.' + tablename + key + index;
             setWidgetValues(baseclass,value,options);
             setWidgetActions({'baseclass':baseclass,'database':database,'tablename':tablename,'key':key,'condition':'rowid='+index,'callback':callback,'jqmpage':jqmpage});
-            console.log(baseclass)
+//            console.log(baseclass)
         })
     }
     togglestolamps();
@@ -936,7 +936,7 @@ function RenderNetStatusData(datatable,options) {
 function UpdateNetAuthsData(options) {
 	var callback=RenderNetAuthsData;
     options.table = options.table || 'wireless'
-	wsgiCallbackTableData(safedatabaes,options.table,callback,options);
+	wsgiCallbackTableData(safedatabase,options.table,callback,options);
 }
 function RenderNetAuthsData(datatable,options) {
     options = options || {};

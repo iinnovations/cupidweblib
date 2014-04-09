@@ -31,11 +31,100 @@ logUserAuths(sessiondata)
 
 <div data-role="page" class="type-home" id="main">
 <script>
- var updateinterval=3000
+var updateinterval=3000
+//// Channels
+function UpdateWirelessTable() {
+    var callback=RenderWirelessTable;
+    wsgiCallbackTableData(safedatabase,'wireless',callback);
+}
+function RenderWirelessTable(datatable) {
+    // Here we render html for each element retrieved
+    // set top of indicator ul
+    $("#wirelessset").html('<div data-role="collapsible" data-collapsed="true" id="wirelesssetitems">\
+            <h3>Known Network Settings</h3>\
+            </div>');
+
+    for (var i=0; i<datatable.length; i++){
+        var index=i+1;
+        $("#wirelesssetitems").append('\
+            <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID' + index + '">&nbsp;</span></strong></p></td>\
+                <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true" data-rel="popup" href="#enterpasswordpopup' + index + '">Set Password</a></td>\
+            </tr></table>\
+            <div data-role="popup" id="enterpasswordpopup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
+                <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
+                    <h3>Change password for ' + datatable[i].SSID+ ' </h3>\
+                </div>\
+                <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content">\
+                    <h3 class="ui-title">Enter New Password</h3>\
+                    <div style="padding:10px; font-size:16px"><input type="password" id="password' + index + '_1"/></div>\
+                    <div style="padding:10px; font-size:16px"><input type="password" id="password' + index + '_2"/></div>\
+                    <div data-role="button" data-icon="check" data-theme="f" id="updatepasswordsubmit' + index +'">Submit</div>\
+                </div>\
+            </div>')
+//            $('#wirelesset').append(divhtmlitemstring).trigger( "create" );
+
+        // render tablenames based on database
+        // this is currently done automatically, hardcoded because we are locked into
+        // control database. One step at a time.
+
+        // render columnnames based on table
+        // action of tablename change is render of known id select to column names of new value
+        // e.g. actionstable1jqmselect valuechange will render actionscolumn1jqmselect with new value
+
+        $('#updatepasswordsubmit' + index).on('click',{i:i},function(event){
+            if ($('#password' + index + '_1').val() == $('#password' + index + '_2').val()) {
+//                alert('setting password to ' + $('#password' + index + '_1').val())
+//                alert('update wireless set password=\'' + $('#password' + index + '_1').val() + '\' where SSID=\'' + datatable[event.data.i].SSID + '\'')
+                wsgiExecuteQuery(safedatabase,'update wireless set password=\'' + $('#password' + index + '_1').val() + '\' where SSID=\'' + datatable[event.data.i].SSID + '\'')
+                $("#enterpasswordpopup" + index).popup('close')
+            }
+            else {
+                alert("Passwords do not match!")
+            }
+
+        })
+
+        // attach action to tablename change event
+    }
+    $("#wirelesssetitems").append('\
+        <table width="90%"><a data-theme="e" data-role="button" data-icon="check" data-rel="popup" href="#addnetworkpopup">Add Network</a></td>\
+        </tr></table>\
+        <div data-role="popup" id="addnetworkpopup" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
+            <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
+                <h3>Add Network</h3>\
+            </div>\
+            <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content" style="width:300px">\
+                <h3 class="ui-title">Enter New Network Name</h3>\
+                <div style="padding:15px; margin: 15px; "><input type="text" style="font-size: 18px" id="newnetworkname"/></div>\
+                <div data-role="button" data-icon="check" data-theme="f" id="addnetwork" style="margin:15px 20px 0px 20px">Submit</div>\
+                <div>&nbsp;</div>\
+            </div>\
+        </div>')
+    $('#addnetwork').on('click',function(){
+        if ($('#newnetworkname').val() != '') {
+            addNetwork($('#newnetworkname').val())
+             $('#addnetworkpopup').popup('close')
+        }
+        else {
+            alert("Enter a network name")
+        }
+    })
+
+    $('#wirelessset').trigger('create');
+    $('#mainlistview').listview('refresh');
+
+    UpdateNetAuthsData({'jqmpage':true})
+}
+
+function addNetwork(newnetworkname) {
+    addRow(safedatabase,'wireless',function(){UpdateWirelessTable({jqmpage:true})},['SSID','password'], [newnetworkname,''])
+}
+
 $(document).ready(function(){
  
   togglestolamps()
   //// Control Algorithms
+  UpdateWirelessTable({jqmpage:true})
   UpdateNetStatusData({timeout:updateinterval, jqmpage:true})
   UpdateNetConfigData({timeout:updateinterval, jqmpage:true})
   UpdateNetAuthsData({timeout:updateinterval, jqmpage:true})
@@ -44,7 +133,7 @@ $(document).ready(function(){
 
 	<div data-role="content">
       <div class="content-secondary">
-		<ul data-role="listview" data-inset="true">
+		<ul data-role="listview" data-inset="true" id="mainlistview">
             <li data-role="list-divider"><h4>Network Status</h4></li>
 
 			<li data-role="fieldcontain"><table width="90%"><tr><td>Network Role :       <span class="netstatusmode">&nbsp</span></td><td align="right">Station</td></tr></table></li>
@@ -70,14 +159,10 @@ $(document).ready(function(){
                     </select>
                 </span>
             </li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td><span class="wirelessSSID1">&nbsp;</span></td><td align="right"><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td><span class="wirelessSSID2">&nbsp;</span></td><td align="right"><span class="netstatusIPAddress">&nbsp;</span></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td><span class="wirelessSSID3">&nbsp;</span></td><td align="right"><span class="netstatusnetworkSSID">&nbsp;</span></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td><span class="wirelessSSID4">&nbsp;</span></td><td align="right"><span class="netstatusonlinetime">&nbsp;</span></td></tr></table></li>
 
-            <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
-			  <div data-role="collapsible" data-collapsed="true"  >
-                <h3>Known Network Settings</h3>
+            <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e" id="wirelessset">
+			  <div data-role="collapsible" data-collapsed="true" id="wirelesssetitems">
+                <h3>Known Network Settings!</h3>
                 <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID1">&nbsp;</span></strong></p></td>
                     <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td>
                 </tr></table>
@@ -87,12 +172,12 @@ $(document).ready(function(){
                 <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID3">&nbsp;</span></strong></p></td>
                     <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td>
                 </tr></table>
-                <table width="90%"><a data-theme="e" data-role="button" data-icon="check">Add Network</a></td>
+                <table width="90%"><a data-theme="ec" data-role="button" data-icon="check">Add Network</a></td>
                 </tr></table>
 			  </div>
             </div>
             <li data-role="fieldcontain">
-                <a href="networkedit.html" data-ajax="false">Edit Settings</a>
+                &nbsp;
             </li>
           </ul>
 		</div><!--/content-secondary-->

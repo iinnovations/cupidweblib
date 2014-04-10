@@ -145,6 +145,9 @@ function UpdateSelect(inputid,choices){
 	if(choices.indexOf(curval)>=0){
 		document.getElementById(inputid).value=curval;
 	}
+    if (inputid.indexOf("jqmselect") >= 0) {
+        $('#' + inputid).selectmenu('refresh')
+    }
 }
 function addTableRow(tableID,contentarray) {
  	// contentarray = [column 1, column2 ... column N]

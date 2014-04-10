@@ -161,7 +161,6 @@ function setWidgetValues(baseclass,value,options) {
 
 
 //    alert(' set widget values')
-
     $(baseclass).html(text);
     $(baseclass + 'onoff').html(onoffvalue);
     $(baseclass + 'text').val(text);
@@ -942,6 +941,17 @@ function RenderNetAuthsData(datatable,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
 
+    // populate selectors
+    ssids=[];
+	for (var i=0; i<datatable.length;i++){
+		ssids.push(datatable[i].SSID);
+	}
+	$('.ssidselect').each(function(){
+		if ($('#' + this.id).length > 0) {
+	    	UpdateSelect(this.id, ssids);
+		}
+	});
+    console.log(ssids)
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
     if (options.hasOwnProperty('timeoutclass')) {
@@ -958,7 +968,7 @@ function RenderNetAuthsData(datatable,options) {
 	}
 	// Option for controls (as opposed to indicators (not implemented yet
     // var updatesliders = options.updatesliders || true;
-    RenderWidgetsFromArray(systemdatabase, options.table, datatable, options)
+    RenderWidgetsFromArray(safedatabase, options.table, datatable, options)
 }
 
 //// Netconfig Status

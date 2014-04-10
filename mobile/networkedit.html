@@ -47,8 +47,10 @@ function RenderWirelessTable(datatable) {
     for (var i=0; i<datatable.length; i++){
         var index=i+1;
         $("#wirelesssetitems").append('\
-            <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID' + index + '">&nbsp;</span></strong></p></td>\
+            <table><tr>\
+                <td width="50%"><p><strong><span class="wirelessSSID' + index + '">&nbsp;</span></strong></p></td>\
                 <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true" data-rel="popup" href="#enterpasswordpopup' + index + '">Set Password</a></td>\
+                <td><a data-theme="f" data-role="button" data-icon="delete" data-mini="true" data-rel="popup" href="#deletenetworkpopup' + index + '">Delete</a></td>\
             </tr></table>\
             <div data-role="popup" id="enterpasswordpopup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
                 <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
@@ -59,6 +61,16 @@ function RenderWirelessTable(datatable) {
                     <div style="padding:10px; font-size:16px"><input type="password" id="password' + index + '_1"/></div>\
                     <div style="padding:10px; font-size:16px"><input type="password" id="password' + index + '_2"/></div>\
                     <div data-role="button" data-icon="check" data-theme="f" id="updatepasswordsubmit' + index +'">Submit</div>\
+                </div>\
+            </div>\
+            <div data-role="popup" id="deletenetworkpopup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
+                <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
+                    <h3>Delete network ' + datatable[i].SSID+ ' </h3>\
+                </div>\
+                <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content">\
+                    <h3 class="ui-title">Delete network ' + datatable[i].SSID + '?</h3>\
+                    <div style="padding:10px; font-size:16px">&nbsp;</div>\
+                    <div data-role="button" data-icon="delete" data-theme="f" id="deletenetworkconfirm' + index +'">Delete</div>\
                 </div>\
             </div>')
 //            $('#wirelesset').append(divhtmlitemstring).trigger( "create" );
@@ -81,6 +93,11 @@ function RenderWirelessTable(datatable) {
             else {
                 alert("Passwords do not match!")
             }
+
+        })
+        $('#deletenetworkconfirm' + index).on('click',{networkname:datatable[i].SSID},function(event){
+            deleteNetwork(event.data.networkname)
+            $("#deletenetworkpopup" + index).popup('close')
 
         })
 
@@ -119,6 +136,9 @@ function RenderWirelessTable(datatable) {
 function addNetwork(newnetworkname) {
     addRow(safedatabase,'wireless',function(){UpdateWirelessTable({jqmpage:true})},['SSID','password'], [newnetworkname,''])
 }
+function deleteNetwork(networkname) {
+    deleteRow(safedatabase,'wireless', function(){UpdateWirelessTable({jqmpage:true})},'SSID', networkname)
+}
 
 $(document).ready(function(){
  
@@ -136,8 +156,17 @@ $(document).ready(function(){
 		<ul data-role="listview" data-inset="true" id="mainlistview">
             <li data-role="list-divider"><h4>Network Status</h4></li>
 
-			<li data-role="fieldcontain"><table width="90%"><tr><td>Network Role :       <span class="netstatusmode">&nbsp</span></td><td align="right">Station</td></tr></table></li>
-			<li data-role="fieldcontain">
+			<li data-role="fieldcontain"><table width="90%"><tr><td>Network Role :       </td><td align="right"><span class="netstatusmode">&nbsp</span></td></tr></table></li>
+            <li>
+                <select id="networkjqmselect" class="networkjqmselect ssidselect" >
+                  <option value="standard">Output 1</option>
+                  <option value="rush">Output</option>
+                  <option value="express">Output 3</option>
+                  <option value="overnight">Output 4</option>
+				</select>
+            </li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>SSID :       </td><td align="right"><span class="netstatusnetworkSSID">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain">
                 <span class="justalamp">
                     <label for="netstatusconnectedtoggle" class="ui-biglabel" style="display:inline-block; width:60%; ">
                     Connected
@@ -148,6 +177,7 @@ $(document).ready(function(){
                     </select>
                 </span>
             </li>
+
             <li data-role="fieldcontain">
                 <span class="justalamp">
                     <label for="netstatusWANaccesstoggle" class="ui-biglabel" style="display:inline-block; width:60%; ">
@@ -180,24 +210,25 @@ $(document).ready(function(){
                 &nbsp;
             </li>
           </ul>
+          <div data-role="button" data-icon="check" data-theme="f" id="updatepasswordsubmit' + index +'">Restart Network</div>
 		</div><!--/content-secondary-->
-        <div class="content-primary">
-		<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">
-            <li data-role="list-divider">
-            <h4>About CuPID Controls</h4></li>
-            <li>CuPID Controls<p>CuPID Controls is an <a href="interfaceinnovations.org">Interface Innovations</a> venture focused on bringing high-quality,
-                affordable and powerful control hardware and software into the open-source hardware community.</p>
-            </li>
-            <li>On the webs
-                <p>Find us online at our blog at <a href="cupidcontrols.com">CuPIDcontrols.com</a>, or on our product page at
-                <a href="interfaceinnovations.org/cupidcontrols.html">interfaceinnovations.org/cupidcontrols.html</a> </p>
-            </li>
-            <li>Contact Us
-                <p>Feel free to contact us at <a href="mailto:info@interfaceinnovations.org">info@interfaceinnovations.org</a></p>
-            </li>
-            <li><p>Copyright Interface Innovations, LLC</p></li>
-          </ul>
-		</div><!--/content-primary-->
+        <!--<div class="content-primary">-->
+		<!--<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">-->
+            <!--<li data-role="list-divider">-->
+            <!--<h4>About CuPID Controls</h4></li>-->
+            <!--<li>CuPID Controls<p>CuPID Controls is an <a href="interfaceinnovations.org">Interface Innovations</a> venture focused on bringing high-quality,-->
+                <!--affordable and powerful control hardware and software into the open-source hardware community.</p>-->
+            <!--</li>-->
+            <!--<li>On the webs-->
+                <!--<p>Find us online at our blog at <a href="cupidcontrols.com">CuPIDcontrols.com</a>, or on our product page at-->
+                <!--<a href="interfaceinnovations.org/cupidcontrols.html">interfaceinnovations.org/cupidcontrols.html</a> </p>-->
+            <!--</li>-->
+            <!--<li>Contact Us-->
+                <!--<p>Feel free to contact us at <a href="mailto:info@interfaceinnovations.org">info@interfaceinnovations.org</a></p>-->
+            <!--</li>-->
+            <!--<li><p>Copyright Interface Innovations, LLC</p></li>-->
+          <!--</ul>-->
+		<!--</div>&lt;!&ndash;/content-primary&ndash;&gt;-->
 	</div><!--content-->
 </div><!-- page -->
 </body>

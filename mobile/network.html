@@ -44,18 +44,18 @@ $(document).ready(function(){
 </script>
 
 	<div data-role="content">
-      <div class="content-secondary">
-		<ul data-role="listview" data-inset="true">
+      <div class="content-secondary" >
+		<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">
             <li data-role="list-divider"><h4>Network Status</h4></li>
 
 			<li data-role="fieldcontain"><table width="90%"><tr><td>Network Role :       </td><td align="right"><span class="netstatusmode">&nbsp</span></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td>SSID :       </td><td align="right"><span class="netstatusnetworkSSID">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>SSID :       </td><td align="right"><span class="netstatusSSID">&nbsp;</span></td></tr></table></li>
 			<li data-role="fieldcontain">
                 <span class="justalamp">
                     <label for="netstatusconnectedtoggle" class="ui-biglabel" style="display:inline-block; width:60%; ">
                     Connected
                     </label>
-                    <select name="netstatusconnectedtogle" class="netstatusconnectedtoggle" data-role="slider">
+                    <select name="netstatusconnectedtoggle" class="netstatusconnectedtoggle" data-role="slider">
                         <option value="Off">Off</option>
                         <option value="On">On</option>
                     </select>
@@ -73,49 +73,24 @@ $(document).ready(function(){
                 </span>
             </li>
             <li data-role="fieldcontain"><table width="90%"><tr><td>WAN latency(ms) :   </td><td align="right"><span class="netstatuslatency">&nbsp;</span></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td>LAN IP :       </td><td align="right"><span class="netstatusIPAddress">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>LAN IP :       </td><td align="right"><span class="netstatusaddress">&nbsp;</span></td></tr></table></li>
             <li data-role="fieldcontain"><table width="90%"><tr><td>Online since :       </td><td align="right"><span class="netstatusonlinetime">&nbsp;</span></td></tr></table></li>
-
-            <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
-			  <div data-role="collapsible" data-collapsed="true"  >
-                <h3>Config</h3>
-                <table width="90%"><tr><td width="60%"><p><strong>Enabled:    </strong></p></td>
-                    <td><span class="justalamp">
-                    <select name="netconfigenabledtoggle" class="netconfigenabledtoggle" data-role="slider">
-                        <option value="Off">Off</option>
-                        <option value="On">On</option>
-                    </select>
-                </span></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>SSID:    </strong></p></td><td><p><span class="netconfigSSID">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>Net Type:   </strong></p></td><td><p><span class="netconfigaddtype">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>Address Type:   </strong></p></td><td><p><span class="netconfigaddtype">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>Address:   </strong></p></td><td><p><span class="netconfigaddress">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>Gateway:   </strong></p></td><td><p><span class="netconfiggateway">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>AP Revert:   </strong></p></td><td><p><span class="netconfigaprevert">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>>AP Revert Time:   </strong></p></td><td><p><span class="netconfigapreverttime">&nbsp;</span></p></td></tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong>Pingthreshold:   </strong></p></td><td><p><span class="netconfigpingthreshold">&nbsp;</span></p></td></tr></table>
-			  </div>
-            </div>
-            <li data-role="fieldcontain">
-                <a href="networkedit.html" data-ajax="false">Edit Settings</a>
-            </li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>Status Msg :       </td><td align="right"><span class="netstatusstatusmsg">&nbsp;</span></td></tr></table></li>
           </ul>
 		</div><!--/content-secondary-->
         <div class="content-primary">
-		<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">
-            <li data-role="list-divider">
-            <h4>About CuPID Controls</h4></li>
-            <li>CuPID Controls<p>CuPID Controls is an <a href="interfaceinnovations.org">Interface Innovations</a> venture focused on bringing high-quality,
-                affordable and powerful control hardware and software into the open-source hardware community.</p>
+				<ul data-role="listview" data-inset="true">
+            <li data-role="list-divider"><h4>Network Config Settings</h4></li>
+			<li data-role="fieldcontain"><table width="90%"><tr><td>Network Role :       </td><td align="right"><span class="netconfignettype">&nbsp</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>SSID :       </td><td align="right"><span class="netconfigSSID">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>IP :       </td><td align="right"><span class="netconfigaddress">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>Gateway :       </td><td align="right"><span class="netconfiggateway">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>AP Revert :       </td><td align="right"><span class="netconfigaprevert">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>AP Revert Time :       </td><td align="right"><span class="netconfigapreverttime">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>Ping Threshold :       </td><td align="right"><span class="netconfigpingthreshold">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain">
+                <a href="networkedit.html" data-ajax="false">Edit Settings</a>
             </li>
-            <li>On the webs
-                <p>Find us online at our blog at <a href="cupidcontrols.com">CuPIDcontrols.com</a>, or on our product page at
-                <a href="interfaceinnovations.org/cupidcontrols.html">interfaceinnovations.org/cupidcontrols.html</a> </p>
-            </li>
-            <li>Contact Us
-                <p>Feel free to contact us at <a href="mailto:info@interfaceinnovations.org">info@interfaceinnovations.org</a></p>
-            </li>
-            <li><p>Copyright Interface Innovations, LLC</p></li>
           </ul>
 		</div><!--/content-primary-->
 	</div><!--content-->

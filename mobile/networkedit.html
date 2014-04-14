@@ -113,7 +113,7 @@ function RenderWirelessTable(datatable) {
             <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content" style="width:300px">\
                 <h3 class="ui-title">Enter New Network Name</h3>\
                 <div style="padding:15px; margin: 15px; "><input type="text" style="font-size: 18px" id="newnetworkname"/></div>\
-                <div data-role="button" data-icon="check" data-theme="f" id="addnetwork" style="margin:15px 20px 0px 20px">Submit</div>\
+                <div data-role="button" data-icon="check" data-theme="f" id="addnetworkconfirm" style="margin:15px 20px 0px 20px">Submit</div>\
                 <div>&nbsp;</div>\
             </div>\
         </div>')
@@ -128,7 +128,7 @@ function RenderWirelessTable(datatable) {
     })
 
     $('#wirelessset').trigger('create');
-    $('#mainlistview').listview('refresh');
+    $('#configlistview').listview('refresh');
 
     UpdateNetAuthsData({'jqmpage':true})
 }
@@ -141,43 +141,42 @@ function deleteNetwork(networkname) {
 }
 
 $(document).ready(function(){
- 
+
+    $('#restartnetworkconfirmbutton').on('click',function(){
+        UpdateControl({action:'setsystemflag',systemflag:'netconfig'})
+        $('#restartnetworkpopup').popup('close')
+    })
+    $('#reloadnetconfigbutton').on('click',function(){
+        UpdateNetConfigData({jqmpage:true})
+    })
+
   togglestolamps()
   //// Control Algorithms
   UpdateWirelessTable({jqmpage:true})
   UpdateNetStatusData({timeout:updateinterval, jqmpage:true})
-  UpdateNetConfigData({timeout:updateinterval, jqmpage:true})
   UpdateNetAuthsData({timeout:updateinterval, jqmpage:true})
+
+  // Don't do netconfig on interval, since user will be editing
+  setTimeout(function(){UpdateNetConfigData({jqmpage:true})},1500)
 })
 </script>
-
-	<div data-role="content">
-      <div class="content-secondary">
-		<ul data-role="listview" data-inset="true" id="mainlistview">
-            <li data-role="list-divider"><h4>Network Status</h4></li>
-
-			<li data-role="fieldcontain"><table width="90%"><tr><td>Network Role :       </td><td align="right"><span class="netstatusmode">&nbsp</span></td></tr></table></li>
-            <li>
-                <select id="networkjqmselect" class="networkjqmselect ssidselect" >
-                  <option value="standard">Output 1</option>
-                  <option value="rush">Output</option>
-                  <option value="express">Output 3</option>
-                  <option value="overnight">Output 4</option>
-				</select>
-            </li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td>SSID :       </td><td align="right"><span class="netstatusnetworkSSID">&nbsp;</span></td></tr></table></li>
-            <li data-role="fieldcontain">
+<div data-role="content">
+    <div class="content-secondary" >
+		<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">
+            <li data-role="list-divider"><h4>WPA Status</h4></li>
+			<li data-role="fieldcontain"><table width="90%"><tr><td>Network Role       </td><td align="right"><span class="netstatusmode">&nbsp</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>SSID       </td><td align="right"><span class="netstatusSSID">&nbsp;</span></td></tr></table></li>
+			<li data-role="fieldcontain">
                 <span class="justalamp">
                     <label for="netstatusconnectedtoggle" class="ui-biglabel" style="display:inline-block; width:60%; ">
                     Connected
                     </label>
-                    <select name="netstatusconnectedtogle" class="netstatusconnectedtoggle" data-role="slider">
+                    <select name="netstatusconnectedtoggle" class="netstatusconnectedtoggle" data-role="slider">
                         <option value="Off">Off</option>
                         <option value="On">On</option>
                     </select>
                 </span>
             </li>
-
             <li data-role="fieldcontain">
                 <span class="justalamp">
                     <label for="netstatusWANaccesstoggle" class="ui-biglabel" style="display:inline-block; width:60%; ">
@@ -189,10 +188,104 @@ $(document).ready(function(){
                     </select>
                 </span>
             </li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>LAN IP  </td><td align="right"><span class="netstatusaddress">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="90%"><tr><td>Status Msg  </td><td align="right"><p><span class="netstatusstatusmsg">&nbsp;</span></p></td></tr></table></li>
+        </ul>
+        <a data-role="button" data-icon="check" data-theme="f" id="restartnetworkbutton" data-rel="popup" href="#restartnetworkpopup">Restart Network</a>
+        <a data-role="button" data-icon="check" data-theme="e" id="reloadnetconfigbutton" >Reload Network Config</a>
+        <div data-role="popup" data-theme="g" data-dividertheme="g" id="restartnetworkpopup" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">
+            <div data-role="header" data-theme="g" class="ui-corner-top ui-dialog-header" >
+                <h3>Restart Network</h3>
+            </div>
+            <div data-role="content" data-theme="g" style="background:none" class="ui-corner-bottom ui-dialog-content">
+                <h3 class="ui-dialog-title">Restart Network? </h3>
+                <div class="ui-dialog-content"><p>You may lose your connection, and transition to ap from static will require reboot.</p><p>Ensure settings are good.</p></div>
+                <div data-role="button" data-icon="refresh" data-theme="f" id="restartnetworkconfirmbutton" style="margin:15px 20px 0px 20px">Restart</div>
+                <div>&nbsp;</div>
+            </div>
+        </div>
 
+    </div><!--/content-secondary-->
+    <div class="content-primary">
+        <ul data-role="listview" data-inset="true" id="configlistview">
+            <li data-role="list-divider"><h4>WPA Configuration</h4></li>
+            <li data-role="fieldcontain">
+                <label for="netconfigenabledtoggle" class="ui-biglabel" style="display:inline-block; width:60%; ">
+                Net Config Enabled
+                </label>
+                <select name="netconfigenabledtoggle" class="netconfigenabledtoggle" data-role="slider">
+                    <option value="Off">Off</option>
+                    <option value="On">On</option>
+                </select>
+            </li>
+            <li>
+                <label for="netconfigmodejqmselect"  style="display:inline-block; width:45%;"><h3>Mode</h3></label>
+                <select id="netconfigmodejqmselect" class="netconfigmodejqmselect modeselect" >
+                <option value="station">Station</option>
+                <option value="ap">Access Point</option>
+                </select>
+            </li>
+            <li>
+                <label for="netconfigSSIDjqmselect"  style="display:inline-block; width:45%;"><h3>Network SSID</h3></label>
+                <select id="netconfigSSIDselect" class="netconfigSSIDjqmselect ssidselect" >
+                  <option value="net1">net1</option>
+                  <option value="net2">net2</option>
+                </select>
+            </li>
+            <li>
+                <label for="netconfigaprevertjqmselect"  style="display:inline-block; width:45%;"><h3>AP Revert</h3></label>
+                <select id="netconfigaprevertjqmselect" class="netconfigaprevertjqmselect aprevertselect" >
+                  <option value="none">None</option>
+                  <option value="aprevert">AP Revert</option>
+                  <option value="temprevert">Temporary Revert</option>
+                </select>
+            </li>
+            <li data-role="fieldcontain" class="sm-inset-header">
+                <fieldset>
+                    <div class="ui-biglabel" >IP Address</div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a ui-buttontextpartner"><input type="text" class="netconfigaddresstext"  value="name" ></div>
+                        <div class="ui-block-b netconfigaddresstextupdate" id="netconfigaddresstextupdate" ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>
+                    </div>
+                </fieldset>
+            </li>
+            <li>
+                <label for="netconfigaddtypejqmselect"  style="display:inline-block; width:45%;"><h3>Mode</h3></label>
+                <select id="netconfigaddtypejqmselect" class="netconfigaddtypejqmselect addtypeselect" >
+                  <option value="static">Static</option>
+                  <option value="dhcp">DHCP</option>
+                </select>
+            </li>
+            <li data-role="fieldcontain" class="sm-inset-header">
+                <fieldset>
+                    <div class="ui-biglabel" >AP Revert Time (s)</div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a ui-buttontextpartner"><input type="text" class="netconfigapreverttimetext"  value="name" ></div>
+                        <div class="ui-block-b netconfigapreverttimetextupdate" id="netconfigapreverttimetextupdate" ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>
+                    </div>
+                </fieldset>
+            </li>
+            <li data-role="fieldcontain" class="sm-inset-header">
+                <fieldset>
+                    <div class="ui-biglabel" >Ping Threshold (ms)</div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a ui-buttontextpartner"><input type="text" class="netconfigpingthresholdtext"  value="name" ></div>
+                        <div class="ui-block-b netconfigpingthresholdtextupdate" id="netconfigpingthresholdtextupdate" ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>
+                    </div>
+                </fieldset>
+            </li>
+            <li data-role="fieldcontain" class="sm-inset-header">
+                <fieldset>
+                    <div class="ui-biglabel" >Gateway</div>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a ui-buttontextpartner"><input type="text" class="netconfiggatewaytext"  value="name" ></div>
+                        <div class="ui-block-b netconfiggatewaytextupdate" id="netconfiggatewaytextupdate" ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>
+                    </div>
+                </fieldset>
+            </li>
             <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e" id="wirelessset">
-			  <div data-role="collapsible" data-collapsed="true" id="wirelesssetitems">
-                <h3>Known Network Settings!</h3>
+              <div data-role="collapsible" data-collapsed="true" id="wirelesssetitems">
+                <h3>Known Network Settings</h3>
                 <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID1">&nbsp;</span></strong></p></td>
                     <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td>
                 </tr></table>
@@ -204,32 +297,14 @@ $(document).ready(function(){
                 </tr></table>
                 <table width="90%"><a data-theme="ec" data-role="button" data-icon="check">Add Network</a></td>
                 </tr></table>
-			  </div>
+              </div>
             </div>
             <li data-role="fieldcontain">
                 &nbsp;
             </li>
-          </ul>
-          <div data-role="button" data-icon="check" data-theme="f" id="updatepasswordsubmit' + index +'">Restart Network</div>
-		</div><!--/content-secondary-->
-        <!--<div class="content-primary">-->
-		<!--<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">-->
-            <!--<li data-role="list-divider">-->
-            <!--<h4>About CuPID Controls</h4></li>-->
-            <!--<li>CuPID Controls<p>CuPID Controls is an <a href="interfaceinnovations.org">Interface Innovations</a> venture focused on bringing high-quality,-->
-                <!--affordable and powerful control hardware and software into the open-source hardware community.</p>-->
-            <!--</li>-->
-            <!--<li>On the webs-->
-                <!--<p>Find us online at our blog at <a href="cupidcontrols.com">CuPIDcontrols.com</a>, or on our product page at-->
-                <!--<a href="interfaceinnovations.org/cupidcontrols.html">interfaceinnovations.org/cupidcontrols.html</a> </p>-->
-            <!--</li>-->
-            <!--<li>Contact Us-->
-                <!--<p>Feel free to contact us at <a href="mailto:info@interfaceinnovations.org">info@interfaceinnovations.org</a></p>-->
-            <!--</li>-->
-            <!--<li><p>Copyright Interface Innovations, LLC</p></li>-->
-          <!--</ul>-->
-		<!--</div>&lt;!&ndash;/content-primary&ndash;&gt;-->
-	</div><!--content-->
+        </ul>
+    </div><!--/content-primary-->
+</div><!--content-->
 </div><!-- page -->
 </body>
 </html>

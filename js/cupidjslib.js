@@ -190,7 +190,7 @@ function setjqmSelectByClass(classname,value) {
 }
 function setWidgetActions(options){
     var callback = options.callback || logdone;
-    var updateTimeout=500;
+    var updatetimeout = options.updatetimeout || 500;
     var jqmpage = options.jqmpage || false;
     var baseclass = options.baseclass;
     var actionobj={'action':'setvalue','database':options.database,'table':options.tablename,'valuename':options.key};
@@ -224,7 +224,7 @@ function setWidgetActions(options){
         // invoke ajax query with callback to update the interface when it's done
         setTimeout(function () {
             UpdateControl(actionobj, callback);
-        }, updateTimeout);
+        }, updatetimeout);
     });
 
     // set actions for update buttons on text fields
@@ -241,7 +241,7 @@ function setWidgetActions(options){
             //alert('update on complete!')
             setTimeout(function () {
                 setWidgetValues(baseclass,actionobj.value,options)
-            }, updateTimeout);
+            }, updatetimeout);
         }
     });
 
@@ -256,7 +256,7 @@ function setWidgetActions(options){
             // invoke ajax query with callback to update the interface when it's done
             setTimeout(function () {
                 UpdateControl(actionobj, callback);
-            }, updateTimeout);
+            }, updatetimeout);
         });
 
         var $amtoggleclasses=$(baseclass + 'automantoggle');
@@ -1668,6 +1668,7 @@ function makeUserServerMap(locations,labels,content) {
 // possible actions are
 
 function UpdateControl(actionobj,callback) {
+        callback = callback || logdone;
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",

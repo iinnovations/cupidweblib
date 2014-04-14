@@ -1,0 +1,138 @@
+<?php require_once('../auth/user.php'); ?>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>System</title>
+	<link rel="stylesheet" href="css/jquery.mobile-1.2.1.css" />
+	<link rel="stylesheet" href="css/jqm-docs.css" />
+    <link rel="stylesheet" href="css/CuPID.css" />
+	<script src="js/jquery-1.7.1.min.js"></script>
+	<script src="js/jqm-docs.js"></script>
+	<script src="js/jquery.mobile-1.2.1.js"></script>
+    <script src="/js/iijslib.js" type="text/javascript"></script> 
+	<script src="/js/cupidjslib.js" type="text/javascript"></script>
+</head>
+<body>
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {}
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+
+sessiondata.authlevel = handleUserAuths(sessiondata)
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+</script>
+
+<div data-role="page" class="type-home" id="main">
+<script type="text/javascript" language="JavaScript" src="http://j.maxmind.com/app/geoip.js"> </script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false">    </script>
+
+<script>
+var updateinterval=3000
+$(document).ready(function(){
+
+  togglestolamps()
+
+    $('#rebootconfirm').on('click',function(){
+        UpdateControl({action:'setsystemflag',systemflag:'reboot'})
+        $('#rebootpopup').popup('close')
+    })
+    $('#updateiicontrollibsconfirm').on('click',function(){
+        UpdateControl({action:'setsystemflag',systemflag:'updateiicontrollibs'})
+        $('#updateiicontrollibspopup').popup('close')
+    })
+    $('#updatecupidweblibconfirm').on('click',function(){
+        UpdateControl({action:'setsystemflag',systemflag:'updatecupidweblib'})
+        $('#updatecupidweblibpopup').popup('close')
+    })
+
+    //// Control Algorithms
+    UpdateVersionsData({'timeout':updateinterval})
+    UpdateMetadata({'timeout':updateinterval})
+})
+</script>
+	<div data-role="content">
+        <div class="content-secondary">
+            <ul data-role="listview" data-inset="true">
+                <li data-role="list-divider"><h4>Your CuPID</h4></li>
+                <li data-role="fieldcontain"><table width="90%"><tr><td>Device Name :   </td><td align="right"><span class="metadatadevicename">&nbsp;</span></td></tr></table></li>
+                <li data-role="fieldcontain"><table width="90%"><tr><td>Device Group :   </td><td align="right"><span class="metadatadevicegroupname">&nbsp;</span></td></tr></table></li>
+                <li data-role="fieldcontain">Hardware: <span class="versionsversion3">&nbsp;</span></li>
+                <li data-role="fieldcontain">&nbsp;</li>
+            </ul>
+            <a data-role="button" data-icon="check" data-theme="f" id="rebootbutton" data-rel="popup" href="#rebootpopup">Reboot CuPID</a>
+            <div data-role="popup" data-theme="g" data-dividertheme="g" id="rebootpopup" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">
+                <div data-role="header" data-theme="g" class="ui-corner-top ui-dialog-header" >
+                    <h3>Reboot CuPID</h3>
+                </div>
+                <div data-role="content" data-theme="g" style="background:none" class="ui-corner-bottom ui-dialog-content">
+                    <h3 class="ui-dialog-title">Reboot CuPID? </h3>
+                    <div class="ui-dialog-content">Make sure network settings are good and devices requiring control are in safe states</div>
+                    <div data-role="button" data-icon="refresh" data-theme="f" id="rebootconfirm" style="margin:15px 20px 0px 20px">Restart</div>
+                    <div>&nbsp;</div>
+                </div>
+            </div>
+	    </div><!--/content-secondary-->
+        <div class="content-primary">
+            <ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">
+                <li data-role="list-divider">
+                <h4>Device Software</h4></li>
+                <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
+                    <div data-role="collapsible" data-collapsed="true"  >
+                        <h3><span class="versionsitem1">&nbsp;</span></h3>
+                        <p><strong>Version time:    </strong><span class="versionsversiontime1">&nbsp;</span></p>
+                        <p><strong>Update time:    </strong><span class="versionsupdatetime1">&nbsp;</span></p>
+                        <p><strong>Commit hex:   </strong><span class="versionsversion1">&nbsp;</span></p>
+                    </div>
+                    <div data-role="collapsible" data-collapsed="true"  >
+                        <h3><span class="versionsitem2">&nbsp;</span></h3>
+                        <p><strong>Version time:    </strong><span class="versionsversiontime2">&nbsp;</span></p>
+                        <p><strong>Update time:    </strong><span class="versionsupdatetime2">&nbsp;</span></p>
+                        <p><strong>Commit hex:   </strong><span class="versionsversion2">&nbsp;</span></p>
+                    </div>
+                </div>
+                <li data-role="fieldcontain">&nbsp;</li>
+            </ul>
+            <a data-role="button" data-icon="check" data-theme="f" id="updatecupidweblibbutton" data-rel="popup" href="#updatecupicweblibpopup">Update cupidweblibs</a>
+            <div data-role="popup" data-theme="g" data-dividertheme="g" id="updatecupidweblibpopup" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">
+                <div data-role="header" data-theme="g" class="ui-corner-top ui-dialog-header" >
+                    <h3>Update Web Libraries</h3>
+                </div>
+                <div data-role="content" data-theme="g" style="background:none" class="ui-corner-bottom ui-dialog-content">
+                    <h3 class="ui-dialog-title">Update</h3>
+                    <div class="ui-dialog-content"><p>This will stash all local changes to control library files and update installed library to tip of Master.</p>
+                        <p>This may require rebuilding some databases. </p>
+                        <p>Check release notes for details, and update your control libraries.</p>
+                        <p>Please ensure IO are all in safe states before you proceed. You have been warned.</p>
+                    </div>
+                    <div data-role="button" data-icon="check" data-theme="f" id="updatecupidweblibconfirm" style="margin:15px 20px 0px 20px">Update</div>
+                    <div>&nbsp;</div>
+                </div>
+            </div>
+            <a data-role="button" data-icon="check" data-theme="f" id="updateiicontrollibsbutton" data-rel="popup" href="#updateiicontrollibspopup">Update cupidweblibs</a>
+            <div data-role="popup" data-theme="g" data-dividertheme="g" id="updateiicontrollibspopup" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">
+                <div data-role="header" data-theme="g" class="ui-corner-top ui-dialog-header" >
+                    <h3>Update Control Libraries</h3>
+                </div>
+                <div data-role="content" data-theme="g" style="background:none" class="ui-corner-bottom ui-dialog-content">
+                    <h3 class="ui-dialog-title">Update</h3>
+                    <div class="ui-dialog-content"><p>This will stash all local changes to control library files and update installed library to tip of Master.</p>
+                        <p>This may require rebuilding some databases. </p>
+                        <p>Check release notes for details, and update your web libraries.</p>
+                        <p>Please ensure IO are all in safe states before you proceed. You have been warned.</p>
+                    </div>
+                    <div data-role="button" data-icon="check" data-theme="f" id="updateiicontrollibsconfirm" style="margin:15px 20px 0px 20px">Update</div>
+                    <div>&nbsp;</div>
+                </div>
+            </div>
+		</div><!--/content-primary-->
+	</div><!--content-->
+</div><!-- page -->
+</body>
+</html>

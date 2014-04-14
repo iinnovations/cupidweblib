@@ -66,19 +66,21 @@ var stdmessage='You do not have sufficient authorization for this action'
 //	//alert(query)
 //	wsgiExecuteQueryArray (controldatabase,queryarray)
 //}
-//function xxSetChannelsData(){
-//	queryarray=[]
-//	for (i=0;i<document.getElementById('channelstable').rows.length-1;i++) {
-//		queryarray.push('update channels set name=\'' + document.getElementsByClassName("channelname").item(i).value + '\'  where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
-//		queryarray.push('update channels set controlinput=\'' + document.getElementsByClassName("controlinput").item(i).firstChild.value + '\'  where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
-//		queryarray.push('update channels set enabled=\'' + booleansToIntegerString(document.getElementsByClassName("channelenabled").item(i).checked) + '\' where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
-//		queryarray.push('update channels set controlalgorithm=\'' + document.getElementsByClassName("controlalgorithm").item(i).firstChild.value+ '\'  where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
-//		queryarray.push('update channels set positiveoutput=\'' + document.getElementsByClassName("positiveoutput").item(i).firstChild.value + '\'  where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
-//		queryarray.push('update channels set negativeoutput=\'' + document.getElementsByClassName("negativeoutput").item(i).firstChild.value + '\'  where channelindex=' + document.getElementsByClassName("channelindex").item(i).innerHTML)
-//		//alert(queryarray)
-//	}
-//	wsgiExecuteQueryArray (controldatabase,queryarray)
-//}
+function SetChannelsData(){
+	queryarray=[]
+	for (i=0;i<document.getElementById('channelstable').rows.length-1;i++) {
+        index = String(i + 1)
+		queryarray.push('update channels set name=\'' + $('.channelsname' + index).val() + '\'  where channelindex=' + $('.channelschannelindex' + index).html())
+		queryarray.push('update channels set controlinput=\'' + $('.channelscontrolinput' + index).val() + '\'  where channelindex=' + $('.channelschannelindex' + index).html())
+		queryarray.push('update channels set enabled=\'' + booleansToIntegerString($('.channelsenabled' + index + 'checkbox').prop('checked')) + '\'  where channelindex=' + $('.channelschannelindex' + index).html())
+		queryarray.push('update channels set outputsenabled=\'' + booleansToIntegerString($('.channelsoutputsenabled' + index + 'checkbox').prop('checked')) + '\'  where channelindex=' + $('.channelschannelindex' + index).html())
+		queryarray.push('update channels set controlalgorithm=\'' + $('.channelscontrolalgorithm' + index + 'select').val() + '\'  where channelindex=' + $('.channelschannelindex' + index).html())
+		queryarray.push('update channels set positiveoutput=\'' +  $('.channelspositiveoutput' + index + 'select').val() + '\'  where channelindex=' + $('.channelschannelindex' + index).html())
+		queryarray.push('update channels set negativeoutput=\'' + $('.channelsnegativeoutput' + index + 'select').val() + '\'  where channelindex=' + $('.channelschannelindex' + index).html())
+		console.log(queryarray)
+	}
+	wsgiExecuteQueryArray (controldatabase,queryarray)
+}
 //function xxSetOutputsData(){
 //	queryarray=[]
 //	for (i=0;i<document.getElementById('outputstable').rows.length-1;i++) {
@@ -164,7 +166,7 @@ $(document).ready(function() {
 		checkauth(sessiondata.authlevel, actauthlevel, function(){
 		//alert('I am going to update now');	
 		SetChannelsData()
-		setTimeout(function(){GetAndRenderChannelsTable()},1000)
+		setTimeout(function(){UpdateChannelsTable({editable:true})},1000)
 		}, stdmessage);	
 	});	
 	$('#outputssetdatabutton').click(function(){
@@ -206,6 +208,7 @@ $(document).ready(function() {
         UpdateOutputsTable();
         UpdateInputsTable();
         UpdateControlRecipeData();
+        setTimeout(function(){UpdateChannelsTable({editable:true})},1000);
 //        UpdateChannelsData();
 //        UpdateControlAlgorithmsData();
 //        UpdateControlAlgorithmsData()
@@ -301,9 +304,9 @@ $(document).ready(function() {
             <td><input class="regular-checkbox systemstatuspicontrolstatuscheckbox" type="checkbox"/><label for="systempicontrolstatuscheckbox"></label></td>
             <td class="systemstatuspicontrolfreq" id="systemstatuspicontrolfreq" >value</td>
             <td class="systemstatuslastpicontrolpoll">value</td>
-            <td><input id="systemstatusinputsreadenabledcheckbox" class="regular-checkbox systemstatusinputsreadenabledcheckbox" type="checkbox"/><label for="systemstatusinputsreadenabledcheckbox"></label></td>
-            <td><input class="regular-checkbox systemstatusinputsreadstatuscheckbox" type="checkbox"/><label for="systemstatusinputsreadstatuscheckbox"></label></td>
-            <td class="systemstatusinputsreadfreq" id="systemstatusinputsreadfreq" >value</td>
+            <td><input id="systemstatusupdateioenabledcheckbox" class="regular-checkbox systemstatusupdateioenabledcheckbox" type="checkbox"/><label for="systemstatusupdateioenabledcheckbox"></label></td>
+            <td><input class="regular-checkbox systemstatusupdateiostatuscheckbox" type="checkbox"/><label for="systemstatusupdateiostatuscheckbox"></label></td>
+            <td class="systemstatusupdateiofreq" id="fffreq" >value</td>
             <td class="systemstatuslastinputspoll">value</td>
             <td><input id="systemstatusoutputsenabledcheckbox" class="regular-checkbox systemstatusoutputsenabledcheckbox" type="checkbox"/><label for="systemstatusoutputsenabled"></label></td>
             <td class="systemstatussystemmessage">value</td>

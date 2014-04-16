@@ -53,7 +53,9 @@ $(document).ready(function(){
     })
 
     //// Control Algorithms
-    UpdateVersionsData({'timeout':updateinterval})
+//    UpdateVersionsData({'timeout':updateinterval})
+
+    UpdateUniqueKeyData({uniquekeyname:'item',database:systemdatabase,tablename:'versions'})
     UpdateMetadata({'timeout':updateinterval})
 })
 </script>
@@ -61,9 +63,9 @@ $(document).ready(function(){
         <div class="content-secondary">
             <ul data-role="listview" data-inset="true">
                 <li data-role="list-divider"><h4>Your CuPID</h4></li>
-                <li data-role="fieldcontain"><table width="90%"><tr><td>Device Name :   </td><td align="right"><span class="metadatadevicename">&nbsp;</span></td></tr></table></li>
-                <li data-role="fieldcontain"><table width="90%"><tr><td>Device Group :   </td><td align="right"><span class="metadatadevicegroupname">&nbsp;</span></td></tr></table></li>
-                <li data-role="fieldcontain">Hardware: <span class="versionsversion3">&nbsp;</span></li>
+                <li data-role="fieldcontain"><table width="90%"><tr><td>Device Name   </td><td align="right"><span class="metadatadevicename">&nbsp;</span></td></tr></table></li>
+                <li data-role="fieldcontain"><table width="90%"><tr><td>Device Group   </td><td align="right"><span class="metadatadevicegroupname">&nbsp;</span></td></tr></table></li>
+                <li data-role="fieldcontain">Hardware <span class="versionsitemhardwareversion">&nbsp;</span></li>
                 <li data-role="fieldcontain">&nbsp;</li>
             </ul>
             <a data-role="button" data-icon="check" data-theme="f" id="rebootbutton" data-rel="popup" href="#rebootpopup">Reboot CuPID</a>
@@ -99,14 +101,14 @@ $(document).ready(function(){
                 </div>
                 <li data-role="fieldcontain">&nbsp;</li>
             </ul>
-            <a data-role="button" data-icon="check" data-theme="f" id="updatecupidweblibbutton" data-rel="popup" href="#updatecupicweblibpopup">Update cupidweblibs</a>
+            <a data-role="button" data-icon="check" data-theme="f" id="updatecupidweblibbutton" data-rel="popup" href="#updatecupidweblibpopup">Update cupidweblibs</a>
             <div data-role="popup" data-theme="g" data-dividertheme="g" id="updatecupidweblibpopup" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">
                 <div data-role="header" data-theme="g" class="ui-corner-top ui-dialog-header" >
                     <h3>Update Web Libraries</h3>
                 </div>
                 <div data-role="content" data-theme="g" style="background:none" class="ui-corner-bottom ui-dialog-content">
                     <h3 class="ui-dialog-title">Update</h3>
-                    <div class="ui-dialog-content"><p>This will stash all local changes to control library files and update installed library to tip of Master.</p>
+                    <div class="ui-dialog-content"><p>This will update installed library to tip of Master. If changes have not been stashed, they will need to be stashed manually or update will not proceed.</p>
                         <p>This may require rebuilding some databases. </p>
                         <p>Check release notes for details, and update your control libraries.</p>
                         <p>Please ensure IO are all in safe states before you proceed. You have been warned.</p>
@@ -115,14 +117,14 @@ $(document).ready(function(){
                     <div>&nbsp;</div>
                 </div>
             </div>
-            <a data-role="button" data-icon="check" data-theme="f" id="updateiicontrollibsbutton" data-rel="popup" href="#updateiicontrollibspopup">Update cupidweblibs</a>
+            <a data-role="button" data-icon="check" data-theme="f" id="updateiicontrollibsbutton" data-rel="popup" href="#updateiicontrollibspopup">Update iiconttrollibs</a>
             <div data-role="popup" data-theme="g" data-dividertheme="g" id="updateiicontrollibspopup" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">
                 <div data-role="header" data-theme="g" class="ui-corner-top ui-dialog-header" >
-                    <h3>Update Control Libraries</h3>
+                    <h3 style="margin-left:50px;margin-right:50px">Update Control Libraries</h3>
                 </div>
                 <div data-role="content" data-theme="g" style="background:none" class="ui-corner-bottom ui-dialog-content">
-                    <h3 class="ui-dialog-title">Update</h3>
-                    <div class="ui-dialog-content"><p>This will stash all local changes to control library files and update installed library to tip of Master.</p>
+                    <h3 class="ui-dialog-title" >Update</h3>
+                    <div class="ui-dialog-content"><p>This will update installed library to tip of Master. If changes have not been stashed, they will need to be stashed manually or update will not proceed.</p>
                         <p>This may require rebuilding some databases. </p>
                         <p>Check release notes for details, and update your web libraries.</p>
                         <p>Please ensure IO are all in safe states before you proceed. You have been warned.</p>

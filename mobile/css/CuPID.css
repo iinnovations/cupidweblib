@@ -1322,6 +1322,10 @@ a.ui-link-inherit {
     text-shadow: 0px -1px 0px rgb(0, 0, 0);
     text-align: center;
 }
+.ui-dialog-header h3 {
+     margin-left:50px!important;
+    margin-right:50px!important;
+}
 .ui-dialog-content {
     text-align: center;
     padding:10px 20px 10px 20px;

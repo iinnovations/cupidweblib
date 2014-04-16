@@ -117,7 +117,7 @@ function RenderWirelessTable(datatable) {
                 <div>&nbsp;</div>\
             </div>\
         </div>')
-    $('#addnetwork').on('click',function(){
+    $('#addnetworkconfirm').on('click',function(){
         if ($('#newnetworkname').val() != '') {
             addNetwork($('#newnetworkname').val())
              $('#addnetworkpopup').popup('close')
@@ -164,8 +164,8 @@ $(document).ready(function(){
     <div class="content-secondary" >
 		<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">
             <li data-role="list-divider"><h4>WPA Status</h4></li>
-			<li data-role="fieldcontain"><table width="90%"><tr><td>Network Role       </td><td align="right"><span class="netstatusmode">&nbsp</span></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td>SSID       </td><td align="right"><span class="netstatusSSID">&nbsp;</span></td></tr></table></li>
+			<li data-role="fieldcontain"><table width="100%"><tr><td>Network Role       </td><td align="right"><span class="netstatusmode">&nbsp</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="100%"><tr><td>SSID       </td><td align="right"><span class="netstatusSSID">&nbsp;</span></td></tr></table></li>
 			<li data-role="fieldcontain">
                 <span class="justalamp">
                     <label for="netstatusconnectedtoggle" class="ui-biglabel" style="display:inline-block; width:60%; ">
@@ -188,8 +188,8 @@ $(document).ready(function(){
                     </select>
                 </span>
             </li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td>LAN IP  </td><td align="right"><span class="netstatusaddress">&nbsp;</span></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="90%"><tr><td>Status Msg  </td><td align="right"><p><span class="netstatusstatusmsg">&nbsp;</span></p></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="100%"><tr><td>LAN IP  </td><td align="right"><span class="netstatusaddress">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="100%"><tr><td>Status Msg  </td><td align="right"><p><span class="netstatusstatusmsg">&nbsp;</span></p></td></tr></table></li>
         </ul>
         <a data-role="button" data-icon="check" data-theme="f" id="restartnetworkbutton" data-rel="popup" href="#restartnetworkpopup">Restart Network</a>
         <a data-role="button" data-icon="check" data-theme="e" id="reloadnetconfigbutton" >Reload Network Config</a>
@@ -228,8 +228,7 @@ $(document).ready(function(){
             <li>
                 <label for="netconfigSSIDjqmselect"  style="display:inline-block; width:45%;"><h3>Network SSID</h3></label>
                 <select id="netconfigSSIDselect" class="netconfigSSIDjqmselect ssidselect" >
-                  <option value="net1">net1</option>
-                  <option value="net2">net2</option>
+                  <option value="none">none</option>
                 </select>
             </li>
             <li>
@@ -286,16 +285,16 @@ $(document).ready(function(){
             <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e" id="wirelessset">
               <div data-role="collapsible" data-collapsed="true" id="wirelesssetitems">
                 <h3>Known Network Settings</h3>
-                <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID1">&nbsp;</span></strong></p></td>
+                <table width="100%"><tr><td width="60%"><p><strong><span class="wirelessSSID1">&nbsp;</span></strong></p></td>
                     <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td>
                 </tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID2">&nbsp;</span></strong></p></td>
+                <table width="100%"><tr><td width="60%"><p><strong><span class="wirelessSSID2">&nbsp;</span></strong></p></td>
                     <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td>
                 </tr></table>
-                <table width="90%"><tr><td width="60%"><p><strong><span class="wirelessSSID3">&nbsp;</span></strong></p></td>
+                <table width="100%"><tr><td width="60%"><p><strong><span class="wirelessSSID3">&nbsp;</span></strong></p></td>
                     <td><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Set Password</a></td>
                 </tr></table>
-                <table width="90%"><a data-theme="ec" data-role="button" data-icon="check">Add Network</a></td>
+                <table width="100%"><a data-theme="ec" data-role="button" data-icon="check">Add Network</a></td>
                 </tr></table>
               </div>
             </div>

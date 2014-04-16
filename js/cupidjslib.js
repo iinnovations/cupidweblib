@@ -388,17 +388,20 @@ function RenderWidgetsFromArray(database,tablename,data,options) {
 
 // this needs to be updated before it is used to be consistent with arguments
 
-function RenderWidgetsFromArrayByUniqueKey(args,data) {
+function RenderWidgetsFromArrayByUniqueKey(data,args) {
     var callback = args.callback || logdone;
-    var uniquekeyname=args.uniquekey || 'parameter';
+    var uniquekeyname=args.uniquekeyname || 'parameter';
     var updatetimeout=500; // ms to wait to avoid duplicate events
+            console.log(data)
+
     for (var i=0; i<data.length;i++){
         // Set each possibility
-        var uniquekey=data[i].uniquekeyname;
+        var uniquekey = data[i][uniquekeyname];
         $.each(data[i],function(key,value){
-            var baseclass='.' + tablename + uniquekeyname + key;
-            setWidgetValues(baseclass,data.valuename,options);
-            setWidgetActions({'baseclass':baseclass,'database':args.database,'tablename':args.tablename,'key':args.key,'condition':uniquekeyname+'='+uniquekey});
+            var baseclass='.' + args.tablename + uniquekeyname + uniquekey;
+            console.log('rendering ' + baseclass);
+            setWidgetValues(baseclass,data.valuename, args);
+            setWidgetActions({'baseclass':baseclass,'database':args.database,'tablename':args.tablename,'key':key,'condition':uniquekeyname+'='+uniquekey});
         })
     }
     togglestolamps();
@@ -583,6 +586,13 @@ function RenderColumnsData(data,options) {
             })
         }
     }
+}
+
+// Generic Unique Key Render
+
+function UpdateUniqueKeyData(options) {
+	  var callback = RenderWidgetsFromArrayByUniqueKey
+	  wsgiCallbackTableData(options.database,options.tablename,callback,options);
 }
 
 //// Control Algorithms

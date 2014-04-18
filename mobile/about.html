@@ -87,7 +87,8 @@ $(document).ready(function(){
   togglestolamps()
 
   //// Control Algorithms
-  UpdateVersionsData({'timeout':updateinterval})  
+  UpdateUniqueKeyData({uniquekeyname:'item',database:systemdatabase,tablename:'versions',timeout:5000})
+
   UpdateMetadata({'timeout':updateinterval}) 
 })
 </script>
@@ -95,26 +96,24 @@ $(document).ready(function(){
       <div class="content-secondary">
 		<ul data-role="listview" data-inset="true">
             <li data-role="list-divider">
-              <h4>Your CuPID</h4></li>
-            
-			<li data-role="fieldcontain">Device Name:       <span class="metadatadevicename">&nbsp;</span></li>
-			<li data-role="fieldcontain">Device Group:       <span class="metadatadevicegroup">None</span></li>
-            
+            <li data-role="list-divider"><h4>Your CuPID</h4></li>
+            <li data-role="fieldcontain"><table width="100%"><tr><td>Device Name   </td><td align="right"><span class="metadatadevicename">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="100%"><tr><td>Device Group   </td><td align="right"><span class="metadatadevicegroupname">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="100%"><tr><td>Hardware   </td><td align="right"><span class="versionsitemhardwareversion">&nbsp;</span></td></tr></table></li>
             <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
-			  <div data-role="collapsible" data-collapsed="true"  >
-			    <h3><span class="versionsitem1">&nbsp;</span></h3>
-                <p><strong>Version time:    </strong><span class="versionsversiontime1">&nbsp;</span></p>
-                <p><strong>Update time:    </strong><span class="versionsupdatetime1">&nbsp;</span></p>
-                <p><strong>Commit hex:   </strong><span class="versionsversion1">&nbsp;</span></p>
-			  </div>
-              <div data-role="collapsible" data-collapsed="true"  >
-			    <h3><span class="versionsitem2">&nbsp;</span></h3>
-                <p><strong>Version time:    </strong><span class="versionsversiontime2">&nbsp;</span></p>
-                <p><strong>Update time:    </strong><span class="versionsupdatetime2">&nbsp;</span></p>
-                <p><strong>Commit hex:   </strong><span class="versionsversion2">&nbsp;</span></p>
-			  </div>
+                <div data-role="collapsible" data-collapsed="true"  >
+                    <h3>iicontrollibs</h3>
+                    <p><strong>Version time:    </strong><span class="versionsitemiicontrollibsversiontime">&nbsp;</span></p>
+                    <p><strong>Update time:    </strong><span class="versionsitemiicontrollibsupdatetime">&nbsp;</span></p>
+                    <p><strong>Commit hex:   </strong><span class="versionsitemiicontrollibsversion">&nbsp;</span></p>
+                </div>
+                <div data-role="collapsible" data-collapsed="true"  >
+                    <h3>cupidweblibs</h3>
+                    <p><strong>Version time:    </strong><span class="versionsitemcupidweblibsversiontime">&nbsp;</span></p>
+                    <p><strong>Update time:    </strong><span class="versionsitemcupidweblibsupdatetime">&nbsp;</span></p>
+                    <p><strong>Commit hex:   </strong><span class="versionsitemcupidweblibsversion">&nbsp;</span></p>
+                </div>
             </div>
-			<li data-role="fieldcontain">Hardware: <span class="versionsversion3">&nbsp;</span></li>
             <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
                 <div data-role="collapsible" data-collapsed="false">
                     <h3><span>Location Data</span></h3>
@@ -138,7 +137,7 @@ $(document).ready(function(){
             <li>Contact Us
                 <p>Feel free to contact us at <a href="mailto:info@interfaceinnovations.org">info@interfaceinnovations.org</a></p>
             </li>
-            <li><p>Copyright Interface Innovaitons, LLC</p></li>
+            <li><p>Copyright Interface Innovations, LLC</p></li>
           </ul>
 		</div><!--/content-primary-->
 	</div><!--content-->

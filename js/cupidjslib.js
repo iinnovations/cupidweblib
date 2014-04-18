@@ -398,9 +398,9 @@ function RenderWidgetsFromArrayByUniqueKey(data,args) {
         // Set each possibility
         var uniquekey = data[i][uniquekeyname];
         $.each(data[i],function(key,value){
-            var baseclass='.' + args.tablename + uniquekeyname + uniquekey;
-            console.log('rendering ' + baseclass);
-            setWidgetValues(baseclass,data.valuename, args);
+            var baseclass='.' + args.tablename + uniquekeyname + uniquekey + key;
+            console.log('rendering ' + baseclass + key);
+            setWidgetValues(baseclass, value, args);
             setWidgetActions({'baseclass':baseclass,'database':args.database,'tablename':args.tablename,'key':key,'condition':uniquekeyname+'='+uniquekey});
         })
     }

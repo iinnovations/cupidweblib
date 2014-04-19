@@ -176,7 +176,7 @@ class user {
 			$this->fail("Invalid username or password"); // invalid character in username or sql injection attempt
 		$password=md5(sha1($name).$this->config['password']['salt'].sha1($password));
 		$db=$this->sqlite();
-		$q=$db->prepare("SELECT id, name, email, temp FROM users WHERE name=? AND password=?");
+		$q=$db->prepare("SELECT id, name, email, authlevel, temp FROM users WHERE name=? AND password=?");
 		$q->execute(array($name,$password));
 		$result=$q->fetch(PDO::FETCH_ASSOC);
 		
@@ -224,6 +224,7 @@ class user {
 		
 		$_SESSION['user']['name']=$result['name'];
 		$_SESSION['user']['email']=$result['email'];
+		$_SESSION['user']['authlevel']=$result['authlevel'];
 		$redirect=(isset($_SESSION['redirect'])?$_SESSION['redirect']:'/');
 		unset($_SESSION['redirect']);
 		$this->do_action('login',array($result['id'],$result['name'],$result['email']));

@@ -4,7 +4,8 @@
 <head>
 <!-- Get me some jquery-->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script src="/js/iijslib.js" type="text/javascript"></script> 
+<script src="/js/iijslib.js" type="text/javascript"></script>
+<script src="/js/cupidjslib.js" type="text/javascript"></script>
 
 <!--Record auth level-->
 <script type="text/javascript">
@@ -13,7 +14,6 @@ sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SE
 sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
 sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
 sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
-
 sessiondata.authlevel = handleUserAuths(sessiondata)
 
 // <!--Log access-->

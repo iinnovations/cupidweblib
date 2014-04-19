@@ -25,29 +25,6 @@ var modes=['auto','manual'];
 //////////////////////////////////////////////////////
 // Auth functions
 
-function handleUserAuths(sessiondata) {
-    // Define our usr for access control of features:
-    sessiondata = sessiondata || {}
-    var authlevel=0
-
-    // Set IP of current session
-    if (sessiondata.username == 'viewer') {
-        authlevel=1
-    }
-    else if (sessiondata.username == 'controller') {
-        authlevel=2
-    }
-    else if (sessiondata.username == 'administrator') {
-        authlevel=3
-    }
-    else if (sessiondata.username == 'colin') {
-        authlevel=4
-    }
-    else {
-        authlevel=0
-    }
-    return authlevel
-}
 function logUserAuths(sessiondata) {
     if (sessiondata.authlevel > 0){
         //alert(appip + realip)

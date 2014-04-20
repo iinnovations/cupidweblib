@@ -52,9 +52,6 @@ logUserAuths(sessiondata)
 <div data-role="page" class="type-home" id="main">
 <script>
 
-// Define our usr for access control of features:
-
-
 // Set objects. not used yet.
 //var plotdefs = new plotdefs()
 //plotdefs.plotids=[]
@@ -66,21 +63,9 @@ logUserAuths(sessiondata)
 // TODO : Prune out all or most of these unnecessary and evil globals
 var jqmpage=true;
 
-//var inputids=[];
-//var inputnames=[];
-//var inputgroups=[];
-//var channelsdata=[];
-//var channelnames=[];
-//var channellogdata=[];
-//var renderclassnames=[];
-
 var updatetimeout=100;
 var loginterval=30000;
 var updateinterval=5000;
-
-//var setpointvalueseries=[];
-//var controlvalueseries=[];
-//var actionseries=[];
 
 var actauthlevel=2;
 
@@ -301,10 +286,13 @@ $(document).ready(function(){
                 </fieldset>
             </li>
             <li data-role="fieldcontain" class="sm-inset-header">
-                <fieldset class="ui-grid-a ui-biglabel">
+                  <fieldset class="ui-grid-a ui-biglabel">
                   <div class="ui-block-a ui-stdlabel" >System Message</div>
-                  <div class="ui-block-b ui-stdlabel systemstatussystemmessage">0</div>
+                  <div class="ui-block-b ui-stdlabel ">&nbsp;</div>
                 </fieldset>
+            </li>
+            <li data-role="fieldcontain" class="sm-inset-header">
+                <span class="systemstatussystemmessage">&nbsp;</span>
             </li>
         </div>
         <div data-role="collapsible" data-collapsed="true" data-inset="false" data-count-theme="b" data-content-theme="b">

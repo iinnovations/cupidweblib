@@ -32,11 +32,9 @@ logUserAuths(sessiondata)
 <script>
     var updateinterval=3000
 $(document).ready(function() {
-    UpdateMetadata({timeout:5000})
     noclicky()
 	togglestolamps()
-     UpdateVersionsData({'timeout':updateinterval})
-  UpdateMetadata({'timeout':updateinterval})
+    UpdateMetadata({'timeout':updateinterval})
 
 });
 </script>
@@ -50,21 +48,30 @@ $(document).ready(function() {
 			<li data-role="fieldcontain">Device Name  :      <span class="metadatadevicename" > </span></li>
 			<li data-role="fieldcontain">Device Group  :    <span class="metadatagroupname"> </span></li>
 
+             <li data-role="fieldcontain"><table width="100%"><tr><td>Device Name   </td><td align="right"><span class="metadatadevicename">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="100%"><tr><td>Device Group   </td><td align="right"><span class="metadatadevicegroupname">&nbsp;</span></td></tr></table></li>
+            <li data-role="fieldcontain"><table width="100%"><tr><td>Hardware   </td><td align="right"><span class="versionsitemhardwareversion">&nbsp;</span></td></tr></table></li>
             <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
-			  <div data-role="collapsible" data-collapsed="true"  >
-			    <h3><span class="versionsitem1">&nbsp;</span></h3>
-                <p><strong>Version time:    </strong><span class="versionsversiontime1">&nbsp;</span></p>
-                <p><strong>Update time:    </strong><span class="versionsupdatetime1">&nbsp;</span></p>
-                <p><strong>Commit hex:   </strong><span class="versionsversion1">&nbsp;</span></p>
-			  </div>
-              <div data-role="collapsible" data-collapsed="true"  >
-			    <h3><span class="versionsitem2">&nbsp;</span></h3>
-                <p><strong>Version time:    </strong><span class="versionsversiontime2">&nbsp;</span></p>
-                <p><strong>Update time:    </strong><span class="versionsupdatetime2">&nbsp;</span></p>
-                <p><strong>Commit hex:   </strong><span class="versionsversion2">&nbsp;</span></p>
-			  </div>
+                <div data-role="collapsible" data-collapsed="true"  >
+                    <h3>iicontrollibs</h3>
+                    <p><strong>Version time:    </strong><span class="versionsitemiicontrollibsversiontime">&nbsp;</span></p>
+                    <p><strong>Update time:    </strong><span class="versionsitemiicontrollibsupdatetime">&nbsp;</span></p>
+                    <p><strong>Commit hex:   </strong><span class="versionsitemiicontrollibsversion">&nbsp;</span></p>
+                </div>
+                <div data-role="collapsible" data-collapsed="true"  >
+                    <h3>cupidweblibs</h3>
+                    <p><strong>Version time:    </strong><span class="versionsitemcupidweblibsversiontime">&nbsp;</span></p>
+                    <p><strong>Update time:    </strong><span class="versionsitemcupidweblibsupdatetime">&nbsp;</span></p>
+                    <p><strong>Commit hex:   </strong><span class="versionsitemcupidweblibsversion">&nbsp;</span></p>
+                </div>
             </div>
-			<li data-role="fieldcontain">Hardware: <span class="versionsversion3">&nbsp;</span></li>
+            <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
+                <div data-role="collapsible" data-collapsed="false">
+                    <h3><span>Location Data</span></h3>
+                     <p><div id="map" style="height: 300px; width: 100%">&nbsp;</div></p>
+                </div>
+            </div>
+            <li data-role="fieldcontain">&nbsp;</li>
           </ul>
 		</div><!--/content-secondary-->
         <div class="content-primary" >

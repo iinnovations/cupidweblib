@@ -35,7 +35,7 @@ $(document).ready(function() {
     noclicky()
 	togglestolamps()
     UpdateMetadata({'timeout':updateinterval})
-
+    UpdateUniqueKeyData({uniquekeyname:'item',database:systemdatabase,tablename:'versions',timeout:5000})
 });
 </script>
 <div data-role="page" class="type-home" id="main">
@@ -43,12 +43,8 @@ $(document).ready(function() {
       <div class="content-secondary">
 		<ul data-role="listview" data-inset="true">
             <li data-role="list-divider">
-              <h4>Your CuPID</h4></li>
-
-			<li data-role="fieldcontain">Device Name  :      <span class="metadatadevicename" > </span></li>
-			<li data-role="fieldcontain">Device Group  :    <span class="metadatagroupname"> </span></li>
-
-             <li data-role="fieldcontain"><table width="100%"><tr><td>Device Name   </td><td align="right"><span class="metadatadevicename">&nbsp;</span></td></tr></table></li>
+            <h4>Your CuPID</h4></li>
+            <li data-role="fieldcontain"><table width="100%"><tr><td>Device Name   </td><td align="right"><span class="metadatadevicename">&nbsp;</span></td></tr></table></li>
             <li data-role="fieldcontain"><table width="100%"><tr><td>Device Group   </td><td align="right"><span class="metadatadevicegroupname">&nbsp;</span></td></tr></table></li>
             <li data-role="fieldcontain"><table width="100%"><tr><td>Hardware   </td><td align="right"><span class="versionsitemhardwareversion">&nbsp;</span></td></tr></table></li>
             <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
@@ -65,74 +61,35 @@ $(document).ready(function() {
                     <p><strong>Commit hex:   </strong><span class="versionsitemcupidweblibsversion">&nbsp;</span></p>
                 </div>
             </div>
-            <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
-                <div data-role="collapsible" data-collapsed="false">
-                    <h3><span>Location Data</span></h3>
-                     <p><div id="map" style="height: 300px; width: 100%">&nbsp;</div></p>
-                </div>
-            </div>
             <li data-role="fieldcontain">&nbsp;</li>
           </ul>
 		</div><!--/content-secondary-->
         <div class="content-primary" >
-		<ul data-role="listview" data-inset="true" data-dividertheme="c">
-           <li data-role="list-divider" ><h4>Topics</h4></li>
-           <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
-			  <div data-role="collapsible" data-collapsed="false"  >
-			    <h3>Network Connectivity (LAN)</h3>
-                <p>Your CuPID Control will come configured as DHCP (it will automatically attempt to obtain whatever IP the network gateway feels like assigning it). If you have a password on your network, you'll first need to tell your CuPID what that is to gain access to the network. To add your password and connect to the network of your choice, simply click the Wireless configuration icon on the desktop and add the information to the network configuration. Select connect and you should be good to go. The connection status will display your IP, which you can use to connect to your Pi on your LAN, e.g. with http://192.168.1.56, or whatever IP you receive.</p>
-                <p>If you wish to configure a static IP, you have two basic choices: configure your CuPID or configure your router. To configure the CuPID, open up the text file /etc/network/interfaces and uncomment the manual configuration lines and comment out the automatic configuration. Instructions in the file should make this clear, and with any luck we'll throw this configuration into our interface in the very near future. Alternatively, if you don't want to mess with this little text file and are comfortable editing your router's configuration, you can create an IP reservation in your router/gateway and you'll get the same IP every time. Same result.</p>
-			  </div>
-			  <div data-role="collapsible">
-		        <h3>External Web Access (WAN)</h3>
-	            <p><b>WARNING:</b> Following the steps below puts your CuPID on the interwebs. The internet is a dangerous place full of trolls and sprites that would love to grab control of your temperature controller and cook whatever is attached to it. Create strong passwords, and preferably employ a firewall that will block brute force attempts. The authentication scripts are protected from SQL injection and a number of other exploits, but it is always better to assume nothing on the internet is sacred.
+            <ul data-role="listview" data-inset="true" data-dividertheme="c">
+               <li data-role="list-divider" ><h4>Topics</h4></li>
+               <div data-role="collapsible-set" data-inset="false" data-theme="c" data-content-theme="e">
+                  <div data-role="collapsible" data-collapsed="false"  >
+                    <h3>Network Connectivity (LAN)</h3>
+                    <p>Your CuPID Control will come configured as DHCP (it will automatically attempt to obtain whatever IP the network gateway feels like assigning it). If you have a password on your network, you'll first need to tell your CuPID what that is to gain access to the network. To add your password and connect to the network of your choice, simply click the Wireless configuration icon on the desktop and add the information to the network configuration. Select connect and you should be good to go. The connection status will display your IP, which you can use to connect to your Pi on your LAN, e.g. with http://192.168.1.56, or whatever IP you receive.</p>
+                    <p>If you wish to configure a static IP, you have two basic choices: configure your CuPID or configure your router. To configure the CuPID, open up the text file /etc/network/interfaces and uncomment the manual configuration lines and comment out the automatic configuration. Instructions in the file should make this clear, and with any luck we'll throw this configuration into our interface in the very near future. Alternatively, if you don't want to mess with this little text file and are comfortable editing your router's configuration, you can create an IP reservation in your router/gateway and you'll get the same IP every time. Same result.</p>
+                  </div>
+                  <div data-role="collapsible">
+                    <h3>External Web Access (WAN)</h3>
+                    <p><b>WARNING:</b> Following the steps below puts your CuPID on the interwebs. The internet is a dangerous place full of trolls and sprites that would love to grab control of your temperature controller and cook whatever is attached to it. Create strong passwords, and preferably employ a firewall that will block brute force attempts. The authentication scripts are protected from SQL injection and a number of other exploits, but it is always better to assume nothing on the internet is sacred.
 
-Disclaimer out of the way, create a static IP as descibed above, and then configure your router to forward all traffic on port 80 to your static CuPID IP. Not all ISPs allow traffic through on 80 (or specifically forbid web servers), so this may or may not work for you. You can switch over to 88 if you wish, but google can help you understand why you may or may not want to do this. After forwarding your ports, direct a browser from anywhere at your public IP and you should see your CuPID.</p>
-	          </div>
-               <div data-role="collapsible" data-collapsed="false">
-			    <h3>Authentication and Access</h3>
-			    <p>Users and access control are controlled by a nice little piece of php and a sqlite database. Out of the box, there are three levels of access (technically four, if you include guest access): Viewer, Controller, and Administrator. Viewer is capable of monitoring process variables. Controller is able to change process variables and many settings. Administrator has full control, including modification of recipes and profiles. To change the passwords, you'll need to log in as administrator to user management pages. It's all pretty simple.</p>
-			  </div>
-			  <div data-role="collapsible">
-		        <h3>Accessing your data</h3>
-	            <p>Your data lives in a <a href="http://www.sqlite.org/">Sqlite</a> database on an SDCard on your Fermostat/CuPID Control. Sqlite is a very popular, lightweight binary database program that stores your data in neat little files and is easy on your system resources. It responds to pretty ordinary SQL syntax. If you've ever used phpmyadmin for MySQL, than the phpliteadmin interface set up at <a href="http://thefermostat.com//data/phpliteadmin.php">/data/phpliteadmin.php</a> should be completely familiar to you. Dump it, sync it, whatever. give a data export a try over on the datalogs tab.</p>
-	          </div>
-           </div>
-           <li>
-        <div data-role="collapsible-set" data-content-theme="c" data-theme="d" data-inset="true">
-          <div data-role="collapsible" data-collapsed="true" >
-            <h4>More</h4>
-            <ul data-role="listview" data-inset="false">
-			  <li>
-            	<label for="slider-1">Setpoint Value</label>
-				<input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
-              </li>
-              <li>
-                <div class="ui-grid-a">
-                  <div class="ui-block-a">
-                    <label for="select-choice-1">Positive Output:</label>
-                    <select name="select-choice-1" id="select-choice-1">
-                        <option value="standard">Output 1</option>
-                        <option value="rush">Output 2</option>
-                        <option value="express">Output 3</option>
-                        <option value="overnight">Output 4</option>
-                    </select>
+    Disclaimer out of the way, create a static IP as descibed above, and then configure your router to forward all traffic on port 80 to your static CuPID IP. Not all ISPs allow traffic through on 80 (or specifically forbid web servers), so this may or may not work for you. You can switch over to 88 if you wish, but google can help you understand why you may or may not want to do this. After forwarding your ports, direct a browser from anywhere at your public IP and you should see your CuPID.</p>
                   </div>
-                  <div class="ui-block-b">
-                  <label for="select-choice-1">Negative Output:</label>
-                  <select name="select-choice-1" id="select-choice-1">
-                      <option value="standard">Output 1</option>
-                      <option value="rush">Output 2</option>
-                      <option value="express">Output 3</option>
-                      <option value="overnight">Output 4</option>
-                  </select>
+                   <div data-role="collapsible" data-collapsed="false">
+                    <h3>Authentication and Access</h3>
+                    <p>Users and access control are controlled by a nice little piece of php and a sqlite database. Out of the box, there are three levels of access (technically four, if you include guest access): Viewer, Controller, and Administrator. Viewer is capable of monitoring process variables. Controller is able to change process variables and many settings. Administrator has full control, including modification of recipes and profiles. To change the passwords, you'll need to log in as administrator to user management pages. It's all pretty simple.</p>
                   </div>
-                </div><!--ui grid-->
-			  </li>
+                  <div data-role="collapsible">
+                    <h3>Accessing your data</h3>
+                    <p>Your data lives in a <a href="http://www.sqlite.org/">Sqlite</a> database on an SDCard on your Fermostat/CuPID Control. Sqlite is a very popular, lightweight binary database program that stores your data in neat little files and is easy on your system resources. It responds to pretty ordinary SQL syntax. If you've ever used phpmyadmin for MySQL, than the phpliteadmin interface set up at <a href="http://thefermostat.com//data/phpliteadmin.php">/data/phpliteadmin.php</a> should be completely familiar to you. Dump it, sync it, whatever. give a data export a try over on the datalogs tab.</p>
+                  </div>
+               </div>
+               <li>&nbsp;</li>
             </ul>
-            </div><!--collapsible-->
-          </div><!-- collapsible-set-->
-          </li></ul>
 		</div><!--/content-primary-->
 	</div><!--content-->
 </div><!-- page -->

@@ -61,7 +61,7 @@
         filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#999999', endColorstr='#333333');
         background-color:#ededed;
     }
-    .canpress {
+    .canpress, #valuesrefreshbutton {
         cursor: pointer;
     }
     .lightindicator.on, .lightindicator.input {
@@ -167,8 +167,8 @@ logUserAuths(sessiondata)
 // The execution of our basic functions to get data for the tables/charts
 //------------------------------------------------------------------------//
 var runqueries=false;
-alert(sessiondata.username)
-alert(sessiondata.authlevel)
+//alert(sessiondata.username)
+//alert(sessiondata.authlevel)
 if (sessiondata.authlevel > 2){
     runqueries =true;
     alert('here')
@@ -282,6 +282,7 @@ function getGPIOfromid(clickid) {
 //-------------------------------------------------------//
 
 $(function(){
+
 	$('.canpress').click(function(){
         var clickid = this.id
         result = getGPIOfromid(clickid)
@@ -309,6 +310,8 @@ $(function(){
         updategpioData()
     });
 
+    // run once on start
+    updategpioData()
 
 })
 	

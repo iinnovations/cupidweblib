@@ -50,7 +50,7 @@ function deleteRow(database,table,callback,identifier,value){
     var query='delete from \"' + table + '\" where \"' + identifier + '\"=\"' + value + '\"';
     wsgiExecuteQuery (database,query,callback);
 }
-function addRow(database, table, callback, valuenames,values) {
+function addDBRow(database, table, callback, valuenames,values) {
     var valuenames=valuenames || [];
     var values=values || [];
     var query='insert into \"' + table + '\"'
@@ -88,10 +88,10 @@ function addRow(database, table, callback, valuenames,values) {
     wsgiExecuteQuery (database,query, callback);
 }
 function addChannel(channelname, callback){
-    addRow(controldatabase,'channels',callback, ['name'],[channelname])
+    addDBRow(controldatabase,'channels',callback, ['name'],[channelname])
 }
 function addAction(name, callback){
-    addRow(controldatabase,'actions',callback, ['name'],[name])
+    addDBRow(controldatabase,'actions',callback, ['name'],[name])
 }
 function deleteChannel(channelname, callback){
     deleteRow(controldatabase,'channels',callback,'name',channelname);
@@ -326,14 +326,23 @@ function setWidgetActions(options){
 function RenderWidgets(database,tablename,data,options) {
     var jqmpage = options.jqmpage || false;
     var callback = options.callback || logdone;
+    var usedbname = options.usedbname || false;
+    var setactions = options.setactions || true;
 //    alert('render widgets on ' + tablename + ' is ' + jqmpage)
-
+    var basebaseclass = 'emptyclass'
+    if (usedbname){
+        basebaseclass = '.' + getNameFromPath(database) + tablename
+    }
+    else{
+        basebaseclass = '.' + tablename
+    }
     $.each(data,function(key,value){
-      //console.log('key: ' + key + ' value: ' + value + ' element: ' + '.' + key + i)
-      // Set each possibility
-      var baseclass='.' + tablename + key;
-      setWidgetValues(baseclass,value,options);
-      setWidgetActions({'baseclass':baseclass,'database':database,'tablename':tablename,'key':key,'callback':callback,'jqmpage':jqmpage});
+        // Set each possibility
+        var baseclass = basebaseclass + key;
+        setWidgetValues(baseclass,value,options);
+        if (setactions) {
+            setWidgetActions({baseclass:baseclass,'database':database,'tablename':tablename,'key':key,'callback':callback,'jqmpage':jqmpage});
+        }
     });
     togglestolamps();
 }
@@ -343,15 +352,24 @@ function RenderWidgets(database,tablename,data,options) {
 function RenderWidgetsFromArray(database,tablename,data,options) {
     var jqmpage = options.jqmpage || false;
     var callback = options.callback || logdone;
+    var usedbname = options.usedbname || false;
+    var setactions = options.setactions || true;
 //    alert('render widgets from array on ' + tablename + ' is ' + jqmpage)
 
     for (var i=0; i<data.length;i++){
         var index=i+1;
+        if (usedbname){
+            var basebaseclass = '.' + getNameFromPath(database) + tablename
+        }
+        else{
+            var basebaseclass = '.' + tablename
+        }
         $.each(data[i],function(key,value){
-            var baseclass='.' + tablename + key + index;
+            var baseclass= basebaseclass + key + index;
             setWidgetValues(baseclass,value,options);
-            setWidgetActions({'baseclass':baseclass,'database':database,'tablename':tablename,'key':key,'condition':'rowid='+index,'callback':callback,'jqmpage':jqmpage});
-//            console.log(baseclass)
+            if (setactions) {
+                setWidgetActions({'baseclass':baseclass,'database':database,'tablename':tablename,'key':key,'condition':'rowid='+index,'callback':callback,'jqmpage':jqmpage});
+            }
         })
     }
     togglestolamps();
@@ -398,12 +416,20 @@ function testFunction(someoptions) {
 // these first functions don't do any table creation.
 // they just load data into appropriately named fields
 
-// Version and about data
-function UpdateVersionsData(options) {
-    var callback=RenderVersionsData;
-    wsgiCallbackTableData(systemdatabase,'versions',callback,options)
+// We're going to create a generic function here that will deprecate all of the specific
+// rendering functions below. We are going to render with the generic format for baseclass:
+// tablename + value
+
+// This will create problems if we have databases with different names and tables of the same name
+// We will address this later, for now consciously avoiding this conflict. We'll add in the option to name
+// using the database name for future compatibility. This is in options.usedbname, and is enacted in the
+// render widgets functions
+
+function GetAndRenderTableData(options){
+    var callback=RenderTableData;
+    wsgiCallbackTableData(options.database,options.tablename,callback,options)
 }
-function RenderVersionsData (versionsdata,options){
+function RenderTableData(datatable,options) {
     options = options || {};
 
     // Set interval function. We either pass a class to retrieve it from,
@@ -412,57 +438,64 @@ function RenderVersionsData (versionsdata,options){
         timeout=$('.' + options.timeoutclass).val()*1000;
     }
     else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
+        setTimeout(function(){GetAndRenderTableData(options)},options.timeout);
     }
-    else {
-        timeout=0;
-    }
-    if (options.timeout>0) {
-        setTimeout(function(){UpdateVersionsData(options)},timeout);
-    }
-    // Render the widgets. The RenderVersionsData callback is for setting widget actions,
-    // so that it renders right after the value gets set
-    RenderWidgetsFromArray(systemdatabase,'versions',versionsdata,options)
-}
 
-// Metadata
-function UpdateMetadata(options) {
-	 var callback=RenderMetadata;
-	 wsgiCallbackTableData(systemdatabase,'metadata',callback,options)
-}
-function RenderMetadata (metadata,options){
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
+    // Render selector items if instructed to.
+    if (options.hasOwnProperty('selectorclass')){
+        var selectoritems = [];
+        var selectortableitem = options.selectortableitem || 'name';
 
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
+        if (options.hasOwnProperty('selectorhasnoneitem')){
+            selectoritems.push('none')
+        }
+        for (var i=0; i<datatable.length;i++){
+            selectoritems.push(datatable[i][selectortableitem]);
+        }
+        console.log(selectoritems)
+        $('.' + options.selectorclass).each(function(){
+            if ($('#' + this.id).length > 0) {
+                UpdateSelect(this.id, selectoritems);
+            }
+	    });
     }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (options.timeout>0) {
-		setTimeout(function(){UpdateMetadata(options)},timeout);
+    // If we want to render a flat table, we have to pass index 1
+    // Otherwise, it will be rendered with the index of 1 in the classnames
+    if (options.hasOwnProperty('index')) {
+//        alert('rendering ' + options.database + ' ' + options.tablename + ' ' + options.index)
+		RenderWidgets(options.database,options.tablename,datatable[options.index-1],options);
+        if (options.hasOwnProperty('auxcallback')){
+            options.auxcallback(channelsdata[options.index-1])
+        }
 	}
-	// Manually done here. Only a couple items.
-    $('.metadatadevicename').html(metadata[0].devicename);
-	$('.metadatagroupname').html(metadata[0].groupname);
-	
+	else if (options.hasOwnProperty('indexselector')) {
+        // We pass an index selector id and get the selected index value.
+        // we get the row based on the value of the selector
+        var selectedindex=$('#'+options.indexselector).prop('selectedIndex');
+		RenderWidgets(options.database,options.tablename,datatable[selectedindex],options)
+        if (options.hasOwnProperty('auxcallback')){
+            options.auxcallback(tabledata[selectedindex])
+        }
+    }
+	else {
+        // include index in class render name
+        RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+        if (options.hasOwnProperty('auxcallback')){
+            options.auxcallback(tabledata)
+        }
+	}
 }
+
 
 //// Tables Data
-function UpdateTablesData(options) {
-	var callback=RenderTablesData;
+function UpdateTableNamesData(options) {
+	var callback=RenderTableNamesData;
     if (! options.hasOwnProperty('database')){
         options.database = controldatabase;
     }
     wsgiGetTableNames (options.database,callback,options)
 }
-function RenderTablesData(tablenames,options) {
+function RenderTableNamesData(tablenames,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
 
@@ -479,7 +512,7 @@ function RenderTablesData(tablenames,options) {
     }
 
 	if (options.timeout>0) {
-		setTimeout(function(){UpdateTablesData(options)},options.timeout);
+		setTimeout(function(){UpdateTableNamesData(options)},options.timeout);
 	}
 //	console.log(tablenames)
 	$('.' + options.database + 'tableselect').each(function(){
@@ -494,6 +527,7 @@ function RenderTablesData(tablenames,options) {
 		}
 	});
 }
+
 
 //// Columns Data
 // With database and table, update named selectors
@@ -566,53 +600,92 @@ function RenderColumnsData(data,options) {
 }
 
 // Generic Unique Key Render
-
 function UpdateUniqueKeyData(options) {
 	  var callback = RenderWidgetsFromArrayByUniqueKey
 	  wsgiCallbackTableData(options.database,options.tablename,callback,options);
 }
 
+
+//// These are functions that use the base algorithms above. They are here to provide default options and make the
+//// html a bit cleaner. Also makes it easy to refactor
+
+/// These use generic GetAndRender Function
+
+// Render as arrays
+
+// Version and about data
+function UpdateVersionsData(options) {
+    GetAndRenderTableData({database:systemdatabase, tablename:'versions'})
+}
+
 //// Control Algorithms
 function UpdateControlAlgorithmsData(options) {
-	  var callback=RenderControlAlgorithmsData;
-	  wsgiCallbackTableData(controldatabase,'controlalgorithms',callback,options);
-}
-function RenderControlAlgorithmsData(datatable,options) {
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-
-	if (options.timeout>0) {
-		setTimeout(function(){UpdateControlAlgorithmsData(options)},options.timeout);
-	}
-	controlalgorithmnames=['none'];
-	for (var i=0; i<datatable.length;i++){
-		controlalgorithmnames.push(datatable[i].name);
-	}
-	$('.controlalgorithmselect').each(function(){
-		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, controlalgorithmnames);
-		}
-	});
+    GetAndRenderTableData({database:controldatabase, tablename:'controlalgorithms',selectorclass:'controlalgorithmselect'})
 }
 
 //// Control Algorithm Types
 function UpdateControlAlgorithmTypesData(options) {
-	  var callback=RenderControlAlgorithmTypesData;
-	  wsgiCallbackTableData(controldatabase,'algorithmtypes',callback,options);
+    GetAndRenderTableData({database:controldatabase, tablename:algorithmtypes, selectorclass:'algorithmtypeselect'})
 }
-function RenderControlAlgorithmTypesData(datatable,options) {
+
+//// Channels Data
+function UpdateChannelsData(options) {
+    GetAndRenderTableData({database:controldatabase, tablename:'channels',selectorclass:'channelselect'})
+}
+
+//// Outputs
+function UpdateOutputsData(options) {
+    GetAndRenderTableData({database:controldatabase, tablename:'outputs', selectorclass:'outputselect'})
+}
+
+//// Inputs
+function UpdateInputsData(options) {
+    GetAndRenderTableData({database:controldatabase, tablename:'inputs',selectorclass:'inputselect'})
+}
+
+//// Indicators
+function UpdateIndicatorsData(options) {
+    GetAndRenderTableData({database:controldatabase, tablename:'indicators',selectorclass:'indicatorselect'})
+}
+
+//// Actions
+function UpdateActionsData(options) {
+    GetAndRenderTableData({database:controldatabase, tablename:'actions',selectorclass:'actionselect'})
+}
+
+/// Single table row
+// System Status
+function UpdateSystemStatusData(options) {
+    GetAndRenderTableData({database:controldatabase, tablename:'systemstatus',index:1})
+}
+
+//// Network Status
+function UpdateNetStatusData(options) {
+    GetAndRenderTableData({database:controldatabase, tablename:'netstatus',index:1})
+}
+
+//// Netauths Data
+function UpdateNetAuthsData(options) {
+    GetAndRenderTableData({database:safedatabase, tablename:'wireless',index:1})
+}
+
+//// Netconfig Status
+function UpdateNetConfigData(options) {
+    GetAndRenderTableData({database:systemdatabase, tablename:'netconfig',index:1})
+}
+
+// Metadata
+function UpdateMetadata(options) {
+     GetAndRenderTableData({database:systemdatabase, tablename:'metadata',index:1})
+}
+
+// Unique render functions
+//// Metadata
+function UpdatePlotMetadata(options) {
+	var callback=RenderPlotMetadata;
+	wsgiCallbackTableData(logdatabase,'metadata',callback,options);
+}
+function RenderPlotMetadata(metadata,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
 
@@ -627,84 +700,17 @@ function RenderControlAlgorithmTypesData(datatable,options) {
     else {
         timeout=0;
     }
-
-	if (options.timeout>0) {
-		setTimeout(function(){UpdateControlAlgorithmTypesData(options)},options.timeout);
+	if (timeout>0) {
+		setTimeout(function(){UpdatePlotMetadata(options)},timeout);
 	}
-	algorithmtypes=['none'];
-	for (var i=0; i<datatable.length;i++){
-		algorithmtypes.push(datatable[i].name);
-	}
-	$('.algorithmtypeselect').each(function(){
-		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, algorithmtypes);
-		}
-	});
-}
-
-//// Channels Data
-function UpdateChannelsData(options) {
-	var callback=RenderChannelsData;
-	wsgiCallbackTableData(controldatabase,'channels',callback,options)
-}
-function RenderChannelsData(channelsdata,options) {
-
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-
-    // Populate channel selector. We do this first because
-    // if we have an indexselector of channelselect, not having a
-    // value will cause an error
-
-    channelnames=[];
-	for (var i=0;i<channelsdata.length;i++) {
-		channelnames.push(channelsdata[i].name);
-	}
-	$('.channelselect').each(function(){
-		if ($('#' + this.id).length > 0) {
-			UpdateSelect(this.id, channelnames);
-		}
-	});
-
-    var timeout=0;
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    if (options.timeout>0) {
-        setTimeout(function(){UpdateChannelsData(options)},options.timeout)
-    }
-
-	// Grab only a single channel if we pass that option
-    // This first option grabs an element by the passed index
-	if (options.hasOwnProperty('index')) {
-		RenderWidgets(controldatabase,'channels',channelsdata[options.index-1],options);
-        if (options.hasOwnProperty('auxcallback')){
-            options.auxcallback(channelsdata[options.index-1])
-        }
-	}
-	else if (options.hasOwnProperty('indexselector')) {
-        // We pass an index selector id and get the selected index value.
-        // we get the channel based on the value of the selector
-        var selectedindex=$('#'+options.indexselector).prop('selectedIndex');
-		RenderWidgets(controldatabase,'channels',channelsdata[selectedindex],options)
-        if (options.hasOwnProperty('auxcallback')){
-            options.auxcallback(channelsdata[selectedindex])
-        }
-    }
-	else {
-        RenderWidgetsFromArray(controldatabase,'channels',channelsdata,options)
-        if (options.hasOwnProperty('auxcallback')){
-            options.auxcallback(channelsdata)
-        }
+	for (var i=0;i<metadata.length;i++){
+        //$('.' + metadata[i].name.replace(' ','_') + 'points').html(88);
+		$('.' + metadata[i].name.replace(/ /g,'_') + 'points').html(metadata[i].numpoints);
+	    //alert('.' + metadata[i].name.replace(' ','_') + 'points')
 	}
 }
 
-//// Control Recipes
+//// Control Recipes - uses table names
 function UpdateControlRecipeData(options) {
 	  var callback=RenderControlRecipeData;
 	  wsgiGetTableNames(recipedatabase,callback,options)
@@ -737,285 +743,6 @@ function RenderControlRecipeData(recipenames,options) {
 		}
 	});
 }
-
-//// Outputs
-function UpdateOutputsData(options) {
-	var callback=RenderOutputsData;
-	wsgiCallbackTableData(controldatabase,'outputs',callback,options)
-}
-function RenderOutputsData(outputstable,options) {
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-//    alert('rendering outputs IS ' + jqmpage)
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (options.timeout>0) {
-		setTimeout(function(){UpdateOutputsData(options)},options.timeout);
-	}
-	outputnames=['none'];
-	for (var i=0; i<outputstable.length;i++){
-		outputnames.push(outputstable[i].name);
-	}
-    RenderWidgetsFromArray(controldatabase,'outputs',outputstable,options)
-	$('.outputselect').each(function(){
-		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, outputnames);
-		}
-	});	
-}
-
-//// Inputs
-function UpdateInputsData(options) {
-	var callback = RenderInputsData;
-	wsgiCallbackTableData(controldatabase,'inputs',callback,options)
-}
-function RenderInputsData(inputstable,options) {
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (options.timeout>0) {
-		setTimeout(function(){UpdateInputsData(options)},options.timeout)
-	}
-	inputnames=['none'];
-	for (var i=0; i<inputstable.length;i++){
-		inputnames.push(inputstable[i].id);
-	}
-
-    RenderWidgetsFromArray(controldatabase,'inputs',inputstable,options)
-	$('.inputselect').each(function(){
-		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, inputnames);
-		}
-	});	
-}
-
-//// Indicators
-function UpdateIndicatorsData(options) {
-	var callback=RenderIndicators;
-	wsgiCallbackTableData(controldatabase,'indicators',callback,options);
-}
-function RenderIndicators(indicatorsdata,options) {
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (options.timeout>0) {
-		setTimeout(function(){UpdateIndicatorsData(options)},options.timeout);
-	}
-//	console.log('time to render')
-    RenderWidgetsFromArray(controldatabase,'indicators',indicatorsdata,options);
-}
-
-//// Actions
-function UpdateActionsData(options) {
-	var callback=RenderActions;
-	wsgiCallbackTableData(controldatabase,'actions',callback,options);
-}
-function RenderActions(actionsdata,options) {
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (options.timeout>0) {
-		setTimeout(function(){UpdateActionsData(options)},options.timeout);
-	}
-//	console.log('time to render')
-    RenderWidgetsFromArray(controldatabase,'actions',actionsdata,options);
-}
-
-//// System Status
-function UpdateSystemStatusData(options) {
-	var callback=RenderSystemStatusData;
-	wsgiCallbackTableData(controldatabase,'systemstatus',callback,options);
-}
-function RenderSystemStatusData(datatable,options) {
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (timeout>0) {
-		setTimeout(function(){UpdateSystemStatusData(options)},timeout);
-	}
-	// Option for controls (as opposed to indicators (not implemented yet
-    // var updatesliders = options.updatesliders || true;
-	RenderWidgets(controldatabase, 'systemstatus', datatable[0], options);
-}
-
-//// Network Status
-function UpdateNetStatusData(options) {
-	var callback=RenderNetStatusData;
-	wsgiCallbackTableData(systemdatabase,'netstatus',callback,options);
-}
-function RenderNetStatusData(datatable,options) {
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (timeout>0) {
-		setTimeout(function(){UpdateNetStatusData(options)},timeout);
-	}
-	// Option for controls (as opposed to indicators (not implemented yet
-    // var updatesliders = options.updatesliders || true;
-	RenderWidgets(controldatabase, 'netstatus', datatable[0], options);
-}
-
-//// Netauths Data
-function UpdateNetAuthsData(options) {
-	var callback=RenderNetAuthsData;
-    options.table = options.table || 'wireless'
-	wsgiCallbackTableData(safedatabase,options.table,callback,options);
-}
-function RenderNetAuthsData(datatable,options) {
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-
-    // populate selectors
-    ssids=[];
-	for (var i=0; i<datatable.length;i++){
-		ssids.push(datatable[i].SSID);
-	}
-	$('.ssidselect').each(function(){
-		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, ssids);
-		}
-	});
-    console.log(ssids)
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (timeout>0) {
-		setTimeout(function(){UpdateNetAuthsData(options)},timeout);
-	}
-	// Option for controls (as opposed to indicators (not implemented yet
-    // var updatesliders = options.updatesliders || true;
-    RenderWidgetsFromArray(safedatabase, options.table, datatable, options)
-}
-
-//// Netconfig Status
-function UpdateNetConfigData(options) {
-	var callback=RenderNetConfigData;
-	wsgiCallbackTableData(systemdatabase,'netconfig',callback,options);
-}
-function RenderNetConfigData(datatable,options) {
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (timeout>0) {
-		setTimeout(function(){UpdateNetConfigData(options)},timeout);
-	}
-	// Option for controls (as opposed to indicators (not implemented yet
-    // var updatesliders = options.updatesliders || true;
-	RenderWidgets(systemdatabase, 'netconfig', datatable[0], options);
-}
-
-//// Metadata
-function UpdatePlotMetadata(options) {
-	var callback=RenderPlotMetadata;
-	wsgiCallbackTableData(logdatabase,'metadata',callback,options);
-}
-function RenderPlotMetadata(metadata,options) {
-    options = options || {};
-    var jqmpage = options.jqmpage || false;
-
-    // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
-    if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        timeout=options.timeout;
-    }
-    else {
-        timeout=0;
-    }
-	if (timeout>0) {
-		setTimeout(function(){UpdatePlotMetadata(options)},timeout);
-	}
-	for (var i=0;i<metadata.length;i++){
-        //$('.' + metadata[i].name.replace(' ','_') + 'points').html(88);
-		$('.' + metadata[i].name.replace(/ /g,'_') + 'points').html(metadata[i].numpoints);
-	    //alert('.' + metadata[i].name.replace(' ','_') + 'points')
-	}
-}
-
 
 // These guys create tables and table elements and then render them using the above
 // functions, or not. The key part is creating table elements that can be automatically
@@ -1084,7 +811,6 @@ function RenderInputsTable (datatable,options) {
     }
 //    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }
-
 
 function UpdateOutputsTable(options) {
 	var callback=RenderOutputsTable
@@ -1666,4 +1392,3 @@ function UpdateControl(actionobj,callback) {
             }
        });
 }
-

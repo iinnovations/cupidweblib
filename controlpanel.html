@@ -4,7 +4,7 @@
 <head>
 <!-- Get me some jquery-->
 
-<script src="/mobile/js/jquery-1.7.1.min.js"></script>
+<script src="/js/jquery/jquery-1.11.0.js"></script>
 
 <script language="javascript" type="text/javascript" src="js/jqplot/jquery.jqplot.min.js"></script>
 <link rel="stylesheet" type="text/css" href="js/jqplot/jquery.jqplot.css" />
@@ -23,8 +23,8 @@ sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SE
 sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
 sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
 sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
-
-sessiondata.authlevel = handleUserAuths(sessiondata)
+sessiondata.hpass =   "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['hpass'];} ?>";
+sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
 
 // <!--Log access-->
 logUserAuths(sessiondata)
@@ -84,8 +84,9 @@ $.extend($.easing, {
 
 $(function(){
 	$('#channelssetpointvalueincdown').click(function(){
-		checkauth(authlevel, actauthlevel, function(){
-    	console.log(authlevel);
+		checkauth(sessiondata.authlevel, actauthlevel, function(){
+    	alert(sessiondata.hpass);
+    	console.log(sessiondata.hpass);
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
@@ -99,8 +100,8 @@ $(function(){
 	   }, stdmessage);
     });
 	$('#channelssetpointvalueincup').click(function(){
-    	checkauth(authlevel, actauthlevel, function(){
-		var selectedchannelname=document.getElementById("channelselect").value;
+    	checkauth(sessiondata.authlevel, actauthlevel, function(){
+        var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
             type: "post",
@@ -113,7 +114,7 @@ $(function(){
 		 }, stdmessage);
     });
 	$('#channelsactionincdown').click(function(){
-    	checkauth(authlevel, actauthlevel, function(){
+    	checkauth(sessiondata.authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
@@ -127,7 +128,7 @@ $(function(){
 		}, stdmessage);
     });
 	$('#channelsactionincup').click(function(){
-    	checkauth(authlevel, actauthlevel, function(){
+    	checkauth(sessiondata.authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
@@ -141,7 +142,7 @@ $(function(){
 		}, stdmessage);
     });
 	$('#channelscontrolmodetoggle').click(function(){
-    	checkauth(authlevel, actauthlevel, function(){
+    	checkauth(sessiondata.authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
         	url: "/wsgiupdatecontrol",
@@ -155,7 +156,7 @@ $(function(){
 		}, stdmessage);
     });
 	$('#channelscontrolrecipeselectset').click(function(){
-    	checkauth(authlevel, actauthlevel, function(){
+    	checkauth(sessiondata.authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
 		var newrecipe=document.getElementById("controlrecipeselect").value;
         $.ajax({
@@ -178,26 +179,27 @@ $(document).ready(function(){
 	
 	// run once to respond, but not interval running.
 	$('#channelselect').change(function(){
-		UpdateChannelsData({'indexselector':'channelselect'})
+		UpdateChannelsData();
 		GetAndRenderLogData({'channelnameid':'channelselect','renderplotids':['chart1'], 'seriesnames':['controlvalue','setpointvalue','action'],'renderplotoptions':[largeChannelOptionsObj]})
 	})
 	
 	UpdateControlRecipeData({'timeout':updateinterval})
-  	UpdateControlAlgorithmsData({'timeout':updateinterval})
-	UpdateInputsData({'timeout':updateinterval})
-	UpdateOutputsData({'timeout':updateinterval})
+  	UpdateControlAlgorithmsData({timeout:updateinterval})
+
+	UpdateOutputsData({timeout:updateinterval})
+	UpdateInputsData({timeout:updateinterval})
+
 	UpdateSystemStatusData({'timeout':updateinterval})
-    UpdateInputsTable({'tablerowstart':2,'timeout':updateinterval})
 
 	// Just get one channel's worth of data. These are 1-indexed
 	// which matches up with rowID on table, and a selector with a 'none' first entry
-	UpdateChannelsData({'timeout':updateinterval,'indexselector':'channelselect'})
+//	UpdateChannelsData({'timeout':updateinterval,'indexselector':'channelselect'})
+    GetAndRenderTableData({database:controldatabase, tablename:'channels','timeout':updateinterval, 'indexselector':'channelselect', selectorclass:'channelselect',setactions:false})
+
 	UpdateTimestamps({'timeout':updateinterval,'renderids':['lastpanelupdate']})
 
     // Give the class with the channel name time to render.
     setTimeout(function(){
-        //GetAndRenderLogData({'logtablename':'mychannel_log','renderplotids':['chart1'],'timeout':updateinterval,'seriesnames':['controlvalue','setpointvalue','action'], 'renderplotoptions':[channelOptionsObj]})
-
         GetAndRenderLogData({'channelnameid':'channelselect','renderplotids':['chart1'],'timeout':updateinterval,'seriesnames':['controlvalue','setpointvalue','action'], 'renderplotoptions':[largeChannelOptionsObj]})
     },1000)
 });
@@ -266,8 +268,8 @@ $(document).ready(function(){
             		<td><span class="channelssetpointvalue" id="channelssetpointvalue">value</span></td>
                     <td>F</td>
                     <td colspan="2" >
-                    <button id="channelsetpointvalueincup" type="button" style="width:40px; font-size:16px;font-weight:bolder">+</button>
-                    <button id="channelsetpointvalueincdown" type="button" style="width:40px; font-size:16px;font-weight:bolder">-</button></td>
+                    <button id="channelssetpointvalueincup" type="button" style="width:40px; font-size:16px;font-weight:bolder">+</button>
+                    <button id="channelssetpointvalueincdown" type="button" style="width:40px; font-size:16px;font-weight:bolder">-</button></td>
           		 </tr>
                  <tr>
             		<td>Action</td>
@@ -311,7 +313,7 @@ $(document).ready(function(){
                  </tr>  
                  <tr>
             		<td>Positive Output</td>
-            		<td colspan="2" style="text-align:left"><select class="outputselect channelspositiveoutputselect" id="channelspositiveoutputselect" style="width:125px"><option value="None">None</option></select></td>
+            		<td colspan="2" style="text-align:left"><select class="outputselect channelspositiveoutputselect" id="channelspositiveoutputselect" style="width:125px"><option value="None">None</option><option value="a value">A value</option></select></td>
                     <td colspan="2" >&nbsp;</td>
           		 </tr>
                  <tr>

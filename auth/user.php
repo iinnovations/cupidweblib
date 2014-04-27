@@ -174,6 +174,7 @@ class user {
 			$this->fail("Invalid username or password"); // invalid username or password length 
 		if(!$this->is_username($name))
 			$this->fail("Invalid username or password"); // invalid character in username or sql injection attempt
+		$hpass=sha1($password);
 		$password=md5(sha1($name).$this->config['password']['salt'].sha1($password));
 		$db=$this->sqlite();
 		$q=$db->prepare("SELECT id, name, email, authlevel, temp FROM users WHERE name=? AND password=?");
@@ -217,6 +218,7 @@ class user {
 		//experimental. set session variable of session_id. seems to work fine.
 		
 		$_SESSION['user']['sessionid']=session_id();
+		$_SESSION['user']['hpass']=$hpass;
 		
 		// try to set ip info
 		$_SESSION['user']['realip'] = getRealIpAddr();

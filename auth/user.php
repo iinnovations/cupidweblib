@@ -22,6 +22,8 @@
 //
 // Build: 20090107211851
 
+$_SESSION['redirect']=$_SERVER['REQUEST_URI'];
+
 class user {
 	protected $config=array( // the settings
 		'username'=>array(
@@ -51,6 +53,7 @@ class user {
 	);
 
 	function __construct(){ // generates the user class and determines what we are doing
+
         function getRealIpAddr()
             {
                 if (!empty($_SERVER['HTTP_CLIENT_IP']))   //check ip from share internet
@@ -458,7 +461,9 @@ class user {
 			$this->fail('You must log in to access this page','/'.$this->config['pages']['login']);
 		}
 	}
-
+    public function set_redirect(){
+        $_SESSION['redirect']=$_SERVER['REQUEST_URI'];
+    }
 	private function edit(){ // processes the change of email form
 		if(!isset($_POST['email'])||!isset($_POST['confirm-email']))
 			die();
@@ -513,6 +518,8 @@ class user {
         else $this->fail("Something went wrong. email was".$email." from ".$name);
     }
 	public function login_form(){ // prints the login form
+
+	    $redirect=(isset($_SESSION['redirect'])?$_SESSION['redirect']:'/');
 		echo "".
 		"\t\t".'<form method="post" action="/'.$this->config['pages']['login'].'">'."\n".
 		"\t\t\t".'<fieldset>'."\n".
@@ -520,6 +527,7 @@ class user {
 		"\t\t\t".'<label for="password">Password:</label><input name="password" id="password" type="password" />'."\n".
 		"\t\t\t".'</fieldset>'."\n".
 		"\t\t\t".'<fieldset>'."\n".
+		"\t\t\t\t".'<p class="myinfo">'.$redirect.'</p>'."\n".
 		"\t\t\t\t".'<p class="error">'.$this->errors().'</p>'."\n".
 		"\t\t\t\t".'<input type="hidden" name="nonce" value="'.$this->nonce('login').'" /><input value="Login" type="submit" /><input value="Reset" type="reset" />'."\n".
 		"\t\t\t\t".'<p>Lost your password? <a href="/'.$this->config['pages']['reset'].'">Reset</a>.<br /><a href="/'.$this->config['pages']['change'].'">Change Password</a>.</p>'."\n".

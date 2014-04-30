@@ -527,13 +527,40 @@ class user {
 		"\t\t\t".'<label for="password">Password:</label><input name="password" id="password" type="password" />'."\n".
 		"\t\t\t".'</fieldset>'."\n".
 		"\t\t\t".'<fieldset>'."\n".
-		"\t\t\t\t".'<p class="myinfo">'.$redirect.'</p>'."\n".
 		"\t\t\t\t".'<p class="error">'.$this->errors().'</p>'."\n".
 		"\t\t\t\t".'<input type="hidden" name="nonce" value="'.$this->nonce('login').'" /><input value="Login" type="submit" /><input value="Reset" type="reset" />'."\n".
 		"\t\t\t\t".'<p>Lost your password? <a href="/'.$this->config['pages']['reset'].'">Reset</a>.<br /><a href="/'.$this->config['pages']['change'].'">Change Password</a>.</p>'."\n".
 		"\t\t\t".'</fieldset>'."\n".
 		"\t\t".'</form>'."\n";
 	}
+	public function loginmobile_form(){ // prints the login form
+
+	    $redirect=(isset($_SESSION['redirect'])?$_SESSION['redirect']:'/');
+		echo "".
+		"<ul data-role='listview' data-inset='true' data-theme='a' data-dividertheme='a'>".
+		"<li data-role='list-divider'>Login</li>".
+		"<div style='padding:15px; background:#EEE'>".
+            '<form method="post" action="/'.$this->config['pages']['login'].'">'.
+            "<fieldset data-role='controlgroup'>".
+            '<label for="name">Username:</label><input name="name" id="name" type="text" />'.
+            "<li>".'<label for="password">Password:</label><input name="password" id="password" type="password" />'."</li>".
+            '</fieldset>'.
+            '<fieldset>'.
+            '<input type="hidden" name="nonce" value="'.$this->nonce('login').'" /><input value="Login" type="submit" /><input value="Reset" type="reset" />'.
+            '</fieldset>'.
+            '</form>'.
+        '</div>'.
+        "<li><a href='#' data-icon='gear'>User admin</a></li>".
+		'</ul><br />'.
+		"<ul data-role='listview' data-inset='true' data-theme='a' data-dividertheme='a'>".
+		"<li data-role='list-divider'>Recovery</li>".
+		'<li><a href="/'.$this->config['pages']['reset'].'">Reset</a></li>'.
+		'<li><a href="/'.$this->config['pages']['change'].'">Change Password</a></li>'.
+		"</ul>".
+
+		'<p class="error">'.$this->errors().'</p>';
+	}
+
     public function logout_form(){
         echo "".
         "\t\t".'<form method="get" action="/'.$this->config['pages']['login'].'">'."\n".

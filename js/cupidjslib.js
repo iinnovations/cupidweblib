@@ -42,6 +42,7 @@ function logUserAuths(sessiondata) {
 
 //////////////////////////////////////////////////////
 // Database table manipulation
+
 function dropTable(database,tablename) {
     var query='drop table \"' + tablename  + '\"';
     wsgiExecuteQuery (database,query, callback);
@@ -1383,7 +1384,7 @@ function makeUserServerMap(locations,labels,content) {
 function UpdateControl(actionobj,callback) {
         callback = callback || logdone;
         $.ajax({
-        	url: "/wsgiupdatecontrol",
+            url: "/wsgiupdatecontrol",
             type: "post",
             datatype:"json",
             data: actionobj,

@@ -12,7 +12,9 @@
 
     <title>Actions</title>
 
-    <script src="js/jquery-1.7.1.min.js"></script>
+    <script src="/js/jquery-1.11.0.min.js"></script>
+    <script src="/js/jquery-migrate-1.2.1.min.js"></script>
+
     <link rel="stylesheet" href="css/jquery.mobile-1.2.1.css" />
     <script src="js/jquery.mobile-1.2.1.js"></script>
 
@@ -211,7 +213,7 @@
         //// Control Algorithms
         //Just run this once so we don't overwrite edited values
         UpdateActionsTable({jqmpage:true})
-        setTimeout(function(){UpdateTablesData({database:controldatabase})},2000)
+        setTimeout(function(){UpdateTableNamesData({database:controldatabase})},2000)
         setTimeout(function(){UpdateColumnsData({database:controldatabase,table:'channels'})},2000)
         setTimeout(function(){ UpdateActionsData({'jqmpage':true,timeout:updateinterval})},2000)
 

@@ -256,6 +256,7 @@ function clearTable(tableid,headerrows) {
 // Authentication
 
 function checkauth(authlevel, reqauthlevel, callback, messagearg) {
+    var stdmessage = "you are not authorized for this function"
 	// Handle custom message or lack thereof
 	var message = messagearg || stdmessage ;
 	if (authlevel >= reqauthlevel) {

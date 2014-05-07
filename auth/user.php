@@ -22,8 +22,6 @@
 //
 // Build: 20090107211851
 
-$_SESSION['redirect']=$_SERVER['REQUEST_URI'];
-
 class user {
 	protected $config=array( // the settings
 		'username'=>array(
@@ -256,11 +254,18 @@ class user {
 		$q=$db->prepare("DELETE from sessions where sessionid=?");
 		$sessionid=session_id();
 		$q->execute(array($sessionid));
-		
-		
+
+		// Determine which home to return to
+		$redirect = $_SESSION['redirect'];
+
+        if (strpos($redirect,'mobile') !== false) {
+            header('Location: /mobile/');
+        }
+        else {
+            header('Location: /');
+        }
 		session_unset();
 		session_destroy();
-		header('Location: /');
 		die();
 	}
 
@@ -518,7 +523,6 @@ class user {
         else $this->fail("Something went wrong. email was".$email." from ".$name);
     }
 	public function login_form(){ // prints the login form
-
 	    $redirect=(isset($_SESSION['redirect'])?$_SESSION['redirect']:'/');
 		echo "".
 		"\t\t".'<form method="post" action="/'.$this->config['pages']['login'].'">'."\n".
@@ -534,7 +538,6 @@ class user {
 		"\t\t".'</form>'."\n";
 	}
 	public function loginmobile_form(){ // prints the login form
-
 	    $redirect=(isset($_SESSION['redirect'])?$_SESSION['redirect']:'/');
 		echo "".
 		"<ul data-role='listview' data-inset='true' data-theme='a' data-dividertheme='a'>".
@@ -561,6 +564,20 @@ class user {
 		'<p class="error">'.$this->errors().'</p>';
 	}
 
+    public function logoutmobile_form(){
+        echo "".
+        "<ul data-role='listview' data-inset='true' data-theme='a' data-dividertheme='a'>".
+		"<li data-role='list-divider'>Login</li>".
+		"<div style='padding:15px; background:#EEE'>".
+            '<form method="get" action="/'.$this->config['pages']['login'].'" data-ajax="false">'.
+            '<fieldset>'.
+            '<input type="hidden" name="logout" value="'.$this->nonce('edit').'" /><input value="logout" type="submit" />'.
+            '</fieldset>'.
+            '</form>'.
+        '</div>'.
+        '<li style="height:0px; background:#eee">&nbsp;</li>'.
+		'</ul>';
+    }
     public function logout_form(){
         echo "".
         "\t\t".'<form method="get" action="/'.$this->config['pages']['login'].'">'."\n".

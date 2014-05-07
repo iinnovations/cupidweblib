@@ -9,6 +9,7 @@ infodatabase='/var/www/data/deviceinfo.db';
 systemdatabase='/var/www/data/systemdata.db';
 authdatabase='/var/www/data/authlog.db';
 safedatabase='/var/wwwsafe/safedata.db'
+usersdatabase='/var/wwwsafe/users.db'
 
 // Define all the globals.
 // We define these globally so that when we render tables that need them
@@ -329,7 +330,6 @@ function RenderWidgets(database,tablename,data,options) {
     var callback = options.callback || logdone;
     var usedbname = options.usedbname || false;
     var setactions = options.setactions || true;
-//    alert('render widgets on ' + tablename + ' is ' + jqmpage)
     var basebaseclass = 'emptyclass'
     if (usedbname){
         basebaseclass = '.' + getNameFromPath(database) + tablename
@@ -453,7 +453,7 @@ function RenderTableData(datatable,options) {
         for (var i=0; i<datatable.length;i++){
             selectoritems.push(datatable[i][selectortableitem]);
         }
-        console.log(selectoritems)
+//        console.log(selectoritems)
         $('.' + options.selectorclass).each(function(){
             if ($('#' + this.id).length > 0) {
                 UpdateSelect(this.id, selectoritems);
@@ -463,7 +463,6 @@ function RenderTableData(datatable,options) {
     // If we want to render a flat table, we have to pass index 1
     // Otherwise, it will be rendered with the index of 1 in the classnames
     if (options.hasOwnProperty('index')) {
-//        alert('rendering ' + options.database + ' ' + options.tablename + ' ' + options.index)
 		RenderWidgets(options.database,options.tablename,datatable[options.index-1],options);
         if (options.hasOwnProperty('auxcallback')){
             options.auxcallback(channelsdata[options.index-1])
@@ -631,17 +630,30 @@ function UpdateControlAlgorithmTypesData(options) {
 
 //// Channels Data
 function UpdateChannelsData(options) {
-    GetAndRenderTableData({database:controldatabase, tablename:'channels',selectorclass:'channelselect'})
+    options.database = controldatabase
+    options.tablename = 'channels'
+    options.selectorclass = 'channelselect'
+    GetAndRenderTableData(options)
 }
 
 //// Outputs
 function UpdateOutputsData(options) {
-    GetAndRenderTableData({database:controldatabase, tablename:'outputs', selectorclass:'outputselect'})
+    options.database = controldatabase;
+    options.tablename = 'outputs';
+    options.selectorclass = 'outputselect';
+    options.selectorhasnoneitem = true;
+//    options.selectortableitem = 'id';
+    GetAndRenderTableData(options)
 }
 
 //// Inputs
 function UpdateInputsData(options) {
-    GetAndRenderTableData({database:controldatabase, tablename:'inputs',selectorclass:'inputselect'})
+    options.database = controldatabase;
+    options.tablename = 'inputs';
+    options.selectorclass = 'inputselect';
+    options.selectorhasnoneitem = true;
+//    options.selectortableitem = 'id';
+    GetAndRenderTableData(options)
 }
 
 //// Indicators
@@ -657,27 +669,48 @@ function UpdateActionsData(options) {
 /// Single table row
 // System Status
 function UpdateSystemStatusData(options) {
-    GetAndRenderTableData({database:controldatabase, tablename:'systemstatus',index:1})
+    options.database = controldatabase;
+    options.tablename = 'systemstatus';
+    options.index = 1;
+    GetAndRenderTableData(options)
 }
 
 //// Network Status
 function UpdateNetStatusData(options) {
-    GetAndRenderTableData({database:controldatabase, tablename:'netstatus',index:1})
+    options.database = controldatabase;
+    options.tablename = 'netstatus';
+    options.index = 1;
+    GetAndRenderTableData(options)
 }
 
 //// Netauths Data
 function UpdateNetAuthsData(options) {
-    GetAndRenderTableData({database:safedatabase, tablename:'wireless',index:1})
+    options.database = safedatabase;
+    options.tablename = 'wireless';
+    GetAndRenderTableData(options)
+}
+
+//// Netauths Data
+function UpdateUsersData(options) {
+    options.database = usersdatabase;
+    options.tablename = 'users';
+    GetAndRenderTableData(options)
 }
 
 //// Netconfig Status
 function UpdateNetConfigData(options) {
-    GetAndRenderTableData({database:systemdatabase, tablename:'netconfig',index:1})
+    options.database = systemdatabase;
+    options.tablename = 'netconfig';
+    options.index = 1;
+    GetAndRenderTableData(options)
 }
 
 // Metadata
 function UpdateMetadata(options) {
-     GetAndRenderTableData({database:systemdatabase, tablename:'metadata',index:1})
+    options.database = systemdatabase;
+    options.tablename = 'metadata';
+    options.index = 1;
+    GetAndRenderTableData({database:systemdatabase, tablename:'metadata',index:1})
 }
 
 // Unique render functions
@@ -1119,6 +1152,7 @@ function UpdateTimestamps(passedoptions){
 /////////////////////////////////////////////////////
 // Plot Stuff
 //
+if ($.jqplot){
 
 var channelOptionsObj={
 	legend: {
@@ -1309,6 +1343,7 @@ function RenderLogData (returnedlogdata,options) {
     }
 }
 
+}
 /////////////////////////////////////////////////////////
 // Map Stuff
 function makeUserServerMap(locations,labels,content) {
@@ -1392,4 +1427,24 @@ function UpdateControl(actionobj,callback) {
             	callback(response);
             }
        });
+}
+
+function setUserAuths(args){
+    actionobj=args;
+    args.action='usermodify'
+    args
+}
+
+function runwsgiActions(actionobj){
+    callback = actionobj.callback || logdone;
+    $.ajax({
+        url: "/wsgiactions",
+        type: "post",
+        datatype:"json",
+        data: actionobj,
+        success: function(response){
+            callback(response);
+        }
+   });
+
 }

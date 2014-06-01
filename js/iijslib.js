@@ -292,18 +292,19 @@ function isNumber(n) {
 //////////////////////////////////////////////////
 // WSGI Data Retrieval
 
-function wsgiCallbackTableData (database,table,callback,callbackoptionsarg) {
+function wsgiCallbackTableData (database,table,callback,options) {
 	// Get the data
-	var callbackoptions=callbackoptionsarg || {};
+	var options = options || {};
+    var condition = options.condition || '';
 	//console.log(database + ' ' + table + ' ' + callback)
 	$.ajax({
 		url: "/wsgisqlitequery",
 		type: "post",
 		datatype:"json",				
-		data: {'database':database,'table':table},
+		data: {database:database,table:table,condition:condition},
 		success: function(response){
 			// Execute our callback function
-			callback(response,callbackoptions);										
+			callback(response,options);
 		}
 	});	
 }

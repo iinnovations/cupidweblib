@@ -24,7 +24,7 @@ var algorithmtypes=[]
 var modes=['auto','manual'];
 
 //////////////////////////////////////////////////////
-// Auth functions
+// Auth and user functions
 
 function logUserAuths(sessiondata) {
     if (sessiondata.authlevel > 0){
@@ -39,6 +39,34 @@ function logUserAuths(sessiondata) {
                 }
         });
     }
+}
+
+function userDelete(options) {
+    // Need to pass : usertodelete, session username, session hpass
+    var options = options || {};
+    options.usertodelete = options.usertodelete || '';
+    options.sessionuserhpass = options.sessionuserhpass || '';
+    options.sessionusername = options.sessionusername || '';
+    options.action = 'userdelete'
+    runwsgiActions(options)
+}
+function userAdd(options) {
+    // Need to pass : usertodelete, session username, session hpass
+    var options = options || {};
+    options.usertoadd = options.usertoadd || '';
+    options.sessionuserhpass = options.sessionuserhpass || '';
+    options.sessionusername = options.sessionusername || '';
+    options.action = 'useradd'
+    runwsgiActions(options)
+}
+function userModify(options) {
+    // Need to pass : usertodelete, session username, session hpass
+    var options = options || {};
+    options.usertomodify = options.usertomodify || ''
+    options.sessionuserhpass = options.sessionuserhpass || '';
+    options.sessionusername = options.sessionusername || '';
+    options.action = 'usermodify'
+    runwsgiActions(options)
 }
 
 //////////////////////////////////////////////////////
@@ -867,16 +895,16 @@ function makeUserServerMap(locations,labels,content) {
 // possible actions are
 
 function UpdateControl(actionobj,callback) {
-        callback = callback || logdone;
-        $.ajax({
-            url: "/wsgiupdatecontrol",
-            type: "post",
-            datatype:"json",
-            data: actionobj,
-            success: function(response){
-            	callback(response);
-            }
-       });
+    callback = callback || logdone;
+    $.ajax({
+        url: "/wsgiupdatecontrol",
+        type: "post",
+        datatype:"json",
+        data: actionobj,
+        success: function(response){
+            callback(response);
+        }
+   });
 }
 
 function setUserAuths(args){
@@ -885,15 +913,15 @@ function setUserAuths(args){
     // put some more stuff in here.
 }
 
-function runwsgiActions(actionobj){
-    callback = actionobj.callback || logdone;
+function runwsgiActions(actionobj, callback){
+//    var callback = actionobj.callback || logdone;
     $.ajax({
-        url: "/wsgiactions",
-        type: "post",
-        datatype:"json",
+        url: '/wsgiactions',
+        type: 'post',
+        datatype: 'json',
         data: actionobj,
         success: function(response){
-            callback(response);
+            callback(response,actionobj);
         }
    });
 

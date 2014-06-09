@@ -30,7 +30,7 @@
     <div data-role="page" class="type-home">
         <div data-role="content">
             <div class="content-secondary">
-                <?php $user->loginmobile_form(); ?>
+                <?php $user->logoutmobile_form(); ?>
             </div>
         </div>
     </div>

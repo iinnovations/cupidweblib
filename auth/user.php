@@ -38,6 +38,7 @@ class user {
 			'manage'=>'auth/manage', // change email page
 			'change'=>'auth/change', // change password page
             'reset'=>'auth/reset', // reset password page
+            'loginmobile'=>'auth/loginmobile', // login page
 
 			'activate'=>'auth/activate', // change email action page
             'doreset'=>'auth/doreset' // reset pw action page
@@ -463,7 +464,13 @@ class user {
 	public function require_login(){ // allow only authenticated users
 		if(!$this->logged_in()){
 			$_SESSION['redirect']=$_SERVER['REQUEST_URI'];
-			$this->fail('You must log in to access this page','/'.$this->config['pages']['login']);
+			$redirect=$_SESSION['redirect'];
+			if (strpos($redirect,'mobile') !== false) {
+                $this->fail('You must log in to access this page!!!','/'.$this->config['pages']['loginmobile']);
+            }
+            else {
+                $this->fail('You must log in to access this page!!','/'.$this->config['pages']['login']);
+            }
 		}
 	}
     public function set_redirect(){
@@ -525,7 +532,7 @@ class user {
 	public function login_form(){ // prints the login form
 	    $redirect=(isset($_SESSION['redirect'])?$_SESSION['redirect']:'/');
 		echo "".
-		"\t\t".'<form method="post" action="/'.$this->config['pages']['login'].'">'."\n".
+		"\t\t".'<form method="post" action="/'.$this->config['pages']['login'].'" >'."\n".
 		"\t\t\t".'<fieldset>'."\n".
 		"\t\t\t".'<label for="name">Username:</label><input name="name" id="name" type="text" /><br/>'."\n".
 		"\t\t\t".'<label for="password">Password:</label><input name="password" id="password" type="password" />'."\n".
@@ -543,7 +550,7 @@ class user {
 		"<ul data-role='listview' data-inset='true' data-theme='a' data-dividertheme='a'>".
 		"<li data-role='list-divider'>Login</li>".
 		"<div style='padding:15px; background:#EEE'>".
-            '<form method="post" action="/'.$this->config['pages']['login'].'">'.
+            '<form method="post" action="/'.$this->config['pages']['login'].'" data-ajax="false">'.
             "<fieldset data-role='controlgroup'>".
             '<label for="name">Username:</label><input name="name" id="name" type="text" />'.
             "<li>".'<label for="password">Password:</label><input name="password" id="password" type="password" />'."</li>".

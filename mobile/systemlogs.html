@@ -37,28 +37,33 @@ var updateinterval=3000
 
 function UpdateSystemLogData(options) {
     var callback = RenderSystemLogData;
+    var index = options.index || 1
     options.action = 'getfiletext';
-    options.filepath = '/var/log/cupid/systemstatus.log';
-    options.numlines = 20;
+    options.filepath = $('#logselect' + index).val();
+    options.numlines = $('#logviewentries' + index).val();
+    console.log(options.numlines)
     runwsgiActions(options, callback)
 }
 
 function RenderSystemLogData(returndata,options) {
-//    console.log(options)
-//    console.log('i should not be running')
+    var index = options.index || 1;
     if (options.timeout>0) {
 		setTimeout(function(){UpdateSystemLogData(options)}, options.timeout);
 	}
-    $('#logdata').html('')
-    for (var i=0; i<returndata['data'].length; i++){
-//        console.log(returndata['data'][i])
-        $('#logdata').append(returndata['data'][i] + '<br />')
+    var selector =  $('#logdata' + index)
+    selector.html('')
+    var logdata = returndata['data'].reverse()
+    for (var i=0; i<logdata.length; i++){
+//        console.log(logdata[i])
+       selector.append(logdata[i] + '<br />')
     }
 }
 
 
 $(document).ready(function(){
-    UpdateSystemLogData({timeout:updateinterval})
+    UpdateSystemLogData({timeout:updateinterval, index:1})
+    UpdateSystemLogData({timeout:updateinterval, index:2})
+
 })
 
 
@@ -67,11 +72,45 @@ $(document).ready(function(){
     <div class="content-secondary">
 		<ul data-role="listview" data-inset="true" data-theme="b" data-dividertheme="b" id="userslistview">
             <li data-role="list-divider"><h4>Log Viewer</h4></li>
+            <li data-role="fieldcontain" >
+                <label for="logselect1" ><h3>Log</h3></label>
+                <select id="logselect1" class="logselect1 jqmselect">
+                <option value="/var/log/cupid/systemstatus.log">System Status Log</option>
+                <option value="/var/log/cupid/error.log">Error Log</option>
+                <option value="/var/log/cupid/netstatus.log">Netstatus Log</option>
+                <option value="/var/log/cupid/daemon.log">Daemon Log</option>
+                </select>
+            </li>
+            <li class="sm-inset-header">
+                <label for="logviewentries1"><h3>Log Entries</h3></label>
+                <input type="range" id="logviewentries1" class="logviewentries1" value="20" min="0" max="100" />
+            </li>
             <li data-role="fieldcontain">
-                <p><span id="logdata">&nbsp;</span></p>
+                <p><span id="logdata1">&nbsp;</span></p>
             </li>
         </ul>
     </div><!--/content-secondary-->
+    <div class="content-primary">
+		<ul data-role="listview" data-inset="true" data-theme="b" data-dividertheme="b" id="userslistview">
+            <li data-role="list-divider"><h4>Log Viewer</h4></li>
+            <li data-role="fieldcontain" >
+                <label for="logselect2" ><h3>Log</h3></label>
+                <select id="logselect2" class="logselect1 jqmselect">
+                <option value="/var/log/cupid/systemstatus.log">System Status Log</option>
+                <option value="/var/log/cupid/error.log">Error Log</option>
+                <option value="/var/log/cupid/netstatus.log">Netstatus Log</option>
+                <option value="/var/log/cupid/daemon.log">Daemon Log</option>
+                </select>
+            </li>
+            <li class="sm-inset-header">
+                <label for="logviewentries2"><h3>Log Entries</h3></label>
+                <input type="range" id="logviewentries2" class="logviewentries2" value="20" min="0" max="100" />
+            </li>
+            <li data-role="fieldcontain">
+                <p><span id="logdata2">&nbsp;</span></p>
+            </li>
+        </ul>
+    </div><!--/content-primary-->
 
 </div><!--content-->
 </div><!-- page -->

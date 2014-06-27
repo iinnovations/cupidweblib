@@ -84,12 +84,12 @@ function RenderWirelessTable(datatable) {
         // action of tablename change is render of known id select to column names of new value
         // e.g. actionstable1jqmselect valuechange will render actionscolumn1jqmselect with new value
 
-        $('#updatepasswordsubmit' + index).on('click',{i:i},function(event){
-            if ($('#password' + index + '_1').val() == $('#password' + index + '_2').val()) {
+        $('#updatepasswordsubmit' + index).on('click',{i:i,index:index},function(event){
+            if ($('#password' + event.data.index + '_1').val() == $('#password' + event.data.index + '_2').val()) {
 //                alert('setting password to ' + $('#password' + index + '_1').val())
 //                alert('update wireless set password=\'' + $('#password' + index + '_1').val() + '\' where SSID=\'' + datatable[event.data.i].SSID + '\'')
                 wsgiExecuteQuery(safedatabase,'update wireless set password=\'' + $('#password' + index + '_1').val() + '\' where SSID=\'' + datatable[event.data.i].SSID + '\'')
-                $("#enterpasswordpopup" + index).popup('close')
+                $("#enterpasswordpopup" + event.data.index).popup('close')
             }
             else {
                 alert("Passwords do not match!")

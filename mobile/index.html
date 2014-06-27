@@ -40,7 +40,6 @@ sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {ech
 logUserAuths(sessiondata)
 </script>
 <div data-role="page" class="type-home">
-
 	<div data-role="content">
 		<div class="content-secondary">
 			<div id="jqm-homeheader">
@@ -57,7 +56,7 @@ logUserAuths(sessiondata)
 				<li><a href="http://interfaceinnovations.org/cupidcontrolsproducts.html" data-ajax="false">Find Accessories and Products</a></li>
                 <li><a href="about.html"  data-ajax="false">About</a></li>
 			</ul>
-		</div><!--/content-primary-->
+		</div><!--/content-secondary-->
 		<div class="content-primary">
 			<nav>
 				<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">
@@ -72,11 +71,11 @@ logUserAuths(sessiondata)
                     <li><a href="actions.html" data-ajax="false">Indicators/Notifications</a></li>
 					<li><a href="network.html" data-ajax="false">Network</a></li>
 					<li><a href="system.html" data-ajax="false">System Status</a></li>
-                    <li><a href="testindicators.html"  data-ajax="false">Test Indicators</a></li>
+                    <li><a href="systemlogs.html"  data-ajax="false">System Logs</a></li>
 				</ul>
 			</nav>
 		</div>
-	</div>
+	</div><!-- content -->
 	<div data-role="footer" data-id='fixednav' data-position="fixed" >
         <div data-role="navbar" data-iconpos="left">
             <ul>
@@ -97,9 +96,7 @@ logUserAuths(sessiondata)
                     ?>
             </ul>
         </div>
-	</div>
-
-</div>
+	</div><!--footer-->
 </div>
 </body>
 </html>

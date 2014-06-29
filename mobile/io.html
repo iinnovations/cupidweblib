@@ -150,7 +150,6 @@ logUserAuths(sessiondata)
             $(divhtmlitemstring).appendTo("#outputset").trigger( "create" );
         }
 
-
         $('#outputset').collapsibleset('refresh')
         $('#outputslistview').listview('refresh')
         UpdateOutputsData()
@@ -369,7 +368,7 @@ logUserAuths(sessiondata)
 
             </div> <!-- collapsible channel controls item -->
             <li data-role="fieldcontain">
-                &nbsp;
+                <a href="ioedit.html" data-ajax="false">Add/Edit/Remove</a>
             </li>
         </ul><!-- end of outputs list set -->
 
@@ -429,7 +428,7 @@ logUserAuths(sessiondata)
 
             </div> <!-- collapsible channel controls item -->
             <li data-role="fieldcontain">
-                &nbsp;
+                <a href="ioedit.html" data-ajax="false">Add/Edit/Remove</a>
             </li>
         </ul><!-- end of inputs list set -->
 

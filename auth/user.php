@@ -559,6 +559,7 @@ class user {
             '<input type="hidden" name="nonce" value="'.$this->nonce('login').'" /><input value="Login" type="submit" /><input value="Reset" type="reset" />'.
             '</fieldset>'.
             '</form>'.
+        '<p class="error">'.$this->errors().'</p>'.
         '</div>'.
         "<li><a href='#' data-icon='gear'>User admin</a></li>".
 		'</ul><br />'.
@@ -566,9 +567,7 @@ class user {
 		"<li data-role='list-divider'>Recovery</li>".
 		'<li><a href="/'.$this->config['pages']['reset'].'">Reset</a></li>'.
 		'<li><a href="/'.$this->config['pages']['change'].'">Change Password</a></li>'.
-		"</ul>".
-
-		'<p class="error">'.$this->errors().'</p>';
+		"</ul>";
 	}
 
     public function logoutmobile_form(){

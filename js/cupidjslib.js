@@ -114,6 +114,7 @@ function UpdateControlAlgorithmTypesData(options) {
 
 //// Channels Data
 function UpdateChannelsData(options) {
+    options = options || {}
     options.database = controldatabase
     options.tablename = 'channels'
     options.selectorclass = 'channelselect'
@@ -122,6 +123,7 @@ function UpdateChannelsData(options) {
 
 //// Outputs
 function UpdateOutputsData(options) {
+    options = options || {}
     options.database = controldatabase;
     options.tablename = 'outputs';
     options.selectorclass = 'outputselect';
@@ -132,6 +134,7 @@ function UpdateOutputsData(options) {
 
 //// Inputs
 function UpdateInputsData(options) {
+    options = options || {}
     options.database = controldatabase;
     options.tablename = 'inputs';
     options.selectorclass = 'inputselect';
@@ -161,7 +164,7 @@ function UpdateSystemStatusData(options) {
 
 //// Network Status
 function UpdateNetStatusData(options) {
-    options.database = controldatabase;
+    options.database = systemdatabase;
     options.tablename = 'netstatus';
     options.index = 1;
     GetAndRenderTableData(options)

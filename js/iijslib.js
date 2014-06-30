@@ -431,13 +431,17 @@ function noclicky(){
 function setWidgetValues(baseclass,value,options) {
     var jqmpage = options.jqmpage || false;
     var onoffvalue = booleanBinaryToOnOff(value);
-    value = value || 0;
     var text = String(value) || '';
+    value = value || 0;
+
 
 
 //    alert(' set widget values')
+    // I may have broken this for standard pages with my jqmpage meddling.
+
     $(baseclass).html(text);
     $(baseclass + 'onoff').html(onoffvalue);
+    $(baseclass + 'text').text(text);
     $(baseclass + 'text').val(text);
     $(baseclass + 'select').val(value);
     $(baseclass + 'checkbox').attr("checked",booleanBinaryToTrueFalse(value));
@@ -503,12 +507,15 @@ function setWidgetActions(options){
     });
 
     // set actions for update buttons on text fields
+    //  I may have broken this.
+
     var $updatetextclasses=$(baseclass + 'textupdate')
     $updatetextclasses.unbind('click');
     $updatetextclasses.click(function (event) {
         // Need to switch value to text field on this one
         actionobj.value = $(baseclass + 'text').val();
-        alert(actionobj.value)
+//        alert(baseclass + 'text')
+//        alert(actionobj.value)
         // invoke ajax query with callback to update the interface when it's done
         UpdateControl(actionobj, callback);
         var updateoncomplete = true;
@@ -591,6 +598,8 @@ function setWidgetActions(options){
         $jqmupdatetextclasses.click(function (event) {
             // Need to switch value to text field on this one
             actionobj.value = $(baseclass + 'text').val();
+//            alert(baseclass + 'text')
+//            alert(actionobj.value)
             // invoke ajax query with callback to update the interface when it's done
             UpdateControl(actionobj, callback);
             var updateoncomplete = true;
@@ -599,6 +608,37 @@ function setWidgetActions(options){
                 setTimeout(function () {
                     setWidgetValues(baseclass,actionobj.value,options)
                 }, updatetimeout);
+            }
+        });
+
+        // this class updates our ioinfo table, typically at the same time
+        // as what we do above there. We are not going to unbind first, or we would
+        // lose any button functionality we built above. This is dangerous, and we should
+        // do a better job error-checking to avoid stacking bind events.
+        var $jqmupdateioinfotextclasses=$(baseclass + 'ioinfotextupdate')
+        $jqmupdateioinfotextclasses.click(function (event) {
+
+            // Need to switch value to text field on this one
+            actionobj = {action: 'updateioinfo'};
+            actionobj.value = $(baseclass + 'text').val();
+
+            // We reverse the baseclass, replace name with id so the last occurrence is replaced
+            // this is kinda hacky, but will serve the purpose
+            var idclassname = baseclass.split("").reverse().join("").replace('eman','di').split("").reverse().join("")
+//            alert(idclassname)
+            var ioid = $(idclassname).html()
+//            alert(ioid)
+            actionobj.ioid = ioid
+            actionobj.database = controldatabase
+
+            // invoke ajax query with callback to update the interface when it's done
+            UpdateControl(actionobj, callback);
+            var updateoncomplete = true;
+            if (updateoncomplete){
+                //alert('update on complete!')
+//                setTimeout(function () {
+//                    setWidgetValues(baseclass,actionobj.value,options)
+//                }, updatetimeout);
             }
         });
     }

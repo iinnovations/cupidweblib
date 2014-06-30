@@ -185,19 +185,6 @@ logUserAuths(sessiondata)
             $(divhtmlitemstring).appendTo("#inputset").trigger( "create" );
         }
 
-        <!--$('#channelscontainer').html(divhtmlstring)-->
-        for (var i=0; i<channelsdata.length; i++){
-            var index=i+1;
-            //alert("delete channel " + index + " , " + channelsdata[i].name);
-            //$('.channelsname' + index + 'delete').click({index:1,i:i},function(event){
-            //    var index=event.data.index;
-            //    var i = event.data.i;
-            //    $("#mydialog").dialog("open");
-            //    alert("delete channel " + index + " , " + channelsdata[i].name);
-            //    //deleteChannelByName(channelsdata[i].name);
-            //})
-        }
-
         $('#inputset').collapsibleset('refresh')
         $('#inputslistview').listview('refresh')
         UpdateInputsData({'jqmpage':true})
@@ -235,10 +222,25 @@ logUserAuths(sessiondata)
             <li data-role="list-divider"><h4>Inputs/Outputs</h4></li>
             <li data-role="fieldcontain" >
                 <p>IO data and metadata are listed here.</p>
-                <p>To reload data from the database, press the <b>Refresh</b> button below</p>
+                <p>Add or refresh IO with the buttons below, and edit the IO in-place.</p>
             </li>
         </ul>
+        <a data-theme="b" data-role="button" class="addiobutton" data-rel="popup" href="#addiopopup">Add IO</a>
         <div data-role="button" data-theme="c" id="datarefresh">Refresh</div>
+        <div data-role="popup" data-theme="g" data-dividertheme="g" id="addiopopup" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">
+            <div data-role="header" data-theme="g" class="ui-corner-top ui-dialog-header" >
+                <h3>Add IO?</h3>
+            </div>
+            <div data-role="content" data-theme="g" style="background:none" class="ui-corner-bottom ui-dialog-content"">
+                <h3 class="ui-dialog-title">Select details for IO to add</h3>
+                <div class="ui-dialog-content">Some stuff in here.</div>
+                <select name="inputsenabledtoggle" class="addiotypejqmselect" id="addiotypejqmselect" >
+                    <option value="modbustcp">MODBUS TCP</option>
+                    <option value="onewire">1Wire</option>
+                    <option value="remote">Remote Module</option>
+                </select>
+            </div><!-- popup content-->
+        </div><!-- popup  -->
     </div><!--/content-secondary-->
     <div class="content-primary">
         <ul data-role="listview" data-inset="true" data-dividertheme="c" id="outputslistview">

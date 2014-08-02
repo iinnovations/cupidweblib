@@ -1316,6 +1316,7 @@ a.ui-link-inherit {
 /* Custom stuff to make layout pretty */
 
 .ui-dialog-header {
+    font-size:28px;
     background-color: #000000;
     color: #ffffff;
     padding:5px 20px 5px 20px;

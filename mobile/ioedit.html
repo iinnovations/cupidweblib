@@ -190,6 +190,43 @@ logUserAuths(sessiondata)
         UpdateInputsData({'jqmpage':true})
     }
 
+    // Dialog renderers
+    function RenderModbusInterfaces(data, options){
+        var choices = ['none']
+        for (i=0; i<data.length; i++) {
+            if (data[i].type == 'MBTCP'){
+                choices.push(data[i].name + ' (' + data[i].id + ')')
+            }
+        }
+        UpdateSelect('modbusinterfacejqmselect',choices)
+    }
+
+    function addModbusIO(channelname, channeldata, callback){
+        var propnames = ['interfaceid', 'register', 'length', 'mode', 'bigendian', 'reversebyte']
+        var propvalues = [channeldata.interfaceid, channeldata.register, channeldata.mode, channeldata.bigendian, channeldata. reversebyte]
+
+        // database, table, callback, valuenames,values
+        addDBRow(controldatabase,'modbustcp',callback, propnames, propvalues)
+    }
+    function isvalidname(name) {
+        if (name == '') {
+            var returnval = false;
+        }
+        else {
+            var returnval = true;
+        }
+        return returnval
+    }
+    function isvalidmodbusaddress(address) {
+        mbaddress = parseInt(address)
+        if (1 <= mbaddress <= 65536 || 100001 <= mbaddress <= 165536 || 300001 <= mbaddress <= 365536 || 400001 <= mbaddress <= 4536) {
+            var validaddress = true;
+        }
+        else {
+            var validaddress = false;
+        }
+        return validaddress
+    }
     $(document).ready(function(){
         togglestolamps()
         //// Control Algorithms
@@ -213,6 +250,81 @@ logUserAuths(sessiondata)
             UpdateOutputsTable({'jqmpage':true})
         });
 
+        // Popup widget handling
+        $('#addiotypejqmselect').unbind('change.update');
+        $('#addiotypejqmselect').on('change.update', function (event) {
+
+            var selectedinterfacetype = $('#addiotypejqmselect').val()
+            var options = {jqmpage:true}
+
+            $('#addiointerface').html('the stuff we add: ' + selectedinterfacetype)
+            $('#addiodetail').html('')
+            if (selectedinterfacetype == 'modbustcp') {
+                $('#addiointerface').html('\
+                    <select name="modbusinterfacejqmselect" class="modbusinterfacejqmselect" id="modbusinterfacejqmselect" style="width:300px" data-theme="d">\
+                        <option value="none" >none</option>\
+                        <option value="none">a modbus interface</option>\
+                    </select>\
+                    <select name="modbustcpmodejqmselect" class="modbustcpmodejqmselect" id="modbustcpmodejqmselect" style="width:300px" data-theme="d">\
+                        <option value="read" >Read</option>\
+                        <option value="write">Write</option>\
+                        <option value="readwrite">Read/Write</option>\
+                    </select>'
+                )
+                $('#addiointerface').trigger('create')
+                wsgiCallbackTableData(controldatabase,'interfaces',RenderModbusInterfaces,options);
+
+
+                // Render selectors with actions. These are contextual, e.g. #modbusinterfacejqmselect does not
+                // exist unless interface type of modbustcp has been selected
+                $('#modbusinterfacejqmselect').on('change.update', function (event) {
+                    $('#addiodetail').html('\
+                            <div class="ui-grid-a">\
+                                <div class="ui-block-a ui-biglabel" style="width:30%">Register</div>\
+                                <div class="ui-block-b inputsnametextupdate"  style="width:70%" id="inputsnametextupdate" ><input name="register" type="text" id="modbusregister" ></div>\
+                            </div>'
+                    ).trigger('create')
+                    $('#addiosubmitcontainer').html('<div data-role="button" data-icon="check" data-theme="f" id="addmodbusiosubmit">Add Modbus IO</div>').trigger('create')
+                    $('#addmodbusiosubmit').on('click',function(){
+
+                        // the name is for ioinfo
+                        // TODO: preload existing IO name from ioinfo
+                        var newchannelname = $('#addioname').html();
+
+                        // this is the data that goes into the modbus definition
+                        var interfaceid = $('#addiointerfaceidjqmselect').val()
+                        var register = parseInt($('#addiombregister').html() )
+                        var mode = $('#addiomodejqmselect').val()
+                        var length = $('#addiolength').html()
+                        var bigendian = 0
+                        var reversebyte = 0
+
+                        if ( ! isvalidname(newchannelname)) {
+                            alert('name is not valid')
+                        }
+                        else if ( ! isvalidmodbusaddress(register)) {
+                           alert('address is not valid')
+                        }
+                        else {
+                           alert('everything ok')
+                           var data = {interfaceid: interfaceid, register: register, length:length, mode: mode, bigendian: bigendian, reversebyte: reversebyte}
+                           console.log(data)
+                           addModbusIO(newchannelname, data)
+                           callback = function () {
+                               alert('done')
+                           }
+                           //database, table, callback, valuenames,values
+                        }
+
+
+                    });
+                });
+            }
+            else if (selectedinterfacetype == 'remote') {
+                wsgiCallbackTableData(controldatabase,'interfaces',RenderRemoteInterfaces,options);
+            }
+        });
+
     });
 </script>
 
@@ -227,18 +339,24 @@ logUserAuths(sessiondata)
         </ul>
         <a data-theme="b" data-role="button" class="addiobutton" data-rel="popup" href="#addiopopup">Add IO</a>
         <div data-role="button" data-theme="c" id="datarefresh">Refresh</div>
-        <div data-role="popup" data-theme="g" data-dividertheme="g" id="addiopopup" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">
+        <div data-role="popup" data-theme="g" data-dividertheme="g" id="addiopopup" data-dismissible="false" style="width:290px; " class="ui-corner-all">
             <div data-role="header" data-theme="g" class="ui-corner-top ui-dialog-header" >
                 <h3>Add IO?</h3>
             </div>
-            <div data-role="content" data-theme="g" style="background:none" class="ui-corner-bottom ui-dialog-content"">
-                <h3 class="ui-dialog-title">Select details for IO to add</h3>
-                <div class="ui-dialog-content">Some stuff in here.</div>
-                <select name="inputsenabledtoggle" class="addiotypejqmselect" id="addiotypejqmselect" >
+            <div data-role="content" data-theme="g" style="background:none; padding:20px" class="ui-corner-bottom ui-dialog-content">
+                <h4 class="ui-dialog-title">Select details for IO to add</h3>
+                <div class="ui-grid-a">
+                            <div class="ui-block-a ui-biglabel" style="width:30%">Name</div>
+                            <div class="ui-block-b" id="addioname" style="width:70%"><input name="addioname" type="text" ></div>
+                </div>
+                <select name="inputsenabledtoggle" class="addiotypejqmselect" id="addiotypejqmselect" style="width:300px" data-theme="d">
+                    <option value="none">none</option>
                     <option value="modbustcp">MODBUS TCP</option>
-                    <option value="onewire">1Wire</option>
                     <option value="remote">Remote Module</option>
                 </select>
+                <div id='addiointerface' style="font-size:10px">&nbsp;</div>
+                <div id='addiodetail'>&nbsp;</div>
+                <div id='addiosubmitcontainer' >&nbsp;</div>
             </div><!-- popup content-->
         </div><!-- popup  -->
     </div><!--/content-secondary-->
@@ -338,7 +456,7 @@ logUserAuths(sessiondata)
 
             </div> <!-- collapsible channel controls item -->
             <li data-role="fieldcontain">
-                <a href="ioedit.html" data-ajax="false">Add/Edit/Remove</a>
+                <a href="interfaces.html" data-ajax="false">View/Edit Interfaces</a>
             </li>
         </ul><!-- end of outputs list set -->
 
@@ -398,7 +516,7 @@ logUserAuths(sessiondata)
 
             </div> <!-- collapsible channel controls item -->
             <li data-role="fieldcontain">
-                <a href="ioedit.html" data-ajax="false">Add/Edit/Remove</a>
+                <a href="interfaces.html" data-ajax="false">View/Edit Interfaces</a>
             </li>
         </ul><!-- end of inputs list set -->
 

@@ -71,6 +71,20 @@ function rendermbdata(somedata, actionobj) {
         for (var i=0; i< somedata.response.values.length; i++) {
                 $('#data').append(parseInt(parseInt(actionobj.register) + i) + ' : ' + somedata.response.values[i] + '<br />')
         }
+        if ($('#datainterpreterjqmselect').val() == 'fourbytefloat') {
+            $('#data').append('<br />')
+            for (var i=0; i< somedata.response.values.length; i=i+2) {
+                // First we split our words into bytes
+                var byte2 = somedata.response.values[i] % 256
+                var byte1 = (somedata.response.values[i] - byte2)/256
+                var byte4 = somedata.response.values[i+1] % 256
+                var byte3 = (somedata.response.values[i+1] - byte4)/256
+                var bytes = [byte1, byte2, byte3, byte4]
+
+                $('#data').append('Bytes : <br/>' + somedata.response.values[i] + ': ' + byte1 + ', ' + byte2 + '; ' + somedata.response.values[i+1] +': ' + byte3 + ', ' + byte4 + '<br />')
+                $('#data').append('Value : <br/>' + decodeFloat(bytes ,1, 8, 23, -126, 127, false) + '<br /><br />')
+            }
+        }
     }
     else {
         $('#data').html('<p>There was an error processing your request: </p>')
@@ -123,12 +137,19 @@ $(document).ready(function(){
                 <label for="modbusreadlengthslider" style="width:100%; padding-right:40px">Number of registers</label>
                 <input type="range" id="modbusreadlengthslider" class="modbusreadlengthslider" value="2" min="0" max="100" />
             </li>
+            <li>
+                <select name="inputsenabledtoggle" class="datainterpreterjqmselect" id="datainterpreterjqmselect"  data-theme="d">
+                        <option value="none">none</option>
+                        <option value="fourbytefloat">32 bit Float</option>
+                </select>
+            </li>
         </ul>
 
         </ul>
+        <div data-role="button" data-theme="c" id="datarefresh">Refresh Data</div>
     </div><!--/content-secondary-->
     <div class="content-primary">
-        <div data-role="button" data-theme="c" id="datarefresh">Refresh Data</div>
+
         <ul data-role="listview" data-inset="true" data-dividertheme="c" id="channellistview">
             <li data-role="list-divider">
                 <h4>Read Data</h4>

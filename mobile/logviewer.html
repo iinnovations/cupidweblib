@@ -70,7 +70,7 @@ logUserAuths(sessiondata)
                     </li>\
                     <div data-role="popup" id="deletelogpopup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
                         <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
-                            <h3>Delete ' + datatable[i] + '</h3>\
+                           <h3>Delete ' + datatable[i] + '</h3>\
                         </div>\
                         <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content">\
                             <h3 class="ui-title">Are you sure you want to delete this log?</h3>\
@@ -85,7 +85,7 @@ logUserAuths(sessiondata)
 
             $('#' + 'log_' + index + '_deleteconfirm').unbind()
             $('#' + 'log_' + index + '_deleteconfirm').click({logname:datatable[i]},function(event){
-                alert("delete confirmed for log " + event.data.logname)
+//                alert("delete confirmed for log " + event.data.logname)
                 callback=UpdateLogTable;
                 deleteLog(event.data.logname,callback);
 
@@ -138,6 +138,27 @@ logUserAuths(sessiondata)
             </ul>
         </div><!--content-primary-->
     </div><!--content-->
+    <div data-role="footer" data-id='fixednav' data-position="fixed" >
+        <div data-role="navbar" data-iconpos="left">
+            <ul>
+                <li ><a href="/mobile/index.html" data-icon="home" >Home</a></li>
+                <?php
+                    if($user->logged_in()):
+                    ?>
+                        <li><span class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.7em!important; padding-left: 0px!important; padding-right: 0px!important"><?php echo $_SESSION['user']['name']; ?></span></li>
+                        <li><a data-ajax="false" href="/auth/logoutmobile">Log out</a></li>
+                        <?php
+                    endif;
+                    if(!$user->logged_in()):
+                    ?>
+                        <li><div class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.7em!important; padding-left: 0px!important; padding-right: 0px!important">Not logged in</div></li>
+                        <li><a data-ajax="false" href="/auth/loginmobile" style="padding-right:10px">Log in</a></li>
+                    <?php
+                        endif;
+                    ?>
+            </ul>
+        </div>
+	</div><!--footer-->
 </div><!-- page -->
 </body>
 </html>

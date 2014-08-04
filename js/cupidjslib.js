@@ -143,6 +143,17 @@ function UpdateInputsData(options) {
     GetAndRenderTableData(options)
 }
 
+//// Inputs
+function UpdateInterfacesData(options) {
+    options = options || {}
+    options.database = controldatabase;
+    options.tablename = 'interfaces';
+    options.selectorclass = 'interfaceselect';
+    options.selectorhasnoneitem = true;
+//    options.selectortableitem = 'id';
+    GetAndRenderTableData(options)
+}
+
 //// Indicators
 function UpdateIndicatorsData(options) {
     GetAndRenderTableData({database:controldatabase, tablename:'indicators',selectorclass:'indicatorselect'})

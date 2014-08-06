@@ -129,6 +129,7 @@ function getStringTime() {
 }
 
 // Float manipulation
+// This wonderful function was borrowed from https://gist.github.com/kg/2192799
 function decodeFloat(bytes, signBits, exponentBits, fractionBits, eMin, eMax, littleEndian) {
     var totalBits = (signBits + exponentBits + fractionBits);
 
@@ -338,34 +339,60 @@ function wsgiCallbackTableData (database,table,callback,options) {
 	var options = options || {};
     var condition = options.condition || '';
 	//console.log(database + ' ' + table + ' ' + callback)
+    actionobj = {database:database,table:table,condition:condition}
+    if (options.hasOwnProperty('length')){
+        actionobj.length = options.length;
+        if (options.hasOwnProperty('start'))
+            actionobj.start = options.start
+        else
+            actionobj.start = 0
+    }
 	$.ajax({
 		url: "/wsgisqlitequery",
 		type: "post",
 		datatype:"json",				
-		data: {database:database,table:table,condition:condition},
+		data: actionobj,
 		success: function(response){
 			// Execute our callback function
 			callback(response,options);
 		}
 	});	
 }
-function wsgiCallbackMultTableData (database,tablenames,callback,callbackoptionsarg) {
+function wsgiCallbackMultTableData (database,tablenames,callback,options) {
 	// Get the data
     // We do this because the wsgi acts funny with things we say are
     // arrays and send in arrays of less than 2 items. So we send in two extra elements
     // and then prune them off in the response.
     tablenames=['',''].concat(tablenames);
     //console.log(tablenames)
-    var callbackoptions=callbackoptionsarg || {};
+    var options = options || {};
+        actionobj = {'database':database,'tables':tablenames}
+
+
+    if (options.hasOwnProperty('length'))
+        actionobj.length = options.length;
+    else if (options.hasOwnProperty('lengths'))
+        actionobj.lengths = options.lengths
+
+    if (options.hasOwnProperty('starts'))
+        actionobj.starts = options.starts;
+    else if (options.hasOwnProperty('start'))
+        actionobj.start = options.start;
+    else    // default is to start at end.
+        actionobj.start = -1
+
+    console.log(actionobj)
+
+
 	$.ajax({
 		url: "/wsgisqlitequery",
 		type: "post",
 		datatype:"json",						
-		data: {'database':database,'tables':tablenames},
+		data: actionobj,
 		success: function(response){
 			//alert("I worked");
 			// Execute our callback function
-			callback(response.slice(2),callbackoptions);
+			callback(response.slice(2),options);
 		}
 	});	
 }

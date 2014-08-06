@@ -104,7 +104,10 @@ logUserAuths(sessiondata)
         UpdateLogTable({'timeout':updateinterval})
         $('#plotrefresh').click(function(event){
             //UpdateInputsTable()
-            GetAndRenderLogData({logtablename:'input_i2c1wire_289E4FA804000011log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
+            var length = 5;
+            alert(length)
+
+            GetAndRenderLogData({length:length, logtablename:'input_i2c1wire_289E4FA804000011log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
         });
     });
 </script>

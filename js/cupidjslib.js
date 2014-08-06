@@ -749,6 +749,8 @@ function GetAndRenderLogData(options){
     else if (options.hasOwnProperty('channelnameid')) {
         options.logtablename=$('#' + options.channelnameid).val() + '_log'
     }
+    // length is passed in with options object
+
 	wsgiCallbackTableData (logdatabase,options.logtablename,callback,options);
 }
 function GetAndRenderMultLogsData(logdatabase,options){
@@ -782,9 +784,9 @@ function RenderMultLogsData(returnedlogdata,options){
     var totalseriescount=0;
     for (var l=0;l<returnedlogdata.length;l++){
         // For the i-th series in hte l-th table
-        for (var i=0;i<options.seriesnames[l].length;i++){
+        for (var i=0;i<options.serieslabels[l].length;i++){
             var currentseries=[];
-            var seriesname=options.seriesnames[l][i];
+            var seriesname = options.serieslabels[l][i];
             for(var j=0;j<returnedlogdata[l].length;j++){
                 currentseries.push([returnedlogdata[l][j].time,returnedlogdata[l][j][seriesname]]);
                 for (var k=0;k<options.renderplotids.length;k++){

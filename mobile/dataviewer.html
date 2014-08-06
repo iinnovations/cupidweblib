@@ -111,48 +111,67 @@ function RenderLogsTable(datatable) {
 }
 
 function GetPlotSeriesNamesFromViewerControls(){
-    var seriesnames=[]
+    var seriesids=[]
     var tablenames=[]
     $('.plottoggle').each(function(index,element){
         if (this.value=="On"){
             tablenames.push(lognames[index])
             if(lognames[index].split('_')[0]=="input"){
-                seriesnames.push(['value'])
+                seriesids.push(['value'])
             }
             else{
-                seriesnames.push(['controlvalue'])
+                seriesids.push(['controlvalue'])
             }
         }
     })
-    //console.log(tablenames)
+    // Get names from ioinfo table
+    var seriesnames = []
+    // console.log(tablenames)
     //console.log(seriesnames)
-    results={seriesnames:seriesnames,tablenames:tablenames}
+    results={seriesnames:seriesnames,tablenames:tablenames, seriesids:seriesids}
     return results
 }
 
+function updatePlots(){
+    var results = GetPlotSeriesNamesFromViewerControls();
+    var useseriesnames = false;
+
+    var tablenames = results.tablenames;
+
+    if (useseriesnames)
+        var serieslabels = results.seriesnames;
+    else
+        serieslabels = results.seriesids;
+
+    // Get total number of series and label appropriately
+    var customOptionsObj=channelOptionsObj;
+    var totalseries=0;
+    customOptionsObj.series=[]
+
+    for (var i = 0; i < serieslabels.length; i++) {
+        for (var j = 0; j < serieslabels[i].length; j++) {
+            customOptionsObj.series.push({label: tablenames[i] + ' : ' + serieslabels[i][j], axis: 'yaxis'})
+        }
+        totalseries += serieslabels[i].length;
+    }
+
+    var length = $('#plotpointsslider').val()
+    console.log(length)
+    console.log(tablenames)
+    var renderoptions = {'tablenames':tablenames,'serieslabels':serieslabels,renderplotids:['plot'],renderplotoptions:[customOptionsObj]}
+    renderoptions.timeoutclass = 'updateperiodwidget';
+    renderoptions.length = parseInt(length);
+    renderoptions.start = -1
+    GetAndRenderMultLogsData(logdatabase,renderoptions)
+    //GetAndRenderLogData({logtablename:'input_DS18B20-1_log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
+}
 $(document).ready(function(){
     togglestolamps()
 
     //// Control Algorithms
     // UpdateLogsTable({'timeout':updateinterval})
     $('#plotrefresh').click(function(event){
-
-        results=GetPlotSeriesNamesFromViewerControls();
-        var tablenames = results.tablenames;
-        var seriesnames = results.seriesnames;
-
-        // Get total number of series and label appropriately
-        var customOptionsObj=channelOptionsObj;
-        var totalseries=0;
-        customOptionsObj.series=[]
-        for (var i=0; i<seriesnames.length;i++){
-            for (var j=0;j<seriesnames[i].length;j++){
-                customOptionsObj.series.push({label:tablenames[i] + ' : ' + seriesnames[i][j], axis:'yaxis'})
-            }
-            totalseries+=seriesnames[i].length;
-        }
-        GetAndRenderMultLogsData(logdatabase,{'tablenames':tablenames,'seriesnames':seriesnames,renderplotids:['plot'],renderplotoptions:[customOptionsObj]})
-        //GetAndRenderLogData({logtablename:'input_DS18B20-1_log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
+        updatePlots()
     });
 
     UpdateLogTable()
@@ -203,30 +222,53 @@ $(document).ready(function(){
         </ul>
     </div><!--content-primary-->
     </div><!--content-->
+    <div data-role="footer" data-id='fixednav' data-position="fixed" >
+        <div data-role="navbar" data-iconpos="left">
+            <ul>
+                <li ><a href="/mobile/index.html" data-icon="home" >Home</a></li>
+                <?php
+                    if($user->logged_in()):
+                    ?>
+                        <li><span class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.7em!important; padding-left: 0px!important; padding-right: 0px!important"><?php echo $_SESSION['user']['name']; ?></span></li>
+                        <li><a data-ajax="false" href="/auth/logoutmobile">Log out</a></li>
+                        <?php
+                    endif;
+                    if(!$user->logged_in()):
+                    ?>
+                        <li><div class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.7em!important; padding-left: 0px!important; padding-right: 0px!important">Not logged in</div></li>
+                        <li><a data-ajax="false" href="/auth/loginmobile" style="padding-right:10px">Log in</a></li>
+                    <?php
+                        endif;
+                    ?>
+            </ul>
+        </div>
+  </div><!--footer-->
 </div><!-- page -->
 
 <div data-role="page" class="type-home" id="fullplotpage">
 <script>
-    $( document ).on( "pageinit", "#fullplotpage", function( event ) {
-        togglestolamps()
-        alert('i am here')
-            results=GetPlotSeriesNamesFromViewerControls();
-        console.log(results)
-            var tablenames = results.tablenames;
-            var seriesnames = results.seriesnames;
+$( document ).on( "pageinit", "#fullplotpage", function( event ) {
+    togglestolamps()
+    alert('i am here')
+    results=GetPlotSeriesNamesFromViewerControls();
+    console.log(results)
+    var tablenames = results.tablenames;
 
-            // Get total number of series and label appropriately
-            var customOptionsObj=channelOptionsObj;
-            var totalseries=0;
-            customOptionsObj.series=[]
-            for (var i=0; i<seriesnames.length;i++){
-                for (var j=0;j<seriesnames[i].length;j++){
-                    customOptionsObj.series.push({label:tablenames[i] + ' : ' + seriesnames[i][j], axis:'yaxis'})
-                }
-                totalseries+=seriesnames[i].length;
-            }
-            GetAndRenderMultLogsData(logdatabase,{'tablenames':tablenames,'seriesnames':seriesnames,renderplotids:['fullplot'],renderplotoptions:[customOptionsObj]})
-    });
+    // we'll choose ids or names here.
+    var serieslabels = results.seriesnames;
+
+    // Get total number of series and label appropriately
+    var customOptionsObj=channelOptionsObj;
+    var totalseries=0;
+    customOptionsObj.series=[]
+    for (var i=0; i<seriesnames.length;i++){
+        for (var j=0;j<seriesnames[i].length;j++){
+            customOptionsObj.series.push({label:tablenames[i] + ' : ' + seriesnames[i][j], axis:'yaxis'})
+        }
+        totalseries+=seriesnames[i].length;
+    }
+    GetAndRenderMultLogsData(logdatabase,{'tablenames':tablenames,'serieslabels':serieslabels,renderplotids:['fullplot'],renderplotoptions:[customOptionsObj]})
+});
 </script>
     <div data-role="content">
         <div class="content-primary">

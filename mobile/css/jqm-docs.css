@@ -382,6 +382,9 @@ dd h4 { margin:15px 0 0 0; }
     .plots {
         height:200px;
     }
+    .fullplots {
+        height:300px;
+    }
 }
 @media all and (min-width: 750px){
 	.type-home .ui-content {
@@ -396,6 +399,9 @@ dd h4 { margin:15px 0 0 0; }
 	}
     .plots {
         height:300px;
+    }
+    .fullplots {
+        height:500px;
     }
 }
 
@@ -422,6 +428,9 @@ dd h4 { margin:15px 0 0 0; }
 	}
     .plots {
         height:500px;
+    }
+    .fullplots {
+        height:700px;
     }
 }
 

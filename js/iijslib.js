@@ -186,14 +186,15 @@ function addInput(object,choices,classname,inputid){
     //document.getElementById(divName).appendChild(newDiv);
 	object.appendChild(newDiv);
 }
-function UpdateSelect(inputid,choices){
+function UpdateSelect(inputid,choices, values){
 	// find current value
+    var setvalues = values || choices
 	var options=[];
 	// with js
  	var curval = document.getElementById(inputid).value;
 	document.getElementById(inputid).options.length=0;
 	for(var i=0; i<choices.length; i++) {
-		document.getElementById(inputid).options[i]=new Option(choices[i], choices[i], true, false);
+		document.getElementById(inputid).options[i]=new Option(choices[i], values[i], true, false);
 	}
 	// set previous value if exists in new choices array
 	if(choices.indexOf(curval)>=0){
@@ -380,9 +381,6 @@ function wsgiCallbackMultTableData (database,tablenames,callback,options) {
         actionobj.start = options.start;
     else    // default is to start at end.
         actionobj.start = -1
-
-    console.log(actionobj)
-
 
 	$.ajax({
 		url: "/wsgisqlitequery",

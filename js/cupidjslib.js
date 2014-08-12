@@ -24,6 +24,63 @@ var algorithmtypes=[]
 var modes=['auto','manual'];
 
 //////////////////////////////////////////////////////
+//   Utility functions
+//
+
+function isvalidname(name) {
+    if (name == '') {
+        var returnval = false;
+    }
+    else {
+        var returnval = true;
+    }
+    return returnval
+}
+
+function parseLogTableName(logtablename) {
+    var result = {}
+    var splitarray = logtablename.split("_")
+    if (splitarray[0] == 'input') {
+        var type = 'input'
+    }
+    else if (splitarray[0] == 'channel') {
+        var type = 'channel'
+    }
+    else {
+        type = 'unknown'
+    }
+    result.id = splitarray.slice(1,-1).join("_")
+    result.type = type
+    return result
+
+}
+
+function processmodbusaddress(address) {
+    var returndata = {}
+    var mbaddress = parseInt(address)
+    console.log(mbaddress)
+    if (1 <= mbaddress <= 65536 || 100001 <= mbaddress <= 165536 || 300001 <= mbaddress <= 365536 || 400001 <= mbaddress <= 465536) {
+        returndata.validaddress = true;
+        if (1 <= mbaddress <= 65536 || 400001 <= mbaddress <= 465536) {
+            returndata.mode = 'readwrite';
+        }
+        else {
+            returndata.mode = 'read';
+        }
+        if (1 <= mbaddress <= 65536 || 100001 <= mbaddress <= 165536) {
+            returndata.datasize = 'bit';
+        }
+        else {
+            returndata.datasize = 'word'
+        }
+    }
+    else {
+       returndata.validaddress = false;
+    }
+
+    return returndata
+}
+//////////////////////////////////////////////////////
 // Auth and user functions
 
 function logUserAuths(sessiondata) {
@@ -88,6 +145,18 @@ function deleteLog(logname, callback){
     dropTable(logdatabase,logname);
 }
 
+function addModbusIO(channelname, channeldata, callback){
+    var propnames = ['interfaceid', 'register', 'length', 'mode', 'bigendian', 'reversebyte','format','options']
+    var propvalues = [channeldata.interfaceid, channeldata.register, channeldata.length, channeldata.mode, channeldata.bigendian, channeldata.reversebyte, channeldata.format, channeldata.options]
+    console.log(propvalues)
+    // database, table, callback, valuenames,values
+    if (propnames.length == propvalues.length) {
+        addDBRow(controldatabase, 'modbustcp', callback, propnames, propvalues)
+    }
+    else {
+        console.log('error: mismatch between value names and length. add not executed')
+    }
+}
 
 //// These are functions that use the base get and render algorithms.
 //// They are here to provide default options and make the
@@ -143,12 +212,23 @@ function UpdateInputsData(options) {
     GetAndRenderTableData(options)
 }
 
-//// Inputs
+//// Interfaces
 function UpdateInterfacesData(options) {
     options = options || {}
     options.database = controldatabase;
     options.tablename = 'interfaces';
     options.selectorclass = 'interfaceselect';
+    options.selectorhasnoneitem = true;
+//    options.selectortableitem = 'id';
+    GetAndRenderTableData(options)
+}
+
+//// MBTCP
+function UpdateMBTCPData(options) {
+    options = options || {}
+    options.database = controldatabase;
+    options.tablename = 'modbustcp';
+    options.selectorclass = 'mbtcpselect';
     options.selectorhasnoneitem = true;
 //    options.selectortableitem = 'id';
     GetAndRenderTableData(options)
@@ -651,7 +731,8 @@ var channelOptionsObj={
 	  show: true,
 	  location: 'sw',     // compass direction, nw, n, ne, e, se, s, sw, w.
 	  xoffset: 12,        // pixel offset of the legend box from the x (or x2) axis.
-	  yoffset: 12        // pixel offset of the legend box from the y (or y2) axis.
+	  yoffset: 12,        // pixel offset of the legend box from the y (or y2) axis.
+      fontSize: '18pt'
 	},
 	axes:{
 		xaxis:{
@@ -661,14 +742,20 @@ var channelOptionsObj={
 		 
 		yaxis:{
 			tickOptions:{mark:'inside'},
-            autoscale:true
+            autoscale:true,
+            labelOptions: {
+                fontSize: '18pt'
+            }
 		},  
 		y2axis:{
-		  min:-101, 
-		  max:101, 
-		  ticks:[-100,-50,0,50,100], 
-		  tickOptions:{showGridline:false, mark:'inside'},
-		  showTicks: false
+            min:-101,
+            max:101,
+            ticks:[-100,-50,0,50,100],
+            tickOptions:{showGridline:false, mark:'inside'},
+            showTicks: false,
+            labelOptions: {
+                fontSize: '18pt'
+            }
 		}
 	},
 	seriesDefaults:{
@@ -753,10 +840,12 @@ function GetAndRenderLogData(options){
 
 	wsgiCallbackTableData (logdatabase,options.logtablename,callback,options);
 }
+
 function GetAndRenderMultLogsData(logdatabase,options){
     var callback=RenderMultLogsData;
     wsgiCallbackMultTableData(logdatabase,options.tablenames,callback,options)
 }
+
 function RenderMultLogsData(returnedlogdata,options){
 
     // This function operates on multiple returned log tables
@@ -772,10 +861,23 @@ function RenderMultLogsData(returnedlogdata,options){
     // Each series is j points long.
     // We then render to k plotids
 
-    //console.log(returnedlogdata)
-    if (options.timeout>0) {
-        setTimeout(function(){GetAndRenderMultLogsData(options)},options.timeout);
+
+    // if we want to render labels, options.serieslabels, value specified by
+    // options.labelincludevalue, options.labelvalueprecision
+
+    if (options.hasOwnProperty('timeoutclass')) {
+        var timeout=$('.' + options.timeoutclass).val()*1000;
     }
+    else if (options.hasOwnProperty('timeout')) {
+        var timeout=options.timeout;
+    }
+    else {
+        var timeout=0;
+    }
+    if (timeout>0) {
+		setTimeout(options.callback,timeout);
+	}
+
     for (i=0;i<options.renderplotids.length;i++) {
         $('#' + options.renderplotids[i]).html('');
     }
@@ -783,24 +885,39 @@ function RenderMultLogsData(returnedlogdata,options){
     // For each log table
     var totalseriescount=0;
     for (var l=0;l<returnedlogdata.length;l++){
-        // For the i-th series in hte l-th table
+        // For the i-th series in the l-th table
         for (var i=0;i<options.serieslabels[l].length;i++){
-            var currentseries=[];
-            var seriesname = options.serieslabels[l][i];
-            for(var j=0;j<returnedlogdata[l].length;j++){
+            var currentseries = [];
+            var seriesname = options.seriesnames[l][i];
+            var serieslabel = options.serieslabels[l][i];
+            var serieslength = returnedlogdata[l].length;
+            if (options.labelincludevalue) {
+//                get last point, and round with set precision
+                serieslabel += ': ' + Math.round(returnedlogdata[l][0][seriesname]* Math.pow(10,options.includelabelvalueprecision))/Math.pow(10,options.includelabelvalueprecision)
+//                serieslabel += ': ' + Math.round(returnedlogdata[l][serieslength-1][seriesname])
+            }
+
+            for (var j=0; j<returnedlogdata[l].length; j++){
                 currentseries.push([returnedlogdata[l][j].time,returnedlogdata[l][j][seriesname]]);
                 for (var k=0;k<options.renderplotids.length;k++){
                     // For now the options reside in the html. Probably most flexible this way.
-                    // options.renderplotoptions[k].series[totalseriescount].label=options.logtablename + ' : ' + options.seriesnames[l][i];
+//                    options.renderplotoptions[k].series[totalseriescount].label=options.serieslabels[l][i];
+                    options.renderplotoptions[k].series[totalseriescount].label=serieslabel;
                 }
             }
+
             plotseriesarray.push(currentseries);
-            totalseriescount+=1;
+            totalseriescount += 1;
         }
     }
-
-    for (var i=0;i<options.renderplotids.length;i++){
-        $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
+    if (returnedlogdata.length > 0) {
+        for (var i = 0; i < options.renderplotids.length; i++) {
+            console.log(options.renderplotoptions[i])
+            $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
+        }
+    }
+    else {
+        console.log('No data returned, so no plot.')
     }
 }
 function RenderLogData (returnedlogdata,options) {
@@ -817,16 +934,17 @@ function RenderLogData (returnedlogdata,options) {
 		$('#' + options.renderplotids[i]).html('');
 	}
 
-	// for each seriesname, iterate over j data points,
+	// for each valuename, iterate over j data points,
     // then render to k plotids
     var plotseriesarray=[]
     for (var i=0;i<options.seriesnames.length;i++){
-        var currentseries=[]
-        var seriesname=options.seriesnames[i]
-        for(var j=0;j<returnedlogdata.length;j++){
+        var currentseries = []
+        var seriesname = options.seriesnames[i]
+        var serieslabel = options.serieslabels[i]
+        for (var j=0; j<returnedlogdata.length; j++){
             currentseries.push([returnedlogdata[j].time,returnedlogdata[j][seriesname]])
             for (var k=0;k<options.renderplotids.length;k++){
-                options.renderplotoptions[k].series[i].label=options.logtablename + ' : ' + options.seriesnames[i];
+                options.renderplotoptions[k].series[i].label=serieslabel + ' : ' + seriesname;
             }
         }
         plotseriesarray.push(currentseries)
@@ -837,7 +955,8 @@ function RenderLogData (returnedlogdata,options) {
     }
 }
 
-}
+} // if jqplot
+
 /////////////////////////////////////////////////////////
 // Map Stuff
 function makeUserServerMap(locations,labels,content) {

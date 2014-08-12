@@ -1378,3 +1378,16 @@ a.ui-link-inherit {
 .ui-biggestlabel {margin:0.75em 0 0.1em 0!important;font-size:32px!important; font-weight:normal!important;vertical-align:top}
 .inset-header {padding-left:15px}
 .sm-inset-header {padding-left:5px}
+
+@media all and (max-width: 600px){
+    .popupwindow {width:290px}
+}
+@media all and (min-width: 600px) and (max-width:900px){
+    .popupwindow {width:350px}
+}
+@media all and (min-width: 900px) {
+    .popupwindow {width:400px}
+}
+.numericonlyslider .ui-slider-track {
+    display: none!important;
+}

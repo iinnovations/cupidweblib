@@ -82,7 +82,11 @@ function rendermbdata(somedata, actionobj) {
                 var bytes = [byte1, byte2, byte3, byte4]
 
                 $('#data').append('Bytes : <br/>' + somedata.response.values[i] + ': ' + byte1 + ', ' + byte2 + '; ' + somedata.response.values[i+1] +': ' + byte3 + ', ' + byte4 + '<br />')
-                $('#data').append('Value : <br/>' + decodeFloat(bytes ,1, 8, 23, -126, 127, false) + '<br /><br />')
+                var value = decodeFloat(bytes ,1, 8, 23, -126, 127, false);
+                var precision = $('#precisionslider').val()
+
+                var finalvalue = Math.round(value * Math.pow(10,precision)) / Math.pow(10,precision)
+                $('#data').append('<br/>Value : <h3>' + finalvalue + '</h3>')
             }
         }
     }
@@ -136,6 +140,10 @@ $(document).ready(function(){
             <li class="sm-inset-header">
                 <label for="modbusreadlengthslider" style="width:100%; padding-right:40px">Number of registers</label>
                 <input type="range" id="modbusreadlengthslider" class="modbusreadlengthslider" value="2" min="0" max="100" />
+            </li>
+            <li class="sm-inset-header">
+                <label for="precisionslider" style="width:100%; padding-right:40px">Precision</label>
+                <input type="range" id="precisionslider" class="precisionslider" value="6" min="0" max="10" />
             </li>
             <li>
                 <select name="inputsenabledtoggle" class="datainterpreterjqmselect" id="datainterpreterjqmselect"  data-theme="d">

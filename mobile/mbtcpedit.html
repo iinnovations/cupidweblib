@@ -12,7 +12,7 @@
     <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
     <meta http-equiv="pragma" content="no-cache" />
 
-    <title>Inputs/Outputs</title>
+    <title>MBTCP Edit</title>
 
     <script src="/js/jquery-1.11.0.min.js"></script>
     <script src="/js/jquery-migrate-1.2.1.min.js"></script>
@@ -50,155 +50,78 @@ logUserAuths(sessiondata)
     var actauthlevel=2;
 
     //// Outputs
-    function UpdateOutputsTable() {
-        var callback=RenderOutputsTable;
-        wsgiCallbackTableData(controldatabase,'outputs',callback);
+    function UpdateMBTCPTable() {
+        var callback=RenderMBTCPTable;
+        wsgiCallbackTableData(controldatabase,'modbustcp',callback);
     }
-    function RenderOutputsTable(datatable) {
+    function RenderMBTCPTable(datatable) {
         var divhtmlstring;
-        $("#outputset").html('');
+        $("#mbtcpset").html('');
         for (var i=0; i<datatable.length; i++){
             var index=i+1;
             divhtmlitemstring = '\
             <div data-role="collapsible" data-collapsed="true" data-count-theme="a" ><!--control item -->\
-                <h3>&nbsp;<span class= "outputsname' + index +'text">outputname</span></h3>\
+                <h3>&nbsp;<span class= "mbtcpinterface' + index +'text">MBTCP' + index + '</span></h3>\
                 <li data-role="fieldcontain" class="sm-inset-header">\
-                        <fieldset>\
-                        <div class="ui-biglabel" >Name</div>\
-                <li data-role="fieldcontain" >\
+                    <div class="ui-biglabel" >Register</div>\
+                    <li data-role="fieldcontain" >\
                         <div class="ui-grid-a">\
-                        <div class="ui-block-a ui-buttontextpartner"><input type="text" class="outputsname' + index + 'text"  value="name" ></div>\
-                <div class="ui-block-b outputsname' + index + 'textupdate outputsname' + index + 'ioinfotextupdate" id="outputsname' + index + 'textupdate"><a data-theme="d" data-role="button" data-icon="check">Update</a></div>\
-                </div>\
-                </li>\
-                <li data-role="fieldcontain" class="sm-inset-header">\
-                        <fieldset class="ui-grid-a">\
-                        <div class="ui-block-a ui-biglabel">ID</div>\
-                <div class="ui-block-b ui-biglabel datafield outputsid' + index + '">GPIO1</div>\
+                            <div class="ui-block-a ui-buttontextpartner"><input type="text" class="modbustcpregister' + index + 'text"  value="name" ></div>\
+                            <div class="ui-block-b modbustcpregister' + index + 'textupdate modbustcpregister' + index + 'textupdate" id="modbustcpregister' + index + 'textupdate"><a data-theme="d" data-role="button" data-icon="check">Update</a></div>\
+                        </div>\
+                    </li>\
+                    <div class="ui-biglabel" >Length</div>\
+                    <li data-role="fieldcontain" >\
+                        <div class="ui-grid-a">\
+                            <div class="ui-block-a ui-buttontextpartner"><input type="text" class="modbustcplength' + index + 'text"  value="name" ></div>\
+                            <div class="ui-block-b modbustcplength' + index + 'textupdate modbustcplength' + index + 'textupdate" id="modbustcplength' + index + 'textupdate"><a data-theme="d" data-role="button" data-icon="check">Update</a></div>\
+                        </div>\
+                    </li>\
+                    <div class="ui-biglabel" >Big Endian</div>\
+                    <li data-role="fieldcontain" >\
+                        <div class="ui-grid-a">\
+                            <div class="ui-block-a ui-buttontextpartner"><input type="text" class="modbustcpbigendian' + index + 'text"  value="name" ></div>\
+                            <div class="ui-block-b modbustcpbigendian' + index + 'textupdate modbustcpbigendian' + index + 'textupdate" id="modbustcpbigendian' + index + 'textupdate"><a data-theme="d" data-role="button" data-icon="check">Update</a></div>\
+                        </div>\
+                    </li>\
+                    <div class="ui-biglabel" >Reverse Byte</div>\
+                    <li data-role="fieldcontain" >\
+                        <div class="ui-grid-a">\
+                            <div class="ui-block-a ui-buttontextpartner"><input type="text" class="modbustcpreversebyte' + index + 'text"  value="name" ></div>\
+                            <div class="ui-block-b modbustcpreversebyte' + index + 'textupdate modbustcpreversebyte' + index + 'textupdate" id="modbustcpreversebyte' + index + 'textupdate"><a data-theme="d" data-role="button" data-icon="check">Update</a></div>\
+                        </div>\
+                    </li>\
+                    <div class="ui-biglabel" >Format</div>\
+                    <li data-role="fieldcontain" >\
+                        <div class="ui-grid-a">\
+                            <div class="ui-block-a ui-buttontextpartner"><input type="text" class="modbustcpformat' + index + 'text"  value="name" ></div>\
+                            <div class="ui-block-b modbustcpformat' + index + 'textupdate modbustcpformat' + index + 'textupdate" id="modbustcpformat' + index + 'textupdate"><a data-theme="d" data-role="button" data-icon="check">Update</a></div>\
+                        </div>\
+                    </li>\
+                    <div class="ui-biglabel" >Options</div>\
+                    <li data-role="fieldcontain" >\
+                        <div class="ui-grid-a">\
+                            <div class="ui-block-a ui-buttontextpartner"><input type="text" class="modbustcpoptions' + index + 'text"  value="name" ></div>\
+                            <div class="ui-block-b modbustcpoptions' + index + 'textupdate modbustcpoptions' + index + 'textupdate" id="modbustcpoptions' + index + 'textupdate"><a data-theme="d" data-role="button" data-icon="check">Update</a></div>\
+                        </div>\
+                    </li>\
                 </fieldset>\
                 </li>\
-                <li data-role="fieldcontain" class="sm-inset-header">\
-                        <fieldset class="ui-grid-a">\
-                        <div class="ui-block-a ui-biglabel ">Interface</div>\
-                <div class="ui-block-b ui-biglabel datafield outputsinterface' + index + '">GPIO</div>\
-                </fieldset>\
-                </li>\
-                <li data-role="fieldcontain" class="sm-inset-header">\
-                        <fieldset class="ui-grid-a">\
-                        <div class="ui-block-a ui-biglabel">Type</div>\
-                <div class="ui-block-b ui-biglabel datafield outputstype' + index + '">18</div>\
-                </fieldset>\
-                </li>\
-                <li data-role="fieldcontain" class="sm-inset-header">\
-                        <fieldset class="ui-grid-a">\
-                        <div class="ui-block-a ui-biglabel">Address</div>\
-                <div class="ui-block-b ui-biglabel datafield outputsaddress' + index + '">18</div>\
-                </fieldset>\
-                </li>\
-                <li data-role="fieldcontain" class="sm-inset-header">\
-                        <fieldset class="ui-grid-a">\
-                        <div class="ui-block-a ui-biglabel">On Time</div>\
-                <div class="ui-block-b ui-biglabel datafield outputsontime' + index + '">18</div>\
-                </fieldset>\
-                </li>\
-                <li data-role="fieldcontain" class="sm-inset-header">\
-                        <fieldset class="ui-grid-a">\
-                        <div class="ui-block-a ui-biglabel">Off Time</div>\
-                <div class="ui-block-b ui-biglabel datafield outputsofftime' + index + '">18</div>\
-                </fieldset>\
-                </li>\
-                <li data-role="fieldcontain" class="sm-inset-header">\
-                        <fieldset class="ui-grid-a">\
-                        <div class="ui-block-a ui-biglabel">Min. OnTime</div>\
-                <div class="ui-block-b ui-biglabel datafield  outputsminontime' + index + '">18</div>\
-                </fieldset>\
-                </li>\
-                <li data-role="fieldcontain" class="sm-inset-header">\
-                        <fieldset class="ui-grid-a">\
-                        <div class="ui-block-a ui-biglabel">Min. OffTime</div>\
-                <div class="ui-block-b ui-biglabel datafield outputsminofftime' + index + '">18</div>\
-                </fieldset>\
                 </li>\
                 </fieldset>\
                 </li>\
             </div><!--collapsible control item -->'
 
-            $(divhtmlitemstring).appendTo("#outputset").trigger( "create" );
+            $(divhtmlitemstring).appendTo("#mbtcpset").trigger( "create" );
         }
 
-        $('#outputset').collapsibleset('refresh')
-        $('#outputslistview').listview('refresh')
-        UpdateOutputsData()
-    }
-
-    //// Inputs
-    function UpdateInputsTable(){
-        var callback=RenderInputsTable;
-        wsgiCallbackTableData(controldatabase,'inputs',callback);
-    };
-    function RenderInputsTable(datatable){
-        var divhtmlitemstring;
-//        console.log(datatable)
-        $("#inputset").html('');
-        for (var i=0; i<datatable.length; i++){
-            var index=i+1;
-            divhtmlitemstring = '\
-            <div data-role="collapsible" data-collapsed="true" data-count-theme="a" class="inputscontrolitem' + index + '"><!--control item -->\
-                <h3><span class= "inputsname' + index + '" style="float:left;">inputname</span><span  class="inputsvalue' + index + ' ui-btn-corner-all cnt" style="float:right; font-size:13px; padding: 4px 6px; border: 1px solid #000;">0</span></h3>\
-                <li data-role="fieldcontain" class="sm-inset-header">\
-                    <fieldset>\
-                        <div class="ui-biglabel" >Name</div>\
-                        <li data-role="fieldcontain" >\
-                            <div class="ui-grid-a">\
-                                <div class="ui-block-a ui-buttontextpartner"><input type="text" class="inputsname' + index + 'text"  value="name" ></div>\
-                                <div class="ui-block-b inputsname' + index + 'textupdate inputsname' + index + 'ioinfotextupdate"  id="inputsname' + index + 'textupdate"  ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>\
-                            </div>\
-                        </li>\
-                        <li data-role="fieldcontain" class="sm-inset-header">\
-                            <fieldset class="ui-grid-a">\
-                                <div class="ui-block-a ui-biglabel">ID</div>\
-                                <div class="ui-block-b ui-biglabel datafield inputsid' + index + '">GPIO1</div>\
-                            </fieldset>\
-                        </li>\
-                        <li data-role="fieldcontain" class="sm-inset-header">\
-                            <fieldset class="ui-grid-a">\
-                                <div class="ui-block-a ui-biglabel ">Interface</div>\
-                                <div class="ui-block-b ui-biglabel datafield inputsinterface' + index + '">GPIO</div>\
-                            </fieldset>\
-                        </li>\
-                        <li data-role="fieldcontain" class="sm-inset-header">\
-                            <fieldset class="ui-grid-a">\
-                                <div class="ui-block-a ui-biglabel">Type</div>\
-                                <div class="ui-block-b ui-biglabel datafield inputstype' + index + '">18</div>\
-                            </fieldset>\
-                        </li>\
-                        <li data-role="fieldcontain" class="sm-inset-header">\
-                            <fieldset class="ui-grid-a">\
-                                <div class="ui-block-a ui-biglabel">Address</div>\
-                                <div class="ui-block-b ui-biglabel datafield inputsaddress' + index + '">18</div>\
-                            </fieldset>\
-                        </li>'
-                    if (datatable[i].type == 'MBTCP') {
-                        divhtmlitemstring += '<li data-role="fieldcontain" >\
-                            <a data-theme="e" data-role="button" data-icon="gear" data-ajax="false" href="mbtcpedit.html">Edit MBTCP</a>\
-                        </li>'
-                    }
-
-            divhtmlitemstring += '\
-                </fieldset>\
-                    </li>\
-                </div><!--collapsible control item -->'
-
-            $(divhtmlitemstring).appendTo("#inputset").trigger( "create" );
-
-        }
-
-        $('#inputset').collapsibleset('refresh')
-        $('#inputslistview').listview('refresh')
-        UpdateInputsData({'jqmpage':true})
+        $('#mbtcpset').collapsibleset('refresh')
+        $('#mbtcplistview').listview('refresh')
+        UpdateMBTCPData()
     }
 
     // Dialog renderers
+    // This could be done
     function RenderModbusInterfaces(data, options){
         var choices = ['none']
         var values = ['none']
@@ -216,22 +139,13 @@ logUserAuths(sessiondata)
         //// Control Algorithms
         //Just run this once so we don't overwrite edited values
 
-        UpdateInputsTable({'jqmpage':true})
+        UpdateMBTCPTable({'jqmpage':true})
 
         setTimeout(function(){
-            UpdateInputsData({'jqmpage':true})
+            UpdateMBTCPData({'jqmpage':true})
         },1000);
         $('#datarefresh').click(function(event){
-            UpdateInputsTable({'jqmpage':true})
-        });
-
-        UpdateOutputsTable({'jqmpage':true})
-
-        setTimeout(function(){
-            UpdateOutputsData({'jqmpage':true})
-        },1000);
-        $('#datarefresh').click(function(event){
-            UpdateOutputsTable({'jqmpage':true})
+            UpdateMBTCPTable({'jqmpage':true})
         });
 
         // Popup widget handling
@@ -333,10 +247,10 @@ logUserAuths(sessiondata)
 <div data-role="content">
     <div class="content-secondary">
         <ul data-role="listview" data-inset="true">
-            <li data-role="list-divider"><h4>Inputs/Outputs</h4></li>
+            <li data-role="list-divider"><h4>Modbus TCP/IP</h4></li>
             <li data-role="fieldcontain" >
-                <p>IO data and metadata are listed here.</p>
-                <p>Add or refresh IO with the buttons below, and edit the IO in-place.</p>
+                <p>Modbus TCP/IP item data lives here.</p>
+                <p>Add or refresh IO with the buttons below, and edit the items in-place.</p>
             </li>
         </ul>
         <a data-theme="b" data-role="button" class="addiobutton" data-rel="popup" href="#addiopopup">Add IO</a>
@@ -360,11 +274,11 @@ logUserAuths(sessiondata)
         </div><!-- popup  -->
     </div><!--/content-secondary-->
     <div class="content-primary">
-        <ul data-role="listview" data-inset="true" data-dividertheme="c" id="outputslistview">
+        <ul data-role="listview" data-inset="true" data-dividertheme="c" id="mbtcplistview">
             <li data-role="list-divider">
-                <h4>Outputs</h4>
+                <h4>MBTCP Table</h4>
             </li>
-            <div data-role="collapsible-set" data-inset="false" data-content-theme="b" id="outputset">
+            <div data-role="collapsible-set" data-inset="false" data-content-theme="b" id="mbtcpset">
 
                 <div data-role="collapsible" data-collapsed="true" data-count-theme="a" ><!--control item -->
                     <h3><span class= "inputsname">outputname</span></h3>
@@ -459,67 +373,6 @@ logUserAuths(sessiondata)
                 <a href="interfaces.html" data-ajax="false">View/Edit Interfaces</a>
             </li>
         </ul><!-- end of outputs list set -->
-
-        <!-- inputs list set -->
-        <ul data-role="listview" data-inset="true" data-dividertheme="c" id="inputslistview">
-            <li data-role="list-divider">
-                <h4>Inputs</h4>
-            </li>
-            <div data-role="collapsible-set" data-inset="false" data-content-theme="b" id="inputset">
-
-                <div data-role="collapsible" data-collapsed="true" data-count-theme="a" ><!--control item -->
-                    <h3><span class= "inputsname">inputname</span></h3>
-                    <li data-role="fieldcontain" class="sm-inset-header">
-                        <fieldset>
-                            <div class="ui-biglabel" >Name</div>
-                            <li data-role="fieldcontain" >
-                                <div class="ui-grid-a">
-                                    <div class="ui-block-a ui-buttontextpartner"><input type="text" class="inputsnametext"  value="name" ></div>
-                                    <div class="ui-block-b inputsnametextupdate" id="inputsnametextupdate" ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>
-                                </div>
-                            </li>
-                            <li data-role="fieldcontain" class="sm-inset-header">
-                                <label for="inputsenabledtoggle" style="width:50%; display:inline-block">
-                                    <h3>Enabled:</h3></label>
-                                <select name="inputsenabledtoggle" class="inputsenabledtoggle" id="inputsenabledtoggle" data-role="slider">
-                                    <option value="Off">Off</option>
-                                    <option value="On">On</option>
-                                </select>
-                            </li>
-                            <li data-role="fieldcontain" class="sm-inset-header">
-                                <fieldset class="ui-grid-a">
-                                    <div class="ui-block-a ui-biglabel">ID</div>
-                                    <div class="ui-block-b ui-biglabel datafield inputsid">GPIO1</div>
-                                </fieldset>
-                            </li>
-                            <li data-role="fieldcontain" class="sm-inset-header">
-                                <fieldset class="ui-grid-a">
-                                    <div class="ui-block-a ui-biglabel ">Interface</div>
-                                    <div class="ui-block-b ui-biglabel datafield inputsinterface">GPIO</div>
-                                </fieldset>
-                            </li>
-                            <li data-role="fieldcontain" class="sm-inset-header">
-                                <fieldset class="ui-grid-a">
-                                    <div class="ui-block-a ui-biglabel">Type</div>
-                                    <div class="ui-block-b ui-biglabel datafield inputstype">18</div>
-                                </fieldset>
-                            </li>
-                            <li data-role="fieldcontain" class="sm-inset-header">
-                                <fieldset class="ui-grid-a">
-                                    <div class="ui-block-a ui-biglabel">Address</div>
-                                    <div class="ui-block-b ui-biglabel datafield inputsaddress">18</div>
-                                </fieldset>
-                            </li>
-                        </fieldset>
-                    </li>
-                </div><!--collapsible control item -->
-
-            </div> <!-- collapsible channel controls item -->
-            <li data-role="fieldcontain">
-                <a href="interfaces.html" data-ajax="false">View/Edit Interfaces</a>
-            </li>
-        </ul><!-- end of inputs list set -->
-
     </div><!--content-primary-->
 </div><!--content-->
 <div data-role="footer" data-id='fixednav' data-position="fixed" >

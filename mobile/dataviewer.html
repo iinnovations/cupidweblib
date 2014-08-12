@@ -54,23 +54,40 @@ logUserAuths(sessiondata)
 
 <script>
 
-// Define our usr for access control of features:
-
-// Set objects. not used yet.
-//var plotdefs = new plotdefs()
-//plotdefs.plotids=[]
-//plotdefs.series=[[[]]]
-//plotdefs.plotids.push('myplotid')
-//plotdefs.series.push([[['/var/www/data/controldata.db','channels','channel 1data']]])
-
 // define some globals
 var jqmpage=true;
 var updatetimeout=100;
 var loginterval=30000;
 var updateinterval=30000;
-var lognames=[];
+var lognames = [];
+var ioinfo = [];
+var ioinfonames = [];
+var ioinfoids = [];
+var labeltype = 'ids';
+var labelincludevalue = true;
 
+// globals for selected items
+var seriesids=[];
+var tablenames=[];
+var seriesshortnames=[];
+var seriesnames=[];
 var actauthlevel=2;
+
+// load ioinfo into DOM
+function GetIOInfo(callbackoptions) {
+    var callbackoptions = callbackoptions || {}
+    var callback=RenderIOInfoTable;
+    wsgiCallbackTableData(controldatabase,'ioinfo',callback,callbackoptions)
+}
+function RenderIOInfoTable(datatable) {
+    ioinfo = datatable;
+    ioinfonames = [];
+    ioinfoids = [];
+    for (var i=0; i<datatable.length; i++){
+        ioinfoids.push(datatable[i].id)
+        ioinfonames.push(datatable[i].name)
+    }
+}
 
 //// Channels
 function UpdateLogTable() {
@@ -81,7 +98,6 @@ function UpdateLogTable() {
 function RenderLogsTable(datatable) {
     lognames = datatable;
     $('#logdatalistview').empty()
-    //console.log(datatable)
     $('#logdatalistview').append('\
         <li data-role="list-divider">\
             <h4>Content Selection</h4>\
@@ -111,58 +127,90 @@ function RenderLogsTable(datatable) {
 }
 
 function GetPlotSeriesNamesFromViewerControls(){
-    var seriesids=[]
-    var tablenames=[]
+
+    // Ok, this is confusing as hell.
+    // Seriesshortnames are what we want to use for a colloquial name for the series
+    // seriesnames are what the name of the value is that we're getting from the table, e.g. 'value' or 'controlvalue'
+
+    var thisseriesid;
+    tablenames = [];
+    seriesids = [];
+    seriesshortnames = [];
+    seriesnames = [];
     $('.plottoggle').each(function(index,element){
         if (this.value=="On"){
-            tablenames.push(lognames[index])
-            if(lognames[index].split('_')[0]=="input"){
-                seriesids.push(['value'])
+            tablenames.push(lognames[index]);
+            var thisseriesmeta = parseLogTableName(lognames[index]);
+
+            seriesids.push(thisseriesmeta.id);
+            if (thisseriesmeta.type == 'input') {
+                seriesnames.push('value');
+                if (ioinfoids.indexOf(thisseriesmeta.id) > 0) {
+                    seriesshortnames.push(ioinfonames[ioinfoids.indexOf(thisseriesmeta.id)]);
+                }
+                else {
+                    seriesshortnames.push(thisseriesmeta.id);
+                }
             }
-            else{
-                seriesids.push(['controlvalue'])
+            else if (thisseriesmeta.type == 'channel') {
+                seriesshortnames.push(thisseriesmeta.id);
+                seriesnames.push('controlvalue');
             }
+
         }
-    })
-    // Get names from ioinfo table
-    var seriesnames = []
-    // console.log(tablenames)
-    //console.log(seriesnames)
-    results={seriesnames:seriesnames,tablenames:tablenames, seriesids:seriesids}
+    });
+
+
+    var results={seriesnames: seriesnames, seriesshortnames:seriesshortnames,tablenames:tablenames, seriesids:seriesids}
     return results
 }
 
-function updatePlots(){
-    var results = GetPlotSeriesNamesFromViewerControls();
-    var useseriesnames = false;
+function updatePlots(renderoptions){
+      renderoptions = renderoptions || {}
 
+//    if ( ! renderoptions.hasOwnProperty('renderplotids')) {
+        var activePage = $.mobile.activePage.attr("id");
+        if (activePage == 'main'){
+            renderoptions.renderplotids = ['plot']
+        }
+        else {
+            renderoptions.renderplotids = ['fullplot']
+            console.log('full plot!')
+        }
+//    }
+    var results = GetPlotSeriesNamesFromViewerControls();
     var tablenames = results.tablenames;
 
-    if (useseriesnames)
-        var serieslabels = results.seriesnames;
+    if (labeltype == 'names')
+        {var serieslabels = results.seriesshortnames;}
+    else if (labeltype == 'ids')
+        {var serieslabels = results.seriesids;}
     else
-        serieslabels = results.seriesids;
+        {var serieslabels = results.tablenames;}
 
     // Get total number of series and label appropriately
     var customOptionsObj=channelOptionsObj;
-    var totalseries=0;
-    customOptionsObj.series=[]
 
+    customOptionsObj.series=[]
+    var passedserieslabels = []
+    var seriesnames = []
     for (var i = 0; i < serieslabels.length; i++) {
-        for (var j = 0; j < serieslabels[i].length; j++) {
-            customOptionsObj.series.push({label: tablenames[i] + ' : ' + serieslabels[i][j], axis: 'yaxis'})
-        }
-        totalseries += serieslabels[i].length;
+        customOptionsObj.series.push([{label: serieslabels[i], axis: 'yaxis'}])
+        passedserieslabels.push([serieslabels[i]])
+        seriesnames.push([results.seriesnames[i]])
     }
 
-    var length = $('#plotpointsslider').val()
-    console.log(length)
-    console.log(tablenames)
-    var renderoptions = {'tablenames':tablenames,'serieslabels':serieslabels,renderplotids:['plot'],renderplotoptions:[customOptionsObj]}
-    renderoptions.timeoutclass = 'updateperiodwidget';
+    var length = $('#plotpointsslider').val();
+    renderoptions.tablenames = tablenames;
+    renderoptions.seriesnames = seriesnames;
+    renderoptions.serieslabels = passedserieslabels;
+    renderoptions.labelincludevalue = labelincludevalue;
+    renderoptions.includelabelvalueprecision = $('#includelabelvalueprecision').val();
+    renderoptions.renderplotoptions = [customOptionsObj];
     renderoptions.length = parseInt(length);
-    renderoptions.start = -1
-    GetAndRenderMultLogsData(logdatabase,renderoptions)
+    renderoptions.start = -1;
+
+    GetAndRenderMultLogsData(logdatabase,renderoptions);
     //GetAndRenderLogData({logtablename:'input_DS18B20-1_log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
 }
 $(document).ready(function(){
@@ -171,19 +219,79 @@ $(document).ready(function(){
     //// Control Algorithms
     // UpdateLogsTable({'timeout':updateinterval})
     $('#plotrefresh').click(function(event){
-        updatePlots()
+        var renderoptions = {renderplotids:['plot']};
+        updatePlots(renderoptions)
     });
+    $('#fullplotrefresh').click(function(event){
+        var renderoptions = {renderplotids:['fullplot']};
+        updatePlots(renderoptions)
+    });
+
+    $('#plotlabelidsbutton').click(function(){
+        $('#plotlabelnamesbutton').removeClass('ui-btn-active')
+        $('#plotlabelidsbutton').removeClass('ui-btn-active')
+        $('#plotlabeltablenamesbutton').removeClass('ui-btn-active')
+
+        $('#plotlabelidsbutton').addClass('ui-btn-active')
+        labeltype = 'ids'
+        $('#maincontrolgroup').listview('refresh');
+    })
+    $('#plotlabelnamesbutton').click(function(){
+        $('#plotlabelnamesbutton').removeClass('ui-btn-active')
+        $('#plotlabelidsbutton').removeClass('ui-btn-active')
+        $('#plotlabeltablenamesbutton').removeClass('ui-btn-active')
+
+        $('#plotlabelnamesbutton').addClass('ui-btn-active')
+        labeltype = 'names'
+        $('#maincontrolgroup').listview('refresh');
+    })
+    $('#plotlabeltablenamesbutton').click(function(){
+        $('#plotlabelnamesbutton').removeClass('ui-btn-active')
+        $('#plotlabelidsbutton').removeClass('ui-btn-active')
+        $('#plotlabeltablenamesbutton').removeClass('ui-btn-active')
+
+        $('#plotlabeltablenamesbutton').addClass('ui-btn-active')
+        labeltype = 'tablenames'
+        $('#maincontrolgroup').listview('refresh');
+    })
+    $('#includelabelvalue').click(function(){
+        if (labelincludevalue) {
+            $('#includelabelvalue').removeClass('ui-btn-active');
+            labelincludevalue = false;
+        }
+        else {
+            $('#includelabelvalue').addClass('ui-btn-active');
+            labelincludevalue = true;
+        }
+        $('#maincontrolgroup').listview('refresh');
+    })
 
     UpdateLogTable()
     setTimeout(function(){
-        UpdatePlotMetadata({'timeoutclass':'updateperiodwidget'})
+        UpdatePlotMetadata({'timeout':'2000'})
     },1000);
+     setTimeout(function(){
+        GetIOInfo({'timeout':'2000'})
+    },1000);
+
+    // This is some interesting stuff. We put the callback to the top-level function in here, so
+    // that when it's called from deeper it pulls in everything new. To do so, however, we need to
+    // create a closure. It works great, if you can wrap your head around it.
+
+    setTimeout(function(){
+        var optionsobject = {'timeoutclass':'updateperiodwidget'};
+        var callback = function(){updatePlots(optionsobject)};
+        optionsobject.callback = callback;
+        updatePlots(optionsobject)
+    },1000);
+
+//    setTimeout(function(){updatePlots({timeoutclass:'updateperiodwidget'})},3000)
 });
 
 </script>
 <div data-role="content">
     <div class="content-secondary" >
-        <ul data-role="listview" data-inset="true" style="margin-bottom:20px">
+        <ul data-role="listview" data-inset="true" id='maincontrolgroup' style="margin-bottom:20px">
             <li data-role="list-divider"><h4>Controls</h4></li>
             <div data-role="collapsible" data-collapsed="true" data-inset="false" data-count-theme="b" data-content-theme="b">
                 <h4>Plot</h4>
@@ -195,6 +303,22 @@ $(document).ready(function(){
                     <label for="updateperiodwidget" style="width:100%; padding-right:40px">Update Frequency</label>
                     <input type="range" id="updateperiodwidget" class="updateperiodwidget" value="10" min="0" max="100" />
                 </li>
+                <div data-role="controlgroup" data-type="horizontal" id="plotlabelsgroup">
+                    <div>Plot label type</div>
+                    <a data-role="button" id="plotlabeltablenamesbutton">Tablenames</a>
+                    <a data-role="button" id="plotlabelidsbutton" class="ui-btn-active">IDs</a>
+                    <a data-role="button" id="plotlabelnamesbutton" >Short Names</a>
+                </div>
+                <div class="ui-grid-a" style="margin-top:40px" class="numericonlyslider">
+                    <div class="ui-block-a" style="width:35%">
+                    <div>Include Value in Label</div>
+                        <a data-role="button" id="includelabelvalue" class="includelabelvalue ui-btn-active" style="width:150px">Include</a>
+                    </div>
+                    <div class="ui-block-b" style="width:60%">
+                        <label for="includelabelvalueprecision">Precision</label>
+                        <input type="range" id="includelabelvalueprecision" class="includelabelvalueprecision" value="5" min="0" max="10" />
+                    </div>
+                </div>
             </div>
             <li data-role="fieldcontain">
                 <a href="logviewer.html" data-ajax="false">Log Viewer</a>
@@ -220,6 +344,7 @@ $(document).ready(function(){
                 <div id="plot" class="plots" ></div>
             </li>
         </ul>
+        <div><a href="#fullplotpage" data-role="button">Full Screen Plot</a></div>
     </div><!--content-primary-->
     </div><!--content-->
     <div data-role="footer" data-id='fixednav' data-position="fixed" >
@@ -245,41 +370,42 @@ $(document).ready(function(){
   </div><!--footer-->
 </div><!-- page -->
 
-<div data-role="page" class="type-home" id="fullplotpage">
+<div data-role="page" id="fullplotpage">
 <script>
-$( document ).on( "pageinit", "#fullplotpage", function( event ) {
-    togglestolamps()
-    alert('i am here')
-    results=GetPlotSeriesNamesFromViewerControls();
-    console.log(results)
-    var tablenames = results.tablenames;
+    $( document ).on( "pageinit", "#fullplotpage", function( event ) {
+        togglestolamps()
+        var results=GetPlotSeriesNamesFromViewerControls();
+        var tablenames = results.tablenames;
 
-    // we'll choose ids or names here.
-    var serieslabels = results.seriesnames;
+        // we'll choose ids or names here.
+        var serieslabels = results.seriesnames;
 
-    // Get total number of series and label appropriately
-    var customOptionsObj=channelOptionsObj;
-    var totalseries=0;
-    customOptionsObj.series=[]
-    for (var i=0; i<seriesnames.length;i++){
-        for (var j=0;j<seriesnames[i].length;j++){
-            customOptionsObj.series.push({label:tablenames[i] + ' : ' + seriesnames[i][j], axis:'yaxis'})
+        // Get total number of series and label appropriately
+        var customOptionsObj=channelOptionsObj;
+        var totalseries=0;
+        customOptionsObj.series=[]
+        for (var i=0; i<seriesnames.length;i++){
+            for (var j=0;j<seriesnames[i].length;j++){
+                customOptionsObj.series.push({label:tablenames[i] + ' : ' + seriesnames[i][j], axis:'yaxis'})
+            }
+            totalseries+=seriesnames[i].length;
         }
-        totalseries+=seriesnames[i].length;
-    }
-    GetAndRenderMultLogsData(logdatabase,{'tablenames':tablenames,'serieslabels':serieslabels,renderplotids:['fullplot'],renderplotoptions:[customOptionsObj]})
-});
+        GetAndRenderMultLogsData(logdatabase,{'tablenames':tablenames,'serieslabels':serieslabels,renderplotids:['fullplot'],renderplotoptions:[customOptionsObj]})
+    });
 </script>
     <div data-role="content">
-        <div class="content-primary">
+        <div class="content-primary" style="width:90%">
             <ul data-role="listview" data-inset="true" datadividertheme="c">
                 <li data-role="list-divider">
-                    <h4Full Plot</h4>
+                    <h4>Full Plot</h4>
                 </li>
-                <li id="fullplot"></li>
+                <li data-role="fieldcontain" >
+                    <div id="fullplot" class="fullplots" ></div>
+                </li>
             </ul>
+            <div data-role="button" data-theme="c" id="fullplotrefresh">Refresh Plot</div>
         </div>
     </div>
-</div>
+</div><!-- page -->
 </body>
 </html>

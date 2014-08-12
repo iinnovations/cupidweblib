@@ -194,7 +194,7 @@ function UpdateSelect(inputid,choices, values){
  	var curval = document.getElementById(inputid).value;
 	document.getElementById(inputid).options.length=0;
 	for(var i=0; i<choices.length; i++) {
-		document.getElementById(inputid).options[i]=new Option(choices[i], values[i], true, false);
+		document.getElementById(inputid).options[i]=new Option(choices[i], setvalues[i], true, false);
 	}
 	// set previous value if exists in new choices array
 	if(choices.indexOf(curval)>=0){

@@ -4,7 +4,7 @@
 <head>
 <!-- Get me some jquery-->
 
-<script src="/jquery-1.11.0.js"></script>
+<script src="/js/jquery-1.11.0.js"></script>
 
 <script language="javascript" type="text/javascript" src="js/jqplot/jquery.jqplot.min.js"></script>
 <link rel="stylesheet" type="text/css" href="js/jqplot/jquery.jqplot.css" />
@@ -180,7 +180,7 @@ $(document).ready(function(){
 	// run once to respond, but not interval running.
 	$('#channelselect').change(function(){
 		UpdateChannelsData();
-		GetAndRenderLogData({'channelnameid':'channelselect','renderplotids':['chart1'], 'seriesnames':['controlvalue','setpointvalue','action'],'renderplotoptions':[largeChannelOptionsObj]})
+		GetAndRenderLogData({'channelnameid':'channelselect','renderplotids':['chart1'], serieslabels :['f','f','f'], seriesnames: ['controlvalue','setpointvalue','action'], 'renderplotoptions': [largeChannelOptionsObj]})
 	})
 	
 	UpdateControlRecipeData({'timeout':updateinterval})
@@ -200,7 +200,7 @@ $(document).ready(function(){
 
     // Give the class with the channel name time to render.
     setTimeout(function(){
-        GetAndRenderLogData({'channelnameid':'channelselect','renderplotids':['chart1'],'timeout':updateinterval,'seriesnames':['controlvalue','setpointvalue','action'], 'renderplotoptions':[largeChannelOptionsObj]})
+        GetAndRenderLogData({'channelnameid':'channelselect',serieslabels :['f','f','f'],'renderplotids':['chart1'],'timeout':updateinterval,'seriesnames':['controlvalue','setpointvalue','action'], 'renderplotoptions':[largeChannelOptionsObj]})
     },1000)
 });
 

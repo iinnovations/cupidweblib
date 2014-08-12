@@ -1388,6 +1388,6 @@ a.ui-link-inherit {
 @media all and (min-width: 900px) {
     .popupwindow {width:400px}
 }
-.numericonlyslider .ui-slider-track {
+.numericonlyslider .ui-slider-track input.ui-slider-track {
     display: none!important;
 }

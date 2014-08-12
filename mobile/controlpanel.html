@@ -202,9 +202,9 @@ function RenderChannels(channelstable) {
             var data=event.data;
             // Send index of channel and name of div to render to
             //GetAndRenderPlotData([channelsdata[data.index].name],["smallplot" + data.index])
-            channelindex=data.index-1;
-            logtablename=channelsdata[channelindex].name + "_log";
-            GetAndRenderLogData({'logtablename':logtablename,'renderplotids':['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue'],renderplotoptions:[channelOptionsObj]})
+            var channelindex=data.index-1;
+            var logtablename=channelsdata[channelindex].name + "_log";
+            GetAndRenderLogData({'logtablename':logtablename, serieslabels:['label','label'], renderplotids:['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue'],renderplotoptions:[channelOptionsObj]})
         })
 	}
 

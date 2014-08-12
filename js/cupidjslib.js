@@ -933,7 +933,12 @@ function RenderLogData (returnedlogdata,options) {
 	for (i=0;i<options.renderplotids.length;i++) {
 		$('#' + options.renderplotids[i]).html('');
 	}
-
+    if (! options.hasOwnProperty('serieslabels')) {
+        options.serieslabels = [];
+        for (var i= 0; i<options.seriesnames.length; i++) {
+            options.serieslabels.push('')
+        }
+    }
 	// for each valuename, iterate over j data points,
     // then render to k plotids
     var plotseriesarray=[]

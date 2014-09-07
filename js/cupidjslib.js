@@ -223,6 +223,17 @@ function UpdateInterfacesData(options) {
     GetAndRenderTableData(options)
 }
 
+//// motes
+function UpdateMotesData(options) {
+    options = options || {}
+    options.database = controldatabase;
+    options.tablename = 'remotes';
+    options.selectorclass = 'remotesselect';
+    options.selectorhasnoneitem = true;
+//    options.selectortableitem = 'id';
+    GetAndRenderTableData(options)
+}
+
 //// MBTCP
 function UpdateMBTCPData(options) {
     options = options || {}

@@ -1,0 +1,546 @@
+<?php require_once('auth/user.php'); ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/js/iijslib.js" type="text/javascript"></script>
+<script src="/js/cupidjslib.js" type="text/javascript"></script>
+
+<title>CuPID Standalone IO</title>
+
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+<style media="all" type="text/css"></style>
+<style>
+    body {
+        font-family: Arial, Helvetica, Sans-serif;
+        font-size: 16px;
+        font-weight:bold;
+    }
+    td {
+        padding:5px;
+        text-align: center;
+        height: 50px;
+    }
+    .pinlabel {
+        font-size: 14px;
+    }
+    .lightindicator {
+        width:50px;
+        height:40px;
+        text-align: center;
+        vertical-align: middle;
+        moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+        -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+        box-shadow:inset 0px 1px 0px 0px #ffffff;
+        -moz-box-shadow:1px 1px 2px black;
+        -webkit-box-shadow:1px 1px 2px black;
+        box-shadow:1px 1px 2px black;
+        -webkit-border-top-left-radius:3px;
+        -moz-border-radius-topleft:3px;
+        border-top-left-radius:3px;
+        -webkit-border-top-right-radius:3px;
+        -moz-border-radius-topright:3px;
+        border-top-right-radius:3px;
+        -webkit-border-bottom-right-radius:3px;
+        -moz-border-radius-bottomright:3px;
+        border-bottom-right-radius:3px;
+        -webkit-border-bottom-left-radius:3px;
+        -moz-border-radius-bottom-left:3px;
+        border-bottom-left-radius:3px;
+        font-family: Arial, Helvetica, Sans-serif;
+        font-size: 24px;
+        font-weight: bold;
+        line-height: 38px;
+        text-indent:0;
+        border:1px solid #777777;
+        display:inline-block;
+        color:#FFF;
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #999999), color-stop(1, #333333) );
+        background:-moz-linear-gradient( center top, #999999 5%, #333333 100% );
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#999999', endColorstr='#333333');
+        background-color:#ededed;
+    }
+    .canpress, #valuesrefreshbutton {
+        cursor: pointer;
+    }
+    .lightindicator.on, .lightindicator.input {
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #77ff77), color-stop(1, #00cc00) );
+        background:-moz-linear-gradient( center top, #77ff77 5%, #00cc00 100% );
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77ff77', endColorstr='#00cc00');
+        background-color:#ededed;
+    }
+    .lightindicator.off {
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #dddddd), color-stop(1, #777777) );
+        background:-moz-linear-gradient( center top, #dddddd 5%, #777777 100% );
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dddddd', endColorstr='#777777');
+        background-color:#ededed;
+    }
+    .lightindicator.GND {
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #444444), color-stop(1, #000000) );
+        background:-moz-linear-gradient( center top, #444444 5%, #000000 100% );
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#444444', endColorstr='#000000');
+        background-color:#000000;
+    }
+    .lightindicator.blue, .lightindicator.SPI, .lightindicator.I2C {
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #77aaff), color-stop(1, #0033ff) );
+        background:-moz-linear-gradient( center top, #77aaff 5%, #0033ff 100% );
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77aaff', endColorstr='#0033ff');
+        background-color:#ededed;
+    }
+    .lightindicator.red, .lightindicator.output{
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05,#ff7777), color-stop(1, #cc0000) );
+        background:-moz-linear-gradient( center top, #ff7777 5%, #cc0000 100% );
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff7777', endColorstr='#cc0000');
+        background-color:#ededed;
+    }
+    .lightindicator.pink {
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ffaaee), color-stop(1, #ff3366) );
+        background:-moz-linear-gradient( center top, #ffbbee 5%, #ff3366 100% );
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffaaee', endColorstr='#ff3366');
+        background-color:#ededed;
+    }
+    .lightindicator.UART {
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ffee55), color-stop(1, #ffae00) );
+        background:-moz-linear-gradient( center top, #ffee55 5%, #ffae00 100% );
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffee55', endColorstr='#ffae00');
+        background-color:#ededed;
+    }
+    .gpiobox {
+        width:220px;
+        border-width:2px;
+        border-style:solid;
+        border-color:#444444;
+        moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+        -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+        box-shadow:inset 0px 1px 0px 0px #ffffff;
+        -moz-box-shadow:1px 1px 2px black;
+        -webkit-box-shadow:1px 1px 2px black;
+        box-shadow:1px 1px 2px black;
+        -webkit-border-top-left-radius:6px;
+        -moz-border-radius-topleft:6px;
+        border-top-left-radius:6px;
+        -webkit-border-top-right-radius:6px;
+        -moz-border-radius-topright:6px;
+        border-top-right-radius:6px;
+        -webkit-border-bottom-right-radius:6px;
+        -moz-border-radius-bottomright:6px;
+        border-bottom-right-radius:6px;
+        -webkit-border-bottom-left-radius:6px;
+        -moz-border-radius-bottom-left:6px;
+        border-bottom-left-radius:6px;
+        padding-top:10px;
+        padding-bottom:10px;
+        padding-right:10px;
+        padding-left:10px;
+        background-color: #eeeeee;
+    }
+
+
+</style>
+<!-- InstanceBeginEditable name="head" -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48449692-4', 'cupidcontrol.com');
+  ga('send', 'pageview');
+
+</script>
+<script type="text/javascript">
+var sessiondata = {}
+sessiondata.authlevel = 0
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+</script>
+<script type="text/javascript">
+
+//------------------------------------------------------------------------//
+// The execution of our basic functions to get data for the tables/charts
+//------------------------------------------------------------------------//
+var runqueries=true;
+//alert(sessiondata.username)
+//alert(sessiondata.authlevel)
+if (sessiondata.authlevel > 2){
+    runqueries =true;
+    alert('here')
+}
+
+function wsgiwpgpioactions (commands,callback) {
+	// Get the data
+    commands=commands || {action:'testaction'}
+    callback = callback || logdone;
+    $.ajax({
+        url: "/wsgigpioactions",
+        type: "post",
+        datatype:"json",
+        data: commands,
+        success: function(response){
+            callback(response)
+        }
+    });
+}
+
+//// Update all GPIO data
+function updategpioData() {
+	wsgiwpgpioactions({action:'wpgetgpiostatus'},updatestatusdata)
+
+}
+
+function updatestatusdata(statusdata){
+    var text = '';
+    $.each(statusdata, function(index,gpiodict){
+
+        var value = gpiodict.value;
+        var mode = gpiodict.mode;
+
+        var valueelements =  $('.' + 'GPIO' + statusdata[index].BCM + 'value');
+        valueelements.removeClass('on')
+        valueelements.removeClass('off')
+        if (value == '1'){
+            text = 'On';
+            valueelements.addClass('on')
+        }
+        else if (value == '0'){
+            text = 'Off';
+            valueelements.addClass('off')
+        }
+        else {
+            text = 'Err';
+        }
+        valueelements.html(text);
+        var modeelements = $('.' + 'GPIO' + statusdata[index].BCM + 'mode');
+
+        modeelements.removeClass('input')
+        modeelements.removeClass('output')
+        if (mode == 'IN'){
+            text = 'In';
+            modeelements.addClass('input')
+        }
+        else if (mode == 'OUT'){
+            text = 'Out';
+            modeelements.addClass('output')
+        }
+        else if (mode == 'ALT0'){
+            text = 'I2C';
+            modeelements.addClass('I2C')
+        }
+        else {
+            text = 'Err';
+        }
+        modeelements.html(text)
+
+    })
+}
+
+function getGPIOfromid(clickid) {
+    if (clickid.search('mode') > 0){
+            var mode = 'mode';
+            // Chop up string
+            // starts with GPIO
+            // double-digit number
+            if (clickid.search('mode') == 6) {
+                var GPIOnum = clickid.slice(4,6);
+                var GPIOid = clickid.slice(0,6);
+            }
+            // single digit number
+            else {
+                var GPIOnum = clickid.slice(4,5);
+                var GPIOid  =clickid.slice(0,5);
+            }
+        }
+        else if (clickid.search('value') > 0) {
+            var mode = 'value';
+            // Chop up string
+            // starts with GPIO
+            // double-digit number
+            if (clickid.search('value') == 6) {
+                var GPIOnum = clickid.slice(4,6);
+                var GPIOid = clickid.slice(0,6);
+            }
+            // single digit number
+            else {
+                var GPIOnum = clickid.slice(4,5);
+                var GPIOid  =clickid.slice(0,5);
+            }
+        }
+    return {GPIOnum:GPIOnum, mode:mode, GPIOid:GPIOid}
+}
+//-------------------------------------------------------//
+// All of the button functions
+//-------------------------------------------------------//
+
+$(function(){
+
+	$('.canpress').click(function(){
+        var clickid = this.id
+        var result = getGPIOfromid(clickid)
+        if (result.mode == 'mode'){
+            var action = 'wptoggleGPIOmode'
+        }
+        else if (result.mode == 'value') {
+            var action = 'wptoggleGPIOvalue'
+        }
+        var command = {action:action,GPIOid:result.GPIOid}
+
+        if (runqueries) {
+            wsgiwpgpioactions(command,updategpioData)
+        }
+        else {
+            alert('queries not activated for command:')
+            alert('action: ' + action + ' , GPIOnum: ' + result.GPIOnum)
+        }
+
+    });
+    $('#valuesrefreshbutton').click(function(){
+		//alert('hithere')
+        updategpioData()
+    });
+
+    // run once on start
+    updategpioData()
+
+})
+	
+$(document).ready(function(){
+
+});
+
+
+</script>
+</head>
+<body>
+<div id="main" align="center" style="padding-top: 50px">
+<table width="600">
+    <tr><td align="center" colspan="3"><button id="valuesrefreshbutton" class="lightindicator blue" style="padding 0 25px 0 25px; width:150px; height:55px">Reload</button></td></tr>
+    <tr><td style="height: 10px"></td></tr>
+    <tr>
+        <td valign="top">
+            <div style="padding-top:10px" align="right">
+                <table>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td width="100px">3.3V</td>
+                    </tr>
+                    <tr>
+                        <td><div class="lightindicator I2C nobutton ">I2C</div></td>
+                        <td>GPIO 0</td>
+                    </tr>
+                    <tr>
+                        <td><div class="lightindicator I2C">I2C</div></td>
+                        <td>GPIO 1</td>
+                    </tr>
+                    <tr>
+                        <td><div class="lightindicator GPIO4mode canpress" id="GPIO4mode">X</div></td>
+                        <td>GPIO 4</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>NC</td>
+                    </tr>
+                    <tr>
+                        <td><div class="lightindicator canpress GPIO17mode" id="GPIO17mode">X</div></td>
+                        <td>GPIO 17</td>
+                    </tr>
+                    <tr>
+                        <td><div class="lightindicator canpress GPIO27mode" id="GPIO27mode">X</div></td>
+                        <td>GPIO 27</td>
+                    </tr>
+                    <tr>
+                        <td><div class="lightindicator canpress GPIO22mode" id="GPIO22mode">X</div></td>
+                        <td>GPIO 22</td>
+                    </tr>
+                   <tr>
+                        <td>&nbsp;</td>
+                        <td>NC</td>
+                    </tr>
+                    <tr>
+                        <td><div class="lightindicator SPI GPIO10mode" id="GPIO10mode">SPI</div></td>
+                        <td>GPIO 10</td>
+                    </tr>
+                    <tr>
+                        <td><div class="lightindicator SPI GPIO9mode" id="GPIO9mode">SPI</div></td>
+                        <td>GPIO 9</td>
+                    </tr>
+                    <tr>
+                        <td><div class="lightindicator SPI GPIO11mode" id="GPIO11mode">SPI</div></td>
+                        <td>GPIO 11</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>NC</td>
+                    </tr>
+                </table>
+            </div>
+        </td>
+        <td align="center">
+            <div class="gpiobox" align="center">
+                <table width="90%" align="center">
+                    <tr>
+                        <td class="pinlabel">1</td>
+                        <td align="center"><div class="pink lightindicator">&nbsp</div></td>
+                        <td width="1px">&nbsp;</td>
+                        <td align="center"><div class="red lightindicator">&nbsp</div></td>
+                         <td class="pinlabel">2</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td align="center"><div class="I2C lightindicator">&nbsp;</div></td>
+                        <td width="0px">&nbsp;</td>
+                        <td align="center"><div class="lightindicator">&nbsp</div></td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td align="center"><div class="I2C lightindicator">&nbsp;</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="GND lightindicator">&nbsp</div></td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td align="center"><div class="GPIO4value lightindicator canpress" id="GPIO4value">X</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="UART lightindicator">&nbsp</div></td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td align="center"><div class="lightindicator">&nbsp;</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="UART lightindicator">&nbsp</div></td>
+                        <td>10</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td align="center"><div class="GPIO17value lightindicator canpress" id="GPIO17value">X</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="GPIO18value lightindicator canpress" id="GPIO18value">X</div></td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td align="center"><div class="GPIO27value lightindicator canpress" id="GPIO27value">X</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="lightindicator">&nbsp;</div></td>
+                        <td>14</td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td align="center"><div class="GPIO22value lightindicator canpress" id="GPIO22value">X</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="GPIO23value lightindicator canpress" id="GPIO23value">X</div></td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td>17</td>
+                        <td align="center"><div class="lightindicator">&nbsp</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="GPIO24value lightindicator canpress" id="GPIO24value">X</div></td>
+                        <td>18</td>
+                    </tr>
+                    <tr>
+                        <td>19</td>
+                        <td align="center"><div class="lightindicator SPI">&nbsp;</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="lightindicator">&nbsp;</div></td>
+                        <td>20</td>
+                    </tr>
+                    <tr><td>21</td>
+                        <td align="center"><div class="lightindicator SPI">&nbsp;</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="lightindicator GPIO25value canpress" id="GPIO25value">X</div></td>
+                        <td>22</td>
+                    </tr>
+                    <tr>
+                        <td>23</td>
+                        <td align="center"><div class="lightindicator SPI">&nbsp;</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="lightindicator SPI">&nbsp;</div></td>
+                        <td>24</td>
+                    </tr>
+                    <tr>
+                        <td>25</td>
+                        <td align="center"><div class="lightindicator">&nbsp</div></td>
+                        <td>&nbsp;</td>
+                        <td align="center"><div class="lightindicator SPI">&nbsp;</div></td>
+                        <td>26</td>
+                    </tr>
+                </table>
+            </div>
+        </td>
+        <td valign="top">
+            <div style="padding-top:10px" align="left">
+                <table>
+                    <tr>
+                        <td width="100px">5V</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>NC</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td >GND</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td >UART TX</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td >UART RX</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>GPIO18</td>
+                        <td><div class="GPIO18mode lightindicator canpress">X</div></td>
+                    </tr>
+                    <tr>
+                        <td>NC</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>GPIO23</td>
+                        <td><div class="GPIO23mode lightindicator canpress">X</div></td>
+                    </tr>
+                    <tr>
+                        <td>GPIO24</td>
+                        <td><div class="GPIO24mode lightindicator canpress">X</div></td>
+                    </tr>
+                    <tr>
+                        <td>NC</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>GPIO25</td>
+                        <td><div class="GPIO25mode lightindicator ">X</div></td>
+                    </tr>
+                    <tr>
+                        <td>GPIO8</td>
+                        <td><div class="GPIO8mode lightindicator SPI">SPI</div></td>
+                    </tr>
+                    <tr>
+                        <td>GPIO7</td>
+                        <td><div class="GPIO7mode lightindicator SPI">SPI</div></td>
+                    </tr>
+                </table>
+            </div>
+        </td>
+    </tr>
+
+</table>
+
+</div>
+<div id="footer"></div>
+</div>
+</body>
+<!-- InstanceEnd --></html>

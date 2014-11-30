@@ -229,9 +229,9 @@ $(document).ready(function(){
         UpdateSystemStatusData({'timeout':updateinterval,'jqmpage':true});
         UpdateChannelsData({'timeout':updateinterval,'jqmpage':true});
 	},1000);
-    $('#picontrolenabledtoggle').on('click',function(){
-
-    })
+//    $('#picontrolenabledtoggle').on('click',function(){
+//
+//    })
 });
 </script>
   <div data-role="content">
@@ -266,10 +266,21 @@ $(document).ready(function(){
 			  <label for="systemstatusupdateioenabled" class="ui-biglabel" style="display:inline-block; width:50%;">
 			  Inputs Read
 			  </label>
-			  <select name="systemstatupdateioenabled" class="systemstatusupdateiostatustoggle" data-role="slider">
+			  <select name="systemstatusupdateiostatus" class="systemstatusupdateiostatustoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
+            </span>
+		</li>
+        <li data-role="fieldcontain">
+          <span class="justalamp">
+			  <label for="systemstatusupdateioenabled" class="ui-biglabel" style="display:inline-block; width:50%;">
+			  Serial Handler
+			  </label>
+			  <select name="systemstatusserialhandlerstatus" class="systemstatusserialhandlerstatustoggle" data-role="slider">
+			  <option value="Off">Off</option>
+			  <option value="On">On</option>
+			  </select>
             </span>
 		</li>
         <div data-role="collapsible" data-collapsed="true" data-inset="false" data-count-theme="b" data-content-theme="b">
@@ -322,7 +333,16 @@ $(document).ready(function(){
 			  <select id="systemstatusupdateioenabledtoggle" class="systemstatusupdateioenabledtoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
-			  </select> 
+			  </select>
+            </li>
+            <li data-role="fieldcontain">
+			  <label for="systemstatusserialhandlerenabledtoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
+			  Serial Handler
+			  </label>
+			  <select id="systemstatusserialhandlerenabledtoggle" class="systemstatusserialhandlerenabledtoggle" data-role="slider">
+			  <option value="Off">Off</option>
+			  <option value="On">On</option>
+			  </select>
             </li>
             <li class="sm-inset-header">
             <label for="systemstatuspicontrolfreqslider" style="width:100%; padding-right:40px">Pi Control Freq:</label>

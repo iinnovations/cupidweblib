@@ -33,8 +33,7 @@ sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SE
 sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
 sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
 sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
-
-sessiondata.authlevel = handleUserAuths(sessiondata)
+sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
 
 // <!--Log access-->
 logUserAuths(sessiondata)
@@ -55,14 +54,17 @@ function UpdateActionsTable() {
     wsgiCallbackTableData(controldatabase,'actions',callback);
 }
 function RenderActionsTable(actionstable) {
-
-    var divhtmlstring;
+    var actionsdata=actionstable || [];
+    var index;
+    var divhtmlitemstring;
     $("#actionset").html('');
+//    alert("i just dletell")
     for (var i=0; i<actionstable.length; i++){
-        var index=i+1;
+        index=i+1;
         divhtmlitemstring = '\
+           <div data-role="collapsible" data-collapsed="true" data-count-theme="a" ><!--control item --> \
 		   <div data-role="collapsible" data-collapsed="true" data-count-theme="a" ><!--control item --> \
-                <h3><span class= actionsname' + index +'>actionname</span></h3>\
+                <h3><span class="actionsname' + index + '">actionname</span></h3>\
                 <li data-role="fieldcontain" class="sm-inset-header">\
                     <fieldset>\
                     <div class="ui-biglabel" >Name</div>\
@@ -76,7 +78,7 @@ function RenderActionsTable(actionstable) {
                     </fieldset>\
                     <div data-role="popup" id="deleteactionpopup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
                         <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
-                            <h3>Delete ' + actionstable[i].name + '</h3>\
+                            <h3>Delete ' + actionsdata[i].name + '</h3>\
                         </div>\
                         <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content">\
                             <h3 class="ui-title">Are you sure you want to delete this action?</h3>\
@@ -87,7 +89,7 @@ function RenderActionsTable(actionstable) {
                     </div>\
                     <div data-role="popup" id="moveactionuppopup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
                         <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
-                            <h3>Move Up ' + actionstable[i].name + '</h3>\
+                            <h3>Move Up ' + actionsdata[i].name + '</h3>\
                         </div>\
                         <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content">\
                             <h3 class="ui-title">Are you sure you want to move this action up?</h3>\
@@ -98,7 +100,7 @@ function RenderActionsTable(actionstable) {
                     </div>\
                     <div data-role="popup" id="moveactiondownpopup' + index +'" data-overlay-theme="a" data-theme="b" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">\
                         <div data-role="header" data-theme="b" class="ui-corner-top ui-dialog-header">\
-                            <h3>Move Down ' + actionstable[i].name + '</h3>\
+                            <h3>Move Down ' + actionsdata[i].name + '</h3>\
                         </div>\
                         <div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content">\
                             <h3 class="ui-title">Are you sure you want to move this action down?</h3>\
@@ -113,59 +115,59 @@ function RenderActionsTable(actionstable) {
         $(divhtmlitemstring).appendTo("#actionset").trigger( "create" );
 
         $('#' + 'action_' + index + '_deleteconfirm').off('click.delete');
-        $('#' + 'action_' + index + '_deleteconfirm').on('click.delete',{'passindex':index,'name':actionstable[i].name}, function(event){
+        $('#' + 'action_' + index + '_deleteconfirm').on('click.delete',{'passindex':index,'name':actionsdata[i].name}, function(event){
 //            alert("delete confirmed for action " + event.data.name)
-            callback=UpdateActionsTable;
+            var callback=UpdateActionsTable;
             deleteAction(event.data.name,callback);
-        })
+        });
         $('#' + 'action_' + index + '_moveupconfirm').off('click.moveup');
-        $('#' + 'action_' + index + '_moveupconfirm').on('click.moveup',{'passindex':index,'name':actionstable[i].name}, function(event){
-            var passedindex = event.data.passindex
+        $('#' + 'action_' + index + '_moveupconfirm').on('click.moveup',{'passindex':index,'name':actionsdata[i].name}, function(event){
+            var passedindex = event.data.passindex;
 //            alert('move up confirmed for action ' + event.data.name + ' using index ' + passedindex)
-            var arguments={}
+            var arguments={};
             arguments.tablename='actions';
             arguments.row1=passedindex-1;
             arguments.row2=passedindex;
             arguments.uniqueindex='name';
             var callback = UpdateActionsTable;
-            wsgiSwapTableRows(controldatabase,arguments,callback)
-        })
-        $('#' + 'action_' + index + '_movedownconfirm').off('click.movedown')
-        $('#' + 'action_' + index + '_movedownconfirm').on('click.movedown',{'passindex':index,'name':actionstable[i].name},function(event){
-            var passedindex = event.data.passindex
+            wsgiSwapTableRows(controldatabase,arguments,callback);
+        });
+        $('#' + 'action_' + index + '_movedownconfirm').off('click.movedown');
+        $('#' + 'action_' + index + '_movedownconfirm').on('click.movedown',{'passindex':index,'name':actionsdata[i].name},function(event){
+            var passedindex = event.data.passindex;
 //            alert('move down confirmed for action ' + event.data.name + ' using index ' + passedindex)
-            var arguments={}
+            var arguments={};
             arguments.tablename='actions';
             arguments.row1=passedindex+1;
             arguments.row2=passedindex;
             arguments.uniqueindex='name';
             var callback = UpdateActionsTable;
-            wsgiSwapTableRows(controldatabase,arguments,callback)
+            wsgiSwapTableRows(controldatabase,arguments,callback);
         })
     }
-    $('#actionset').trigger('create');
+//    $('#actionset').trigger('create');
     $('#actionlistview').listview('refresh');
-    UpdateActionsData({'jqmpage':true})
+//    UpdateActionsData({'jqmpage':true})
 }
 
 $(document).ready(function(){
-    togglestolamps()
+    togglestolamps();
     //// Control Algorithms
     //Just run this once so we don't overwrite edited values
-    UpdateActionsTable()
+    UpdateActionsTable();
 //    UpdateActionsTable({'timeout':updateinterval})
     setTimeout(function(){
         UpdateActionsData({'jqmpage':true})
     },1000);
     $('#datarefresh').click(function(event){
-        UpdateActionsTable()
+        UpdateActionsTable();
     });
-    $('#addaction').click(function(event){
-        addAction('newaction')
-        setTimeout(function(){
-            UpdateActionsData({'jqmpage':true})
-        },1000);
-    })
+//    $('#addaction').click(function(event){
+//        addAction('newaction')
+//        setTimeout(function(){
+//            UpdateActionsData({'jqmpage':true})
+//        },1000);
+//    })
 });
 </script>
 
@@ -284,6 +286,27 @@ $(document).ready(function(){
         </ul>
     </div><!--content-primary-->
 </div><!--content-->
+<div data-role="footer" data-id='fixednav' data-position="fixed" >
+    <div data-role="navbar" data-iconpos="left">
+        <ul>
+            <li ><a href="/mobile/index.html" data-icon="home" >Home</a></li>
+            <?php
+                if($user->logged_in()):
+                ?>
+                    <li><span class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.7em!important; padding-left: 0px!important; padding-right: 0px!important"><?php echo $_SESSION['user']['name']; ?></span></li>
+                    <li><a data-ajax="false" href="/auth/logoutmobile">Log out</a></li>
+                    <?php
+                endif;
+                if(!$user->logged_in()):
+                ?>
+                    <li><div class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.7em!important; padding-left: 0px!important; padding-right: 0px!important">Not logged in</div></li>
+                    <li><a data-ajax="false" href="/auth/loginmobile" style="padding-right:10px">Log in</a></li>
+                <?php
+                    endif;
+                ?>
+        </ul>
+    </div>
+</div><!--footer-->
 </div><!-- page -->
 </body>
 </html>

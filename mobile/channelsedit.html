@@ -275,6 +275,27 @@ $(document).ready(function(){
         </ul>
     </div><!--content-primary-->
 </div><!--content-->
+<div data-role="footer" data-id='fixednav' data-position="fixed" >
+    <div data-role="navbar" data-iconpos="left">
+        <ul>
+            <li ><a href="/mobile/index.html" data-icon="home" >Home</a></li>
+            <?php
+                if($user->logged_in()):
+                ?>
+                    <li><span class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.7em!important; padding-left: 0px!important; padding-right: 0px!important"><?php echo $_SESSION['user']['name']; ?></span></li>
+                    <li><a data-ajax="false" href="/auth/logoutmobile">Log out</a></li>
+                    <?php
+                endif;
+                if(!$user->logged_in()):
+                ?>
+                    <li><div class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.7em!important; padding-left: 0px!important; padding-right: 0px!important">Not logged in</div></li>
+                    <li><a data-ajax="false" href="/auth/loginmobile" style="padding-right:10px">Log in</a></li>
+                <?php
+                    endif;
+                ?>
+        </ul>
+    </div>
+</div><!--footer-->
 </div><!-- page -->
 </body>
 </html>

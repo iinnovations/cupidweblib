@@ -2,14 +2,14 @@
 
 // Set static variables for controlstatus query
 			
-controldatabase='/var/www/data/controldata.db';
-recipedatabase='/var/www/data/recipedata.db';
-logdatabase='/var/www/data/logdata.db';
-infodatabase='/var/www/data/deviceinfo.db';
-systemdatabase='/var/www/data/systemdata.db';
-authdatabase='/var/www/data/authlog.db';
-safedatabase='/var/wwwsafe/safedata.db'
-usersdatabase='/var/wwwsafe/users.db'
+var controldatabase='/var/www/data/controldata.db';
+var recipedatabase='/var/www/data/recipedata.db';
+var logdatabase='/var/www/data/logdata.db';
+var infodatabase='/var/www/data/deviceinfo.db';
+var systemdatabase='/var/www/data/systemdata.db';
+var authdatabase='/var/www/data/authlog.db';
+var safedatabase='/var/wwwsafe/safedata.db'
+var usersdatabase='/var/wwwsafe/users.db'
 
 // Define all the globals.
 // We define these globally so that when we render tables that need them
@@ -133,7 +133,10 @@ function addChannel(channelname, callback){
     addDBRow(controldatabase,'channels',callback, ['name'],[channelname])
 }
 function addAction(name, callback){
-    addDBRow(controldatabase,'actions',callback, ['name'],[name])
+    addDBRow(controldatabase,'actions',callback, ['name','operator'],[name,'greater'])
+}
+function addInterface(name, callback){
+    addDBRow(controldatabase,'interfaces',callback, ['name'],[name,])
 }
 function deleteChannel(channelname, callback){
     deleteRow(controldatabase,'channels',callback,'name',channelname);
@@ -168,25 +171,37 @@ function addModbusIO(channelname, channeldata, callback){
 
 // Version and about data
 function UpdateVersionsData(options) {
+    options = options || {};
     GetAndRenderTableData({database:systemdatabase, tablename:'versions'})
 }
 
 //// Control Algorithms
 function UpdateControlAlgorithmsData(options) {
+    options = options || {};
     GetAndRenderTableData({database:controldatabase, tablename:'controlalgorithms',selectorclass:'controlalgorithmselect'})
 }
 
 //// Control Algorithm Types
 function UpdateControlAlgorithmTypesData(options) {
+    options = options || {};
     GetAndRenderTableData({database:controldatabase, tablename:algorithmtypes, selectorclass:'algorithmtypeselect'})
 }
 
 //// Channels Data
 function UpdateChannelsData(options) {
-    options = options || {}
-    options.database = controldatabase
-    options.tablename = 'channels'
-    options.selectorclass = 'channelselect'
+    options = options || {};
+    options.database = controldatabase;
+    options.tablename = 'channels';
+    options.selectorclass = 'channelselect';
+    GetAndRenderTableData(options)
+}
+
+function UpdateChannelIndicesData(options) {
+    options = options || {};
+    options.database = controldatabase;
+    options.tablename = 'channels';
+    options.selectortableitem = 'channelindex';
+    options.selectorclass = 'channelindexselect';
     GetAndRenderTableData(options)
 }
 
@@ -247,17 +262,24 @@ function UpdateMBTCPData(options) {
 
 //// Indicators
 function UpdateIndicatorsData(options) {
+    options = options || {};
     GetAndRenderTableData({database:controldatabase, tablename:'indicators',selectorclass:'indicatorselect'})
 }
 
 //// Actions
 function UpdateActionsData(options) {
-    GetAndRenderTableData({database:controldatabase, tablename:'actions',selectorclass:'actionselect'})
+    options = options || {};
+    options.database = controldatabase;
+    options.tablename = 'actions';
+    options.selectorclass = 'actionselect';
+    options.selectortableitem = 'name';
+    GetAndRenderTableData(options)
 }
 
 /// Single table row
 // System Status
 function UpdateSystemStatusData(options) {
+    options = options || {};
     options.database = controldatabase;
     options.tablename = 'systemstatus';
     options.index = 1;
@@ -266,6 +288,7 @@ function UpdateSystemStatusData(options) {
 
 //// Network Status
 function UpdateNetStatusData(options) {
+    options = options || {};
     options.database = systemdatabase;
     options.tablename = 'netstatus';
     options.index = 1;
@@ -274,13 +297,18 @@ function UpdateNetStatusData(options) {
 
 //// Netauths Data
 function UpdateNetAuthsData(options) {
+    options = options || {};
     options.database = safedatabase;
     options.tablename = 'wireless';
+    options.selectorclass = 'ssidselect';
+    options.selectorhasnoneitem = true;
+    options.selectortableitem = 'SSID'
     GetAndRenderTableData(options)
 }
 
 //// Netauths Data
 function UpdateUsersData(options) {
+    options = options || {};
     options.database = usersdatabase;
     options.tablename = 'users';
     GetAndRenderTableData(options)
@@ -288,6 +316,7 @@ function UpdateUsersData(options) {
 
 //// Netconfig Status
 function UpdateNetConfigData(options) {
+    options = options || {};
     options.database = systemdatabase;
     options.tablename = 'netconfig';
     options.index = 1;
@@ -296,6 +325,7 @@ function UpdateNetConfigData(options) {
 
 // Metadata
 function UpdateMetadata(options) {
+    options = options || {};
     options.database = systemdatabase;
     options.tablename = 'metadata';
     options.index = 1;
@@ -800,7 +830,7 @@ var largeChannelOptionsObj={
 	},
 	axes:{
 		xaxis:{
-			renderer:$.jqplot.DateAxisRenderer,
+			renderer:$.DateAxisRenderer,
 			tickOptions:{mark:'inside'}
 		},
 		 

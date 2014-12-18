@@ -851,15 +851,20 @@ function RenderTableData(datatable,options) {
         if (options.hasOwnProperty('selectorhasnoneitem')){
             selectoritems.push('none')
         }
-        for (var i=0; i<datatable.length;i++){
+
+        for (var i = 0; i < datatable.length; i++) {
             selectoritems.push(datatable[i][selectortableitem]);
         }
-//        console.log(selectoritems)
-        $('.' + options.selectorclass).each(function(){
+        //        if (selectortableitem == 'ssid') {
+        //            console.log(datatable)
+        //            console.log(selectortableitem)
+        //            console.log(selectoritems)
+        //        }
+        $('.' + options.selectorclass).each(function () {
             if ($('#' + this.id).length > 0) {
                 UpdateSelect(this.id, selectoritems);
             }
-	    });
+        });
     }
     // If we want to render a flat table, we have to pass index 1
     // Otherwise, it will be rendered with the index of 1 in the classnames
@@ -875,14 +880,14 @@ function RenderTableData(datatable,options) {
         var selectedindex=$('#'+options.indexselector).prop('selectedIndex');
 		RenderWidgets(options.database,options.tablename,datatable[selectedindex],options)
         if (options.hasOwnProperty('auxcallback')){
-            options.auxcallback(tabledata[selectedindex])
+            options.auxcallback(datatable[selectedindex])
         }
     }
 	else {
         // include index in class render name
         RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
         if (options.hasOwnProperty('auxcallback')){
-            options.auxcallback(tabledata)
+            options.auxcallback(datatable)
         }
 	}
 }
@@ -890,8 +895,10 @@ function RenderTableData(datatable,options) {
 
 //// Tables Data
 function UpdateTableNamesData(options) {
+    options = options || {};
 	var callback=RenderTableNamesData;
     if (! options.hasOwnProperty('database')){
+        alert('i am here')
         options.database = controldatabase;
     }
     wsgiGetTableNames (options.database,callback,options)
@@ -899,7 +906,7 @@ function UpdateTableNamesData(options) {
 function RenderTableNamesData(tablenames,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
-
+    var timeout = 0;
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
     if (options.hasOwnProperty('timeoutclass')) {
@@ -908,20 +915,17 @@ function RenderTableNamesData(tablenames,options) {
     else if (options.hasOwnProperty('timeout')) {
         timeout=options.timeout;
     }
-    else {
-        timeout=0;
-    }
 
 	if (options.timeout>0) {
 		setTimeout(function(){UpdateTableNamesData(options)},options.timeout);
 	}
-//	console.log(tablenames)
-	$('.' + options.database + 'tableselect').each(function(){
+	var cleandbname = getNameFromPath(options.database)
+	$('.' + cleandbname + 'tableselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, tablenames);
 		}
 	});
-    $('.' + options.database + 'tablejqmselect').each(function(){
+    $('.' + cleandbname + 'tablejqmselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, tablenames);
             $('#' + this.id).selectmenu("refresh");
@@ -972,7 +976,7 @@ function RenderColumnsData(data,options) {
         columnnames.push(key);
     })
 	var cleandbname = getNameFromPath(options.database)
-    console.log('.' + cleandbname + options.table + 'columnselect')
+//    console.log('.' + cleandbname + options.table + 'columnselect')
 	$('.' + cleandbname + options.table + 'columnselect').each(function(){
 		if ($('#' + this.id).length > 0) {
 	    	UpdateSelect(this.id, columnnames);

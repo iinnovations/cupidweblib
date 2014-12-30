@@ -1075,10 +1075,10 @@ function makeUserServerMap(locations,labels,content) {
 // should probably do some documentation here on what the
 // possible actions are
 
-function UpdateControl(actionobj,callback) {
+function runwsgiActions(actionobj,callback) {
     callback = callback || logdone;
     $.ajax({
-        url: "/wsgiupdatecontrol",
+        url: "/wsgiactions",
         type: "post",
         datatype:"json",
         data: actionobj,
@@ -1092,18 +1092,4 @@ function setUserAuths(args){
     actionobj=args;
     args.action='usermodify'
     // put some more stuff in here.
-}
-
-function runwsgiActions(actionobj, callback){
-//    var callback = actionobj.callback || logdone;
-    $.ajax({
-        url: '/wsgiactions',
-        type: 'post',
-        datatype: 'json',
-        data: actionobj,
-        success: function(response){
-            callback(response,actionobj);
-        }
-   });
-
 }

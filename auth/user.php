@@ -73,6 +73,8 @@ class user {
 		session_start();
 		$_SESSION['user']['realip'] = getRealIpAddr();
     	$_SESSION['user']['appip'] = $_SERVER['REMOTE_ADDR'];
+    	$_SESSION['user']['serverip'] = $_SERVER['SERVER_ADDR'];
+
 		$this->set_actions();
 		if(isset($_GET['logout'])){
 			$this->logout();
@@ -466,7 +468,7 @@ class user {
 			$_SESSION['redirect']=$_SERVER['REQUEST_URI'];
 			$redirect=$_SESSION['redirect'];
 			if (strpos($redirect,'mobile') !== false) {
-                $this->fail('You must log in to access this page!!!','/'.$this->config['pages']['loginmobile']);
+                $this->fail('You must log in to access this page.','/'.$this->config['pages']['loginmobile']);
             }
             else {
                 $this->fail('You must log in to access this page!!','/'.$this->config['pages']['login']);

@@ -1,11 +1,10 @@
-<?php require_once('auth/user.php'); ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-<script src="/js/iijslib.js" type="text/javascript"></script>
-<script src="/js/cupidjslib.js" type="text/javascript"></script>
+<!--<script src="/js/iijslib.js" type="text/javascript"></script>-->
+<!--<script src="/js/cupidjslib.js" type="text/javascript"></script>-->
 
 <title>CuPID Standalone IO</title>
 
@@ -149,18 +148,7 @@
   ga('send', 'pageview');
 
 </script>
-<script type="text/javascript">
-var sessiondata = {}
-sessiondata.authlevel = 0
-sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
-sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
-sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
-sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
-sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
 
-// <!--Log access-->
-logUserAuths(sessiondata)
-</script>
 <script type="text/javascript">
 
 //------------------------------------------------------------------------//

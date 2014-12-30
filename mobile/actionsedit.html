@@ -161,13 +161,16 @@ $(document).ready(function(){
     },1000);
     $('#datarefresh').click(function(event){
         UpdateActionsTable();
+        setTimeout(function(){
+            UpdateActionsData({'jqmpage':true})
+        },1000);
     });
-//    $('#addaction').click(function(event){
-//        addAction('newaction')
-//        setTimeout(function(){
-//            UpdateActionsData({'jqmpage':true})
-//        },1000);
-//    })
+    $('#addaction').click(function(event){
+        addAction('newaction')
+        setTimeout(function(){
+            UpdateActionsData({'jqmpage':true})
+        },1000);
+    })
 });
 </script>
 
@@ -176,7 +179,7 @@ $(document).ready(function(){
         <ul data-role="listview" data-inset="true">
             <li data-role="list-divider"><h4>Edit actions</h4></li>
             <li data-role="fieldcontain" >
-                <p>actions are listed below. Uncollapse each to reveal the controls. To <b>change</b> names, simply edit the text field and press "update". To <b>Delete</b> a action, press the Delete button and confirm in the dialog box</p>
+                <p>actions are listed below. Uncollapse each to reveal the controls. To <b>change</b> names, simply edit the text field and press "update". To <b>Delete</b> an action, press the Delete button and confirm in the dialog box</p>
                 <p>To reload data from the database, press the <b>Refresh</b> button below</p>
             </li>
         </ul>

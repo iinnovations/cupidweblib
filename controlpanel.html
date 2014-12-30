@@ -89,7 +89,7 @@ $(function(){
     	console.log(sessiondata.hpass);
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
-        	url: "/wsgiupdatecontrol",
+        	url: "/wsgiactions",
             type: "post",
             datatype:"json",
             data: {'action':'spchange','subaction':'incdown','database':controldatabase,'channelname':selectedchannelname},
@@ -103,7 +103,7 @@ $(function(){
     	checkauth(sessiondata.authlevel, actauthlevel, function(){
         var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
-        	url: "/wsgiupdatecontrol",
+        	url: "/wsgiactions",
             type: "post",
             datatype:"json",
             data: {'action':'spchange','subaction':'incup','database':controldatabase,'channelname':selectedchannelname},
@@ -117,7 +117,7 @@ $(function(){
     	checkauth(sessiondata.authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
-        	url: "/wsgiupdatecontrol",
+        	url: "/wsgiactions",
             type: "post",
             datatype:"json",
             data: {'action':'actiondown','database':controldatabase,'channelname':selectedchannelname},
@@ -131,7 +131,7 @@ $(function(){
     	checkauth(sessiondata.authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
-        	url: "/wsgiupdatecontrol",
+        	url: "/wsgiactions",
             type: "post",
             datatype:"json",
             data: {'action':'actionup','database':controldatabase,'channelname':selectedchannelname},
@@ -145,7 +145,7 @@ $(function(){
     	checkauth(sessiondata.authlevel, actauthlevel, function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
         $.ajax({
-        	url: "/wsgiupdatecontrol",
+        	url: "/wsgiactions",
             type: "post",
             datatype:"json",
             data: {'action':'togglemode','database':controldatabase,'channelname':selectedchannelname},
@@ -160,7 +160,7 @@ $(function(){
 		var selectedchannelname=document.getElementById("channelselect").value;
 		var newrecipe=document.getElementById("controlrecipeselect").value;
         $.ajax({
-        	url: "/wsgiupdatecontrol",
+        	url: "/wsgiactions",
             type: "post",
             datatype:"json",
             data: {'action':'setrecipe','database':controldatabase,'channelname':selectedchannelname,'recipe':newrecipe},

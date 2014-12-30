@@ -41,6 +41,7 @@ sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo
 sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
 sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
 sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
+sessiondata.hpass =  "<?php if (!empty($_SESSION['user']['hpass'])) {echo $_SESSION['user']['hpass'];} ?>";
 
 // <!--Log access-->
 logUserAuths(sessiondata)
@@ -122,18 +123,18 @@ function RenderChannels(channelstable) {
                   <ul data-role="listview" data-inset="false" class="controllist">\
                     <li >\
                       <label for="channelssetpointvalue' + index + 'slider" class="ui-biglabel" style="width:100%; padding-right:10px">Setpoint</label>\
-                      <input type="range" class="channelssetpointvalue' + index + 'slider" id="channelssetpointvalue' + index + 'slider"  value="60" min="0" max="100" />\
+                      <input type="range" class="channelssetpointvalue' + index + 'slider reqauth3" id="channelssetpointvalue' + index + 'slider"  value="60" min="0" max="100" />\
                     </li>\
                     <li data-role="fieldcontain" >\
                         <label for="channelsenabled' + index +  'toggle"  style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>\
-                        <select id="channelsenabled' + index +  'toggle" class="channelsenabled' + index +  'toggle" data-role="slider">\
+                        <select id="channelsenabled' + index +  'toggle" class="channelsenabled' + index +  'toggle reqauth3" data-role="slider">\
                         <option value="Off">Off</option>\
                         <option value="On">On</option>\
                         </select> \
                     </li>\
 					<li data-role="fieldcontain" >\
                         <label for="channelsmode' + index +  'automantoggle" style="display:inline-block; width:45%;"><h3>Mode:</h3></label>\
-                        <select id="channelsmode' + index +  'automantoggle" class="channelsmode' + index +  'automantoggle" data-role="slider">\
+                        <select id="channelsmode' + index +  'automantoggle" class="channelsmode' + index +  'automantoggle reqauth3" data-role="slider">\
                         <option value="auto">auto</option>\
                         <option value="manual">man</option>\
                         </select> \
@@ -141,14 +142,14 @@ function RenderChannels(channelstable) {
                     <li data-role="fieldcontain">\
                         <label for="channelsoutputsenabled' + index + 'toggle" style="width:45%; display:inline-block">\
                         <h3>Outputs:</h3></label>\
-                        <select id="channelsoutputsenabled' + index + 'toggle" class="channelsoutputsenabled' + index + 'toggle" data-role="slider">\
+                        <select id="channelsoutputsenabled' + index + 'toggle" class="channelsoutputsenabled' + index + 'toggle reqauth3" data-role="slider">\
                         <option value="Off">Off</option>\
                         <option value="On">On</option>\
                         </select> \
                     </li>\
 					<li >\
 					  <label for="channelscontrolinput' + index + 'jqmselect" ><h3>Control Input</h3></label>\
-					  <select id="channelscontrolinput' + index + 'jqmselect" class="inputselect channelscontrolinput' + index + 'jqmselect" >\
+					  <select id="channelscontrolinput' + index + 'jqmselect" class="inputselect channelscontrolinput' + index + 'jqmselect reqauth3" >\
 						  <option value="standard">Output 1</option>\
 						  <option value="rush">Output</option>\
 						  <option value="express">Output 3</option>\
@@ -157,14 +158,14 @@ function RenderChannels(channelstable) {
                     </li><!-- list option set -->\
                     <li>\
 					  <label for="channelspositiveoutput' + index + 'jqmselect" class="ui-biglabel"><h3>Positive Output</h3></label>\
-					  <select id="channelspositiveoutput' + index + 'jqmselect" class="outputselect channelspositiveoutput' + index + 'jqmselect">\
+					  <select id="channelspositiveoutput' + index + 'jqmselect" class="outputselect channelspositiveoutput' + index + 'jqmselect reqauth3">\
 						  <option value="standard">Output 1</option>\
 						  <option value="rush">Output</option>\
 						  <option value="express">Output 3</option>\
 						  <option value="overnight">Output 4</option>\
 					  </select>\
 					  <label for="channelsnegativeoutput' + index + 'jqmselect" class="ui-biglabel">Negative Output</label>\
-					  <select id="channelsnegativeoutput' + index + 'jqmselect" class="outputselect channelsnegativeoutput' + index + 'jqmselect" >\
+					  <select id="channelsnegativeoutput' + index + 'jqmselect" class="outputselect channelsnegativeoutput' + index + 'jqmselect reqauth3" >\
 						  <option value="standard">Output 1</option>\
 						  <option value="rush">Output 2</option>\
 						  <option value="express">Output 3</option>\
@@ -173,14 +174,14 @@ function RenderChannels(channelstable) {
                     </li><!-- list option set -->\
                     <li data-role="field-contain">\
 					  <label for="channelscontrolalgorithm' + index + 'jqmselect" class="ui-biglabel">Control Algorithm</label>\
-					  <select id="channelscontrolalgorithm' + index + 'jqmselect" class="controlalgorithmselect channelscontrolalgorithm' + index + 'jqmselect" >\
+					  <select id="channelscontrolalgorithm' + index + 'jqmselect" class="controlalgorithmselect channelscontrolalgorithm' + index + 'jqmselect reqauth3" >\
 						  <option value="standard">on/off two degree deadband</option>\
 						  <option value="rush">on/off three degree deadband</option>\
 						  <option value="express">on/off two degree deadband</option>\
 						  <option value="value4">two degree deadband</option>\
 					  </select>\
 					  <label for="channelscontrolrecipe' + index + 'jqmselect"  class="ui-biglabel">Control Recipe</label>\
-					  <select id="channelscontrolrecipe' + index + 'jqmselect" class="controlrecipeselect channelscontrolrecipe' + index + 'jqmselect" >\
+					  <select id="channelscontrolrecipe' + index + 'jqmselect" class="controlrecipeselect channelscontrolrecipe' + index + 'jqmselect reqauth3" >\
 						  <option value="standard">stdreflow</option>\
 						  <option value="rush">Four-day 65F ale</option>\
 						  <option value="express">Six-day 65F ale</option>\
@@ -245,7 +246,7 @@ $(document).ready(function(){
 			  display:inline-block; width:50%; ">
 			  Pi Control
 			  </label>
-			  <select name="pcenabled" class="systemstatuspicontrolstatustoggle" data-role="slider" >
+			  <select name="pcenabled" id="systemstatuspicontrolstatustoggle" class="systemstatuspicontrolstatustoggle" data-role="slider" >
                 <option value="Off">Off</option>
                 <option value="On">On</option>
 			  </select> 
@@ -256,7 +257,7 @@ $(document).ready(function(){
             <label for="systemstatusenableoutputs" class="ui-biglabel" style="display:inline-block; width:50%; ">
             Outputs
             </label>
-            <select name="systemstatusenableoutputs" class="systemstatusenableoutputstoggle" data-role="slider">
+            <select name="systemstatusenableoutputs" class="systemstatusenableoutputstoggle reqauth3" data-role="slider">
             <option value="Off">Off</option>
             <option value="On">On</option>
             </select> 
@@ -313,7 +314,7 @@ $(document).ready(function(){
              <li data-role="fieldcontain">
 			  <label for="systemstatuspicontrolenabledtoggle" style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">Pi Control
 			  </label>
-			  <select id="systemstatuspicontrolenabledtoggle" class="systemstatuspicontrolenabledtoggle" data-role="slider" >
+			  <select id="systemstatuspicontrolenabledtoggle" class="systemstatuspicontrolenabledtoggle reqauth3" data-role="slider" >
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
@@ -322,7 +323,7 @@ $(document).ready(function(){
 			  <label for="systemstatusenableoutputstoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
 			  Outputs
 			  </label>
-			  <select id="systemstatusenableoutputstoggle" class="systemstatusenableoutputstoggle" data-role="slider">
+			  <select id="systemstatusenableoutputstoggle" class="systemstatusenableoutputstoggle reqauth3" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
@@ -331,7 +332,7 @@ $(document).ready(function(){
 			  <label for="systemstatusupdateioenabledtoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
 			  Inputs Read
 			  </label>
-			  <select id="systemstatusupdateioenabledtoggle" class="systemstatusupdateioenabledtoggle" data-role="slider">
+			  <select id="systemstatusupdateioenabledtoggle" class="systemstatusupdateioenabledtoggle reqauth3" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>
@@ -340,18 +341,18 @@ $(document).ready(function(){
 			  <label for="systemstatusserialhandlerenabledtoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
 			  Serial Handler
 			  </label>
-			  <select id="systemstatusserialhandlerenabledtoggle" class="systemstatusserialhandlerenabledtoggle" data-role="slider">
+			  <select id="systemstatusserialhandlerenabledtoggle" class="systemstatusserialhandlerenabledtoggle reqauth3" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>
             </li>
             <li class="sm-inset-header">
             <label for="systemstatuspicontrolfreqslider" style="width:100%; padding-right:40px">Pi Control Freq:</label>
-			<input type="range" id="systemstatuspicontrolfreqslider" class="systemstatuspicontrolfreqslider" value="55" min="0" max="100" />
+			<input type="range" id="systemstatuspicontrolfreqslider" class="systemstatuspicontrolfreqslider reqauth3" value="55" min="0" max="100" />
             </li>
             <li class="sm-inset-header">
 			<label for="systemstatusupdateiofreqslider" style="width:100%; padding-right:40px">Input Poll Freq:</label>
-			<input type="range" id="systemstatusupdateiofreqslider" class="systemstatusupdateiofreqslider" value="60" min="0" max="100" />
+			<input type="range" id="systemstatusupdateiofreqslider" class="systemstatusupdateiofreqslider reqauth3" value="60" min="0" max="100" />
             </li>
         </div>
         <li data-role="fieldcontain">

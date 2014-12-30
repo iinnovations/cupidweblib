@@ -349,7 +349,7 @@ function wsgiCallbackTableData (database,table,callback,options) {
             actionobj.start = 0
     }
 	$.ajax({
-		url: "/wsgisqlitequery",
+		url: "/wsgireadonly",
 		type: "post",
 		datatype:"json",				
 		data: actionobj,
@@ -383,7 +383,7 @@ function wsgiCallbackMultTableData (database,tablenames,callback,options) {
         actionobj.start = -1
 
 	$.ajax({
-		url: "/wsgisqlitequery",
+		url: "/wsgireadonly",
 		type: "post",
 		datatype:"json",						
 		data: actionobj,
@@ -396,7 +396,7 @@ function wsgiCallbackMultTableData (database,tablenames,callback,options) {
 }
 function wsgiGetTableNames (database,callback,callbackoptions) {	
 	$.ajax({
-		url: "/wsgisqlitequery",
+		url: "/wsgireadonly",
 		type: "post",
 		datatype:"json",						
 		data: {'database':database,'specialaction':'gettablenames'},
@@ -409,7 +409,7 @@ function wsgiGetTableNames (database,callback,callbackoptions) {
 }
 function wsgiSwapTableRows (database,arguments,callback,callbackoptions) {
     $.ajax({
-        url: "/wsgisqlitequery",
+        url: "/wsgiactions",
         type: "post",
         datatype:"json",
         data: {'database':database,'table':arguments.tablename,'specialaction':'switchtablerows','row1':arguments.row1,'row2':arguments.row2,'uniqueindex':arguments.uniqueindex},
@@ -424,7 +424,7 @@ function wsgiExecuteCallbackQuery (database,query,callback) {
 	// Get the data
     callback = callback || logdone;
 	$.ajax({
-		url: "/wsgisqlitequery",
+		url: "/wsgiactions",
 		type: "post",
 		datatype:"json",						
 		data: {'database':database,'query':query},
@@ -437,7 +437,7 @@ function wsgiExecuteQuery (database,query,callback) {
 	// Get the data
     callback=callback || logdone;
 	$.ajax({
-		url: "/wsgisqlitequery",
+		url: "/wsgiactions",
 		type: "post",
 		datatype:"json",						
 		data: {'database':database,'query':query},
@@ -451,7 +451,7 @@ function wsgiExecuteQueryArray (database,queryarray,callback) {
 	// Get the data
     callback = callback || logdone;
     $.ajax({
-        url: "/wsgisqlitequery",
+        url: "/wsgiactions",
         type: "post",
         datatype:"json",
         data: {'database':database,'queryarray':queryarray},
@@ -533,43 +533,83 @@ function setjqmSelectByClass(classname,value) {
         }
     });
 }
+function getClassAuth(jqueryObject){
+    var reqauthlevel;
+    if (jqueryObject.hasClass('reqauth5')){
+        reqauthlevel=5;
+    }
+    else if (jqueryObject.hasClass('reqauth4')){
+        reqauthlevel=4;
+    }
+    else if (jqueryObject.hasClass('reqauth3')){
+        reqauthlevel=3;
+    }
+    else if (jqueryObject.hasClass('reqauth2')){
+        reqauthlevel=5;
+    }
+    else if (jqueryObject.hasClass('reqauth1')){
+        reqauthlevel=5;
+    }
+    else {
+        reqauthlevel=0;
+    }
+    return reqauthlevel
+}
 function setWidgetActions(options){
     var callback = options.callback || logdone;
     var updatetimeout = options.updatetimeout || 500;
     var jqmpage = options.jqmpage || false;
     var baseclass = options.baseclass;
-    var actionobj={'action':'setvalue','database':options.database,'table':options.tablename,'valuename':options.key};
-
+    var actionobj={'action':'setvalue','database':options.database,'table':options.tablename,'valuename':options.key, 'username':sessiondata.username, 'sessionhpass':sessiondata.hpass};
+    var reqauth=0;
+    var currauth = options.currauth || 0; // we grab this as a prefilter for requests to send to the wsgi script
 
     if ( options.condition !== undefined) {
         actionobj.condition=options.condition;
         //alert('i have a condition: ' + args.condition)
     }
     var $selectclasses= $(baseclass + 'select');
-    $selectclasses.off('change.update');
-    $selectclasses.on('change.update', function (event) {
-        //var data = event.data
-        actionobj.value = $(this).val();
-        // invoke ajax query with callback to update the interface when it's done
-        setTimeout(function () {
-            UpdateControl(actionobj, callback);
-        }, updatetimeout);
+    $.each($selectclasses,function() { // could use key, value, but don't needn
+        $(this).off('change.update');
+        $(this).on('change.update', function (event) {
+            // Check for authrequirement class. This doesn't actually perform
+            // security, as session variable userauthlevel could be manipulated
+            // client-side, but it weeds out requests so that they don't have to go
+            // all the way to the server to be denied.
+            reqauth = getClassAuth($(this));
+            if (sessiondata.authlevel >= reqauth) {
+                //var data = event.data
+                actionobj.value = $(this).val();
+                // invoke ajax query with callback to update the interface when it's done
+                setTimeout(function () {
+                    runwsgiActions(actionobj, callback);
+                }, updatetimeout);
+            }
+            else{
+                alert("not authorized for the requested action");
+            }
+        });
     });
     var $checkboxclasses= $(baseclass + 'checkbox');
     $checkboxclasses.off('click.update');
     $checkboxclasses.on('click.update', function (event) {
-        //var data = event.data
-        if( $(this).attr('checked')) {
-            actionobj.value = 1
+        reqauth = getClassAuth($(this));
+        if (sessiondata.authlevel >= reqauth) {
+            //var data = event.data
+            if( $(this).attr('checked')) {
+                actionobj.value = 1
+            }
+            else {
+                actionobj.value = 0;
+            }
+            // invoke ajax query with callback to update the interface when it's done
+            setTimeout(function () {
+                runwsgiActions(actionobj, callback);
+            }, updatetimeout);
         }
-        else {
-            actionobj.value = 0;
+        else{
+            alert("not authorized for the requested action");
         }
-
-        // invoke ajax query with callback to update the interface when it's done
-        setTimeout(function () {
-            UpdateControl(actionobj, callback);
-        }, updatetimeout);
     });
 
     // set actions for update buttons on text fields
@@ -578,18 +618,21 @@ function setWidgetActions(options){
     var $updatetextclasses=$(baseclass + 'textupdate')
     $updatetextclasses.unbind('click');
     $updatetextclasses.click(function (event) {
-        // Need to switch value to text field on this one
-        actionobj.value = $(baseclass + 'text').val();
-//        alert(baseclass + 'text')
-//        alert(actionobj.value)
-        // invoke ajax query with callback to update the interface when it's done
-        UpdateControl(actionobj, callback);
-        var updateoncomplete = true;
-        if (updateoncomplete){
-            //alert('update on complete!')
-            setTimeout(function () {
-                setWidgetValues(baseclass,actionobj.value,options)
-            }, updatetimeout);
+        reqauth = getClassAuth($(this));
+        if (sessiondata.authlevel >= reqauth) {
+            // Need to switch value to text field on this one
+            actionobj.value = $(baseclass + 'text').val();
+            runwsgiActions(actionobj, callback);
+            var updateoncomplete = true;
+            if (updateoncomplete){
+                //alert('update on complete!')
+                setTimeout(function () {
+                    setWidgetValues(baseclass,actionobj.value,options)
+                }, updatetimeout);
+            }
+        }
+        else{
+            alert("not authorized for the requested action");
         }
     });
 
@@ -597,25 +640,44 @@ function setWidgetActions(options){
     // attempt to use methods/properties that don't exist if we haven't loaded jqm
     if (jqmpage) {
         var $toggleclasses = $(baseclass + 'toggle');
-        $toggleclasses.off('slidestop.update');
-        $toggleclasses.on('slidestop.update', function (event) {
-            //var data = event.data;
-            actionobj.value = booleansToIntegerString($(this).val());
-            // invoke ajax query with callback to update the interface when it's done
-            setTimeout(function () {
-                UpdateControl(actionobj, callback);
-            }, updatetimeout);
+        $.each($toggleclasses, function() { // could use key, value, but don't need
+            $(this).off('slidestop.update');
+            $(this).on('slidestop.update', function (event) {
+
+                // Check for authrequirement class. This doesn't actually perform
+                // security, as session variable userauthlevel could be manipulated
+                // client-side, but it weeds out requests so that they don't have to go
+                // all the way to the server to be denied.
+                reqauth = getClassAuth($(this));
+                if (sessiondata.authlevel >= reqauth) {
+                    //var data = event.data;
+                    actionobj.value = booleansToIntegerString($(this).val());
+                    // invoke ajax query with callback to update the interface when it's done
+                    setTimeout(function () {
+                        runwsgiActions(actionobj, callback);
+                    }, updatetimeout);
+                }
+                else {
+                    alert("not authorized for the requested action");
+                }
+            });
         });
 
         var $amtoggleclasses=$(baseclass + 'automantoggle');
         $amtoggleclasses.off('slidestop');
         $amtoggleclasses.on('slidestop', function (event) {
-            //var data = event.data;
-            actionobj.value = $(this).val();
-            // invoke ajax query with callback to update the interface when it's done
-            setTimeout(function () {
-                UpdateControl(actionobj, callback);
-            }, updatetimeout);
+            reqauth = getClassAuth($(this));
+            if (sessiondata.authlevel >= reqauth) {
+                //var data = event.data;
+                actionobj.value = $(this).val();
+                // invoke ajax query with callback to update the interface when it's done
+                setTimeout(function () {
+                    runwsgiActions(actionobj, callback);
+                }, updatetimeout);
+            }
+            else {
+                alert("not authorized for the requested action");
+            }
         });
 
         var $slideclasses=$(baseclass + 'slider');
@@ -625,34 +687,48 @@ function setWidgetActions(options){
          // include change for input field and slidestop for slider
         $slideclasses.on('focus.update',function(){
             $slideclasses.on('change.update', function () {
-                actionobj.value = $(this).val();
-    //            invoke ajax query with callback to update the interface when it's done
-                setTimeout(function () {
-                    UpdateControl(actionobj, callback);
-                }, updatetimeout);
+                reqauth = getClassAuth($(this));
+                if (sessiondata.authlevel >= reqauth) {
+                    actionobj.value = $(this).val();
+                    setTimeout(function () {
+                        runwsgiActions(actionobj, callback);
+                    }, updatetimeout);
+                }
+                else {
+                    alert("not authorized for the requested action");
+                }
             });
         });
 
         $slideclasses.off('slidestop.update');
         $slideclasses.on('slidestop.update', function () {
-//            var data = event.data
-            actionobj.value = $(this).val();
-//            invoke ajax query with callback to update the interface when it's done
-            setTimeout(function () {
-                UpdateControl(actionobj, callback);
-            }, updatetimeout);
+            reqauth = getClassAuth($(this));
+            if (sessiondata.authlevel >= reqauth) {
+                actionobj.value = $(this).val();
+                setTimeout(function () {
+                    runwsgiActions(actionobj, callback);
+                }, updatetimeout);
+            }
+            else {
+                alert("not authorized for the requested action");
+            }
         });
 
         var $jqmselectclasses=$(baseclass + 'jqmselect')
         $jqmselectclasses.unbind('change.update');
         $jqmselectclasses.on('change.update', function (event) {
-            // var data = event.data
-            actionobj.value = $(this).val();
-            // invoke ajax query with callback to update the interface when it's done
-            setTimeout(function () {
-                UpdateControl(actionobj, callback);
-            }, updatetimeout);
-            $('#' + this.id).selectmenu('refresh');
+            reqauth = getClassAuth($(this));
+            if (sessiondata.authlevel >= reqauth) {
+                actionobj.value = $(this).val();
+                // invoke ajax query with callback to update the interface when it's done
+                setTimeout(function () {
+                    runwsgiActions(actionobj, callback);
+                }, updatetimeout);
+                $('#' + this.id).selectmenu('refresh');
+            }
+            else {
+                alert("not authorized for the requested action");
+            }
         });
 
         // this class updates a field based on the same name
@@ -662,18 +738,21 @@ function setWidgetActions(options){
         var $jqmupdatetextclasses=$(baseclass + 'textupdate')
         $jqmupdatetextclasses.unbind('click');
         $jqmupdatetextclasses.click(function (event) {
-            // Need to switch value to text field on this one
-            actionobj.value = $(baseclass + 'text').val();
-//            alert(baseclass + 'text')
-//            alert(actionobj.value)
-            // invoke ajax query with callback to update the interface when it's done
-            UpdateControl(actionobj, callback);
-            var updateoncomplete = true;
-            if (updateoncomplete){
-                //alert('update on complete!')
-                setTimeout(function () {
-                    setWidgetValues(baseclass,actionobj.value,options)
-                }, updatetimeout);
+            reqauth = getClassAuth($(this));
+            if (sessiondata.authlevel >= reqauth) {
+                actionobj.value = $(baseclass + 'text').val();
+                // invoke ajax query with callback to update the interface when it's done
+                runwsgiActions(actionobj, callback);
+                var updateoncomplete = true;
+                if (updateoncomplete){
+                    //alert('update on complete!')
+                    setTimeout(function () {
+                        setWidgetValues(baseclass,actionobj.value,options)
+                    }, updatetimeout);
+                }
+            }
+            else {
+                alert("not authorized for the requested action");
             }
         });
 
@@ -683,28 +762,33 @@ function setWidgetActions(options){
         // do a better job error-checking to avoid stacking bind events.
         var $jqmupdateioinfotextclasses=$(baseclass + 'ioinfotextupdate')
         $jqmupdateioinfotextclasses.click(function (event) {
+            reqauth = getClassAuth($(this));
+            if (sessiondata.authlevel >= reqauth) {
+                // Need to switch value to text field on this one
+                actionobj = {action: 'updateioinfo'};
+                actionobj.value = $(baseclass + 'text').val();
 
-            // Need to switch value to text field on this one
-            actionobj = {action: 'updateioinfo'};
-            actionobj.value = $(baseclass + 'text').val();
+                // We reverse the baseclass, replace name with id so the last occurrence is replaced
+                // this is kinda hacky, but will serve the purpose
+                var idclassname = baseclass.split("").reverse().join("").replace('eman', 'di').split("").reverse().join("");
+                //            alert(idclassname)
+                var ioid = $(idclassname).html();
+                //            alert(ioid)
+                actionobj.ioid = ioid;
+                actionobj.database = controldatabase;
 
-            // We reverse the baseclass, replace name with id so the last occurrence is replaced
-            // this is kinda hacky, but will serve the purpose
-            var idclassname = baseclass.split("").reverse().join("").replace('eman','di').split("").reverse().join("")
-//            alert(idclassname)
-            var ioid = $(idclassname).html()
-//            alert(ioid)
-            actionobj.ioid = ioid
-            actionobj.database = controldatabase
-
-            // invoke ajax query with callback to update the interface when it's done
-            UpdateControl(actionobj, callback);
-            var updateoncomplete = true;
-            if (updateoncomplete){
-                //alert('update on complete!')
-//                setTimeout(function () {
-//                    setWidgetValues(baseclass,actionobj.value,options)
-//                }, updatetimeout);
+                // invoke ajax query with callback to update the interface when it's done
+                runwsgiActions(actionobj, callback);
+                var updateoncomplete = true;
+                if (updateoncomplete) {
+                    //alert('update on complete!')
+                    //                setTimeout(function () {
+                    //                    setWidgetValues(baseclass,actionobj.value,options)
+                    //                }, updatetimeout);
+                }
+            }
+            else {
+                alert("not authorized for the requested action");
             }
         });
     }
@@ -790,14 +874,14 @@ function RenderWidgetsFromArrayByUniqueKey(data,args) {
     var callback = args.callback || logdone;
     var uniquekeyname=args.uniquekeyname || 'parameter';
     var updatetimeout=500; // ms to wait to avoid duplicate events
-            console.log(data)
+//            console.log(data)
 
     for (var i=0; i<data.length;i++){
         // Set each possibility
         var uniquekey = data[i][uniquekeyname];
         $.each(data[i],function(key,value){
             var baseclass='.' + args.tablename + uniquekeyname + uniquekey + key;
-            console.log('rendering ' + baseclass + key);
+//            console.log('rendering ' + baseclass + key);
             setWidgetValues(baseclass, value, args);
             setWidgetActions({'baseclass':baseclass,'database':args.database,'tablename':args.tablename,'key':key,'condition':uniquekeyname+'='+uniquekey});
         })

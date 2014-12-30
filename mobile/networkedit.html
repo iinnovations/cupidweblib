@@ -144,7 +144,7 @@ function deleteNetwork(networkname) {
 $(document).ready(function(){
 
     $('#restartnetworkconfirmbutton').on('click',function(){
-        UpdateControl({action:'setsystemflag',systemflag:'netconfig'})
+        runwsgiActions({action:'setsystemflag',systemflag:'netconfig'})
         $('#restartnetworkpopup').popup('close')
     })
     $('#reloadnetconfigbutton').on('click',function(){

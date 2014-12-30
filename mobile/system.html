@@ -42,15 +42,15 @@ $(document).ready(function(){
   togglestolamps()
 
     $('#rebootconfirm').on('click',function(){
-        UpdateControl({action:'setsystemflag',systemflag:'reboot'})
+        runwsgiActions({action:'setsystemflag',systemflag:'reboot'})
         $('#rebootpopup').popup('close')
     })
     $('#updateiicontrollibsconfirm').on('click',function(){
-        UpdateControl({action:'setsystemflag',systemflag:'updateiicontrollibs'})
+        runwsgiActions({action:'setsystemflag',systemflag:'updateiicontrollibs'})
         $('#updateiicontrollibspopup').popup('close')
     })
     $('#updatecupidweblibconfirm').on('click',function(){
-        UpdateControl({action:'setsystemflag',systemflag:'updatecupidweblib'})
+        runwsgiActions({action:'setsystemflag',systemflag:'updatecupidweblib'})
         $('#updatecupidweblibpopup').popup('close')
     })
 

@@ -228,6 +228,16 @@ a.logo {
 	line-height:23px;
 	padding:0 0 0 9px;
 	}
+#right-column h3.tall {
+	font-size:22px;
+	margin:0;
+	color:#fff;
+	background:url(../images/cmstemplate/bg-bigleft-header.jpg) no-repeat left top;
+    text-align: center;
+	height:80px;
+	line-height:75px;
+	padding:0 0 0 0px;
+	}
 ul.nav {
 	margin:0 0 11px 0;
 	border-bottom:2px solid #F00;

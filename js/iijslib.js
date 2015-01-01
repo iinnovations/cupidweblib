@@ -534,7 +534,7 @@ function setjqmSelectByClass(classname,value) {
     });
 }
 function getClassAuth(jqueryObject){
-    var reqauthlevel;
+    var reqauthlevel=0;
     if (jqueryObject.hasClass('reqauth5')){
         reqauthlevel=5;
     }
@@ -550,9 +550,7 @@ function getClassAuth(jqueryObject){
     else if (jqueryObject.hasClass('reqauth1')){
         reqauthlevel=5;
     }
-    else {
-        reqauthlevel=0;
-    }
+
     return reqauthlevel
 }
 function setWidgetActions(options){
@@ -576,7 +574,7 @@ function setWidgetActions(options){
             // security, as session variable userauthlevel could be manipulated
             // client-side, but it weeds out requests so that they don't have to go
             // all the way to the server to be denied.
-            reqauth = getClassAuth($(this));
+            var reqauth = getClassAuth($(this));
             if (sessiondata.authlevel >= reqauth) {
                 //var data = event.data
                 actionobj.value = $(this).val();
@@ -586,14 +584,14 @@ function setWidgetActions(options){
                 }, updatetimeout);
             }
             else{
-                alert("not authorized for the requested action");
+                alert("Insufficient Authorizations\nAuthlevel: "+ sessiondata.authlevel + '. Reqauth: ' + reqauth);
             }
         });
     });
     var $checkboxclasses= $(baseclass + 'checkbox');
     $checkboxclasses.off('click.update');
     $checkboxclasses.on('click.update', function (event) {
-        reqauth = getClassAuth($(this));
+        var reqauth = getClassAuth($(this));
         if (sessiondata.authlevel >= reqauth) {
             //var data = event.data
             if( $(this).attr('checked')) {
@@ -608,7 +606,7 @@ function setWidgetActions(options){
             }, updatetimeout);
         }
         else{
-            alert("not authorized for the requested action");
+            alert("Insufficient Authorizations\nAuthlevel: "+ sessiondata.authlevel + '. Reqauth: ' + reqauth);
         }
     });
 
@@ -618,7 +616,7 @@ function setWidgetActions(options){
     var $updatetextclasses=$(baseclass + 'textupdate')
     $updatetextclasses.unbind('click');
     $updatetextclasses.click(function (event) {
-        reqauth = getClassAuth($(this));
+        var reqauth = getClassAuth($(this));
         if (sessiondata.authlevel >= reqauth) {
             // Need to switch value to text field on this one
             actionobj.value = $(baseclass + 'text').val();
@@ -632,7 +630,7 @@ function setWidgetActions(options){
             }
         }
         else{
-            alert("not authorized for the requested action");
+            alert("Insufficient Authorizations\nAuthlevel: "+ sessiondata.authlevel + '. Reqauth: ' + reqauth);
         }
     });
 
@@ -648,7 +646,7 @@ function setWidgetActions(options){
                 // security, as session variable userauthlevel could be manipulated
                 // client-side, but it weeds out requests so that they don't have to go
                 // all the way to the server to be denied.
-                reqauth = getClassAuth($(this));
+                var reqauth = getClassAuth($(this));
                 if (sessiondata.authlevel >= reqauth) {
                     //var data = event.data;
                     actionobj.value = booleansToIntegerString($(this).val());
@@ -658,7 +656,7 @@ function setWidgetActions(options){
                     }, updatetimeout);
                 }
                 else {
-                    alert("not authorized for the requested action");
+                    alert("Insufficient Authorizations\nAuthlevel: "+ sessiondata.authlevel + '. Reqauth: ' + reqauth);
                 }
             });
         });
@@ -666,7 +664,7 @@ function setWidgetActions(options){
         var $amtoggleclasses=$(baseclass + 'automantoggle');
         $amtoggleclasses.off('slidestop');
         $amtoggleclasses.on('slidestop', function (event) {
-            reqauth = getClassAuth($(this));
+            var reqauth = getClassAuth($(this));
             if (sessiondata.authlevel >= reqauth) {
                 //var data = event.data;
                 actionobj.value = $(this).val();
@@ -676,7 +674,7 @@ function setWidgetActions(options){
                 }, updatetimeout);
             }
             else {
-                alert("not authorized for the requested action");
+                alert("Insufficient Authorizations\nAuthlevel: "+ sessiondata.authlevel + '. Reqauth: ' + reqauth);
             }
         });
 
@@ -687,7 +685,7 @@ function setWidgetActions(options){
          // include change for input field and slidestop for slider
         $slideclasses.on('focus.update',function(){
             $slideclasses.on('change.update', function () {
-                reqauth = getClassAuth($(this));
+                var reqauth = getClassAuth($(this));
                 if (sessiondata.authlevel >= reqauth) {
                     actionobj.value = $(this).val();
                     setTimeout(function () {
@@ -695,14 +693,14 @@ function setWidgetActions(options){
                     }, updatetimeout);
                 }
                 else {
-                    alert("not authorized for the requested action");
+                    alert("Insufficient Authorizations\nAuthlevel: "+ sessiondata.authlevel + '. Reqauth: ' + reqauth);
                 }
             });
         });
 
         $slideclasses.off('slidestop.update');
         $slideclasses.on('slidestop.update', function () {
-            reqauth = getClassAuth($(this));
+            var reqauth = getClassAuth($(this));
             if (sessiondata.authlevel >= reqauth) {
                 actionobj.value = $(this).val();
                 setTimeout(function () {
@@ -710,14 +708,14 @@ function setWidgetActions(options){
                 }, updatetimeout);
             }
             else {
-                alert("not authorized for the requested action");
+                alert("Insufficient Authorizations\nAuthlevel: "+ sessiondata.authlevel + '. Reqauth: ' + reqauth);
             }
         });
 
         var $jqmselectclasses=$(baseclass + 'jqmselect')
         $jqmselectclasses.unbind('change.update');
         $jqmselectclasses.on('change.update', function (event) {
-            reqauth = getClassAuth($(this));
+            var reqauth = getClassAuth($(this));
             if (sessiondata.authlevel >= reqauth) {
                 actionobj.value = $(this).val();
                 // invoke ajax query with callback to update the interface when it's done
@@ -727,7 +725,7 @@ function setWidgetActions(options){
                 $('#' + this.id).selectmenu('refresh');
             }
             else {
-                alert("not authorized for the requested action");
+                alert("Insufficient Authorizations\nAuthlevel: "+ sessiondata.authlevel + '. Reqauth: ' + reqauth);
             }
         });
 
@@ -738,7 +736,7 @@ function setWidgetActions(options){
         var $jqmupdatetextclasses=$(baseclass + 'textupdate')
         $jqmupdatetextclasses.unbind('click');
         $jqmupdatetextclasses.click(function (event) {
-            reqauth = getClassAuth($(this));
+            var reqauth = getClassAuth($(this));
             if (sessiondata.authlevel >= reqauth) {
                 actionobj.value = $(baseclass + 'text').val();
                 // invoke ajax query with callback to update the interface when it's done
@@ -752,7 +750,7 @@ function setWidgetActions(options){
                 }
             }
             else {
-                alert("not authorized for the requested action");
+                alert("Insufficient Authorizations\nAuthlevel: "+ sessiondata.authlevel + '. Reqauth: ' + reqauth);
             }
         });
 
@@ -762,7 +760,7 @@ function setWidgetActions(options){
         // do a better job error-checking to avoid stacking bind events.
         var $jqmupdateioinfotextclasses=$(baseclass + 'ioinfotextupdate')
         $jqmupdateioinfotextclasses.click(function (event) {
-            reqauth = getClassAuth($(this));
+            var reqauth = getClassAuth($(this));
             if (sessiondata.authlevel >= reqauth) {
                 // Need to switch value to text field on this one
                 actionobj = {action: 'updateioinfo'};
@@ -788,7 +786,7 @@ function setWidgetActions(options){
                 }
             }
             else {
-                alert("not authorized for the requested action");
+                alert("Insufficient Authorizations\nAuthlevel: "+ sessiondata.authlevel + '. Reqauth: ' + reqauth);
             }
         });
     }

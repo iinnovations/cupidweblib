@@ -60,6 +60,7 @@ logUserAuths(sessiondata)
     var updatetimeout=100;
 
     var actauthlevel=2;
+    var addauthlevel=4;
 
     //// Outputs
     function UpdateOutputsTable() {
@@ -302,34 +303,40 @@ logUserAuths(sessiondata)
                     $('#addiosubmitcontainer').html('<div data-role="button" data-icon="check" data-theme="f" id="addmodbusiosubmit">Add Modbus IO</div>').trigger('create')
                     $('#addmodbusiosubmit').on('click',function(){
 
-                        // the name is for ioinfo
-                        // TODO: preload existing IO name from ioinfo
-                        var newchannelname = $('#addioname').html();
+                        if (sessiondata.authlevel >= addauthlevel){
 
-                        // this is the data that goes into the modbus definition
-                        var interfaceid = $('#modbusinterfacejqmselect').val();
+                            // the name is for ioinfo
+                            // TODO: preload existing IO name from ioinfo
+                            var newchannelname = $('#addioname').html();
 
-                        var register = parseInt($('#addiombregister').val());
-                        var mode = $('#modbustcpmodejqmselect').val();
-                        var length = $('#addiolength').val();
-                        var bigendian = 1;
-                        var reversebyte = 0;
-                        var format = $('#modbustcpformatjqmselect').val();
-                        var options = $('#addiooptions').val();
+                            // this is the data that goes into the modbus definition
+                            var interfaceid = $('#modbusinterfacejqmselect').val();
 
-                        if ( ! processmodbusaddress(register).validaddress) {
-                           alert('address is not valid')
+                            var register = parseInt($('#addiombregister').val());
+                            var mode = $('#modbustcpmodejqmselect').val();
+                            var length = $('#addiolength').val();
+                            var bigendian = 1;
+                            var reversebyte = 0;
+                            var format = $('#modbustcpformatjqmselect').val();
+                            var options = $('#addiooptions').val();
+
+                            if ( ! processmodbusaddress(register).validaddress) {
+                               alert('address is not valid')
+                            }
+                            else {
+                                callback = function () {
+                                    alert('IO Added');
+                                    $("#addiopopup").popup('close');
+                                }
+                                var data = {interfaceid: interfaceid, register: register, length: length, mode: mode, bigendian: bigendian, reversebyte: reversebyte, format: format, options: options}
+                                console.log(data)
+                                addModbusIO(newchannelname, data, callback)
+
+                                //database, table, callback, valuenames,values
+                            }
                         }
                         else {
-                           callback = function () {
-                               alert('IO Added');
-                               $("#addiopopup").popup('close');
-                           }
-                           var data = {interfaceid: interfaceid, register: register, length:length, mode: mode, bigendian: bigendian, reversebyte: reversebyte, format:format, options:options}
-                           console.log(data)
-                           addModbusIO(newchannelname, data, callback)
-
-                           //database, table, callback, valuenames,values
+                            alert ('Insufficient authorizations level.\n Current level: ' + sessiondata.authlevel + ' Required: ' + addauthlevel)
                         }
                     });
                 });

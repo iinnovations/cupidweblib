@@ -1083,7 +1083,7 @@ function runwsgiActions(actionobj,callback) {
         datatype:"json",
         data: actionobj,
         success: function(response){
-            callback(response);
+            callback(response,actionobj);
         }
    });
 }

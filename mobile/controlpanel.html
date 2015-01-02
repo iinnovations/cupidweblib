@@ -273,6 +273,17 @@ $(document).ready(function(){
 		</li>
         <li data-role="fieldcontain">
           <span class="justalamp">
+			  <label for="systemstatussessioncontrolstatus" class="ui-biglabel" style="display:inline-block; width:50%;">
+			  Session Manager
+			  </label>
+			  <select name="systemstatussessioncontrolstatus" class="systemstatussessioncontrolstatustoggle" data-role="slider">
+			  <option value="Off">Off</option>
+			  <option value="On">On</option>
+			  </select>
+            </span>
+		</li>
+        <li data-role="fieldcontain">
+          <span class="justalamp">
 			  <label for="systemstatusupdateioenabled" class="ui-biglabel" style="display:inline-block; width:50%;">
 			  Serial Handler
 			  </label>
@@ -330,6 +341,15 @@ $(document).ready(function(){
 			  Inputs Read
 			  </label>
 			  <select id="systemstatusupdateioenabledtoggle" class="systemstatusupdateioenabledtoggle reqauth3" data-role="slider">
+			  <option value="Off">Off</option>
+			  <option value="On">On</option>
+			  </select>
+            </li>
+            <li data-role="fieldcontain">
+			  <label for="systemstatussessioncontrolenabledtoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
+			  Session Manager
+			  </label>
+			  <select id="systemstatussessioncontrolenabledtoggle" class="systemstatussessioncontrolenabledtoggle reqauth3" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>

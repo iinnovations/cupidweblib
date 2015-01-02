@@ -52,21 +52,25 @@ logUserAuths(sessiondata)
 
 <div data-role="page" class="type-home" id="main">
 <script>
-var updateinterval=3000
+var updateinterval=3000;
 
 function UpdateSystemLogData(options) {
+    options = options || {};
     var callback = RenderSystemLogData;
-    var index = options.index || 1
+    var index = options.index || 1;
     options.action = 'getfiletext';
     options.filepath = $('#logselect' + index).val();
     options.numlines = $('#logviewentries' + index).val();
-    console.log(options.numlines)
+    console.log(options.index + ' : ' + options.numlines)
     runwsgiActions(options, callback)
 }
 
 function RenderSystemLogData(returndata,options) {
+    options = options || {};
     var index = options.index || 1;
+            console.log(options.timeout);
     if (options.timeout>0) {
+
 		setTimeout(function(){UpdateSystemLogData(options)}, options.timeout);
 	}
     var selector =  $('#logdata' + index)

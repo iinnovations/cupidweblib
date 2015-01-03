@@ -64,8 +64,9 @@ function UpdateChannelsTable() {
     var callback=RenderChannels;
     wsgiCallbackTableData(controldatabase,'channels',callback);
 }
-function RenderChannels(channelstable) {
+function RenderChannels(channelstableresponse) {
     channelnames=['none']
+    var channelstable = channelstableresponse.data || [];
     for (var i=0; i<channelstable.length;i++){
         channelnames.push(channelstable[i].name)
     }

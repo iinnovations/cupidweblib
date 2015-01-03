@@ -60,7 +60,8 @@ logUserAuths(sessiondata)
         var callback=RenderIndicatorsTable;
         wsgiCallbackTableData(controldatabase,'indicators',callback);
     }
-    function RenderIndicatorsTable(datatable) {
+    function RenderIndicatorsTable(datatableresponse) {
+        var datatable = datatableresponse.data || [];
         // Here we render html for each element retrieved
         // set top of indicator ul
         $("#indicatorslist").empty();

@@ -88,8 +88,8 @@ function GetIOInfo(callbackoptions) {
     var callback=RenderIOInfoTable;
     wsgiCallbackTableData(controldatabase,'ioinfo',callback,callbackoptions)
 }
-function RenderIOInfoTable(datatable) {
-    ioinfo = datatable;
+function RenderIOInfoTable(datatableresponse) {
+    ioinfo = datatableresponse.data || [];
     ioinfonames = [];
     ioinfoids = [];
     for (var i=0; i<datatable.length; i++){
@@ -104,8 +104,8 @@ function UpdateLogTable() {
     var callbackoptions={}
     wsgiGetTableNames(logdatabase,callback,callbackoptions)
 }
-function RenderLogsTable(datatable) {
-    lognames = datatable;
+function RenderLogsTable(dataresponse) {
+    lognames = dataresponse.data;
     $('#logdatalistview').empty()
     $('#logdatalistview').append('\
         <li data-role="list-divider">\

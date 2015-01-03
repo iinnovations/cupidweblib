@@ -63,7 +63,8 @@ logUserAuths(sessiondata)
         var callback=RenderInterfacesTable;
         wsgiCallbackTableData(controldatabase,'interfaces',callback);
     };
-    function RenderInterfacesTable(datatable){
+    function RenderInterfacesTable(datatableresponse){
+        var datatable = datatableresponse.data || [];
         var divhtmlstring;
 //        console.log(datatable)
         $("#interfacesset").html('');

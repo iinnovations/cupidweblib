@@ -58,7 +58,8 @@ function UpdateUsersTable() {
     var callback=RenderUsersTable;
     wsgiCallbackTableData(usersdatabase,'users',callback);
 }
-function RenderUsersTable(datatable) {
+function RenderUsersTable(datatableresponse) {
+    var datatable = datatablereponse.data || [];
     // Here we render html for each element retrieved
     // set top of indicator ul
     $("#userslistview").html('<li data-role="list-divider"><h4>User Administration</h4></li>');

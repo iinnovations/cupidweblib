@@ -338,8 +338,9 @@ function UpdatePlotMetadata(options) {
 	var callback=RenderPlotMetadata;
 	wsgiCallbackTableData(logdatabase,'metadata',callback,options);
 }
-function RenderPlotMetadata(metadata,options) {
+function RenderPlotMetadata(metadataresponse,options) {
     options = options || {};
+    var metadata = metadataresponse.data || [];
     var jqmpage = options.jqmpage || false;
 
     // Set interval function. We either pass a class to retrieve it from,
@@ -368,7 +369,8 @@ function UpdateControlRecipeData(options) {
 	  var callback=RenderControlRecipeData;
 	  wsgiGetTableNames(recipedatabase,callback,options)
 }
-function RenderControlRecipeData(recipenames,options) {
+function RenderControlRecipeData(reciperesponse,options) {
+    var recipenames = reciperesponse.data;
     options = options || {};
     var jqmpage = options.jqmpage || false;
 
@@ -396,6 +398,7 @@ function RenderControlRecipeData(recipenames,options) {
 		}
 	});
 }
+
 
 // These guys create tables and table elements and then render them using the above
 // functions, or not. The key part is creating table elements that can be automatically
@@ -887,7 +890,9 @@ function GetAndRenderMultLogsData(logdatabase,options){
     wsgiCallbackMultTableData(logdatabase,options.tablenames,callback,options)
 }
 
-function RenderMultLogsData(returnedlogdata,options){
+function RenderMultLogsData(returnedlogdataresponse,options){
+
+    var returnedlogdata = returnedlogdataresponse.data || [];
 
     // This function operates on multiple returned log tables
     // This means that the log data and seriesnames have an additional dimension
@@ -961,7 +966,9 @@ function RenderMultLogsData(returnedlogdata,options){
         console.log('No data returned, so no plot.')
     }
 }
-function RenderLogData (returnedlogdata,options) {
+function RenderLogData (returnedlogdataresponse,options) {
+
+    var returnedlogdata = returnedlogdataresponse.data || [];
     // This function operates on a single returned log table
     //console.log(returnedlogdata)
     // We give this function [seriesnames] and [plotids]
@@ -1087,7 +1094,19 @@ function runwsgiActions(actionobj,callback) {
         }
    });
 }
-
+function getwsgiStatus(callback) {
+    var actionobj = {specialaction: 'modwsgistatus'};
+    callback = callback || logdone;
+    $.ajax({
+        url: "/wsgireadonly",
+        type: "post",
+        datatype:"json",
+        data: actionobj,
+        success: function(response){
+            callback(response,actionobj);
+        }
+   });
+}
 function setUserAuths(args){
     actionobj=args;
     args.action='usermodify'

@@ -65,7 +65,8 @@ logUserAuths(sessiondata)
         var callback=RenderMBTCPTable;
         wsgiCallbackTableData(controldatabase,'modbustcp',callback);
     }
-    function RenderMBTCPTable(datatable) {
+    function RenderMBTCPTable(datatableresponse) {
+        var datatable = datatableresponse.data || [];
         var divhtmlstring;
         $("#mbtcpset").html('');
         for (var i=0; i<datatable.length; i++){

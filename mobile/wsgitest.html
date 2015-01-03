@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>wsgi Test Page</title>
+
+    <script src="/js/jquery-1.11.0.min.js"></script>
+    <script src="/js/jquery-migrate-1.2.1.min.js"></script>
+
+	<link rel="stylesheet" href="css/jquery.mobile-1.2.1.css" />
+	<link rel="stylesheet" href="css/jqm-docs.css" />
+    <link rel="stylesheet" href="css/CuPID.css" />
+
+	<script src="js/jqm-docs.js"></script>
+	<script src="js/jquery.mobile-1.2.1.js"></script>
+    <script src="/js/iijslib.js" type="text/javascript"></script>
+	<script src="/js/cupidjslib.js" type="text/javascript"></script>
+<script>
+
+    function renderwsgiStatus(message){
+        $('#wsgigroup').html(message.processgroup);
+        $('#wsgimultithread').html(message.multithread);
+    }
+    $(document).ready(function(){
+        getwsgiStatus(renderwsgiStatus);
+    })
+</script>
+
+</head>
+<body>
+<table>
+<tr><td>WSGI User Group :  <span id="wsgigroup">&nbsp;</span></td></tr>
+<tr><td>WSGI Multithread :  <span id="wsgimultithread">&nbsp;</span></td></tr>
+</table>
+</body>
+</html>

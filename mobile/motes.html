@@ -64,7 +64,8 @@ logUserAuths(sessiondata)
         var callback=RenderMotesTable;
         wsgiCallbackTableData(controldatabase,'remotes',callback);
     };
-    function RenderMotesTable(datatable){
+    function RenderMotesTable(datatableresponse){
+        var datatable = datatablersponse.data || [];
         var divhtmlstring;
         console.log(datatable)
         $("#motesset").html('');

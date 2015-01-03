@@ -70,7 +70,8 @@ logUserAuths(sessiondata)
         var callbackoptions={}
         wsgiGetTableNames(logdatabase,callback,callbackoptions)
     }
-    function RenderLogs(datatable) {
+    function RenderLogs(dataresponse) {
+        var datatable = dataresponse.data || [];
         $('#logset').html('')
         for (var i=0;i<datatable.length;i++){
             var index=i+1;

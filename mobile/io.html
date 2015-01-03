@@ -66,8 +66,9 @@ logUserAuths(sessiondata)
         var callback=RenderOutputsTable;
         wsgiCallbackTableData(controldatabase,'outputs',callback);
     }
-    function RenderOutputsTable(datatable) {
+    function RenderOutputsTable(datatableresponse) {
         var divhtmlstring;
+        var datatable = datatableresponse.data || [];
         $("#outputset").html('');
         for (var i=0; i<datatable.length; i++){
             var index=i+1;
@@ -148,7 +149,8 @@ logUserAuths(sessiondata)
         var callback=RenderInputsTable;
         wsgiCallbackTableData(controldatabase,'inputs',callback);
     };
-    function RenderInputsTable(datatable){
+    function RenderInputsTable(datatableresponse){
+        var datatable = datatableresponse.data || [];
         var divhtmlstring;
 //        console.log(datatable)
         $("#inputset").html('');

@@ -340,7 +340,7 @@ function wsgiCallbackTableData (database,table,callback,options) {
 	var options = options || {};
     var condition = options.condition || '';
 	//console.log(database + ' ' + table + ' ' + callback)
-    actionobj = {database:database,table:table,condition:condition}
+    var actionobj = {database:database,table:table,condition:condition}
     if (options.hasOwnProperty('length')){
         actionobj.length = options.length;
         if (options.hasOwnProperty('start'))
@@ -390,7 +390,11 @@ function wsgiCallbackMultTableData (database,tablenames,callback,options) {
 		success: function(response){
 			//alert("I worked");
 			// Execute our callback function
-			callback(response.slice(2),options);
+
+            // the slice here is a bit of a hack to prune
+            // off the two dummy values we sent in earlier
+            response.data=response.data.slice(2);
+			callback(response,options);
 		}
 	});	
 }
@@ -913,7 +917,8 @@ function GetAndRenderTableData(options){
     var callback=RenderTableData;
     wsgiCallbackTableData(options.database,options.tablename,callback,options)
 }
-function RenderTableData(datatable,options) {
+function RenderTableData(datatableresponse,options) {
+    var datatable = datatableresponse.data || [];
     options = options || {};
 
     // Set interval function. We either pass a class to retrieve it from,
@@ -985,7 +990,8 @@ function UpdateTableNamesData(options) {
     }
     wsgiGetTableNames (options.database,callback,options)
 }
-function RenderTableNamesData(tablenames,options) {
+function RenderTableNamesData(tablenameresponse,options) {
+    var tablenames = tablenameresponse.data;
     options = options || {};
     var jqmpage = options.jqmpage || false;
     var timeout = 0;

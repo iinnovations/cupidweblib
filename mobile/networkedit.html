@@ -59,7 +59,8 @@ function UpdateWirelessTable() {
     var callback=RenderWirelessTable;
     wsgiCallbackTableData(safedatabase,'wireless',callback);
 }
-function RenderWirelessTable(datatable) {
+function RenderWirelessTable(datatableresponse) {
+    var datatable = datatableresponse.data || [];
     // Here we render html for each element retrieved
     // set top of indicator ul
     $("#wirelessset").html('<div data-role="collapsible" data-collapsed="true" id="wirelesssetitems">\

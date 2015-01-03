@@ -64,11 +64,11 @@ logUserAuths(sessiondata)
         var callback=RenderActionsTable;
         wsgiCallbackTableData(controldatabase,'actions',callback);
     }
-    function RenderActionsTable(datatable) {
+    function RenderActionsTable(datatableresponse) {
         // Here we render html for each element retrieved
         // set top of indicator ul
         $("#actionset").html('');
-
+        var datatable = datatableresponse.data || [];
         for (var i=0; i<datatable.length; i++){
             var index=i+1;
             var divhtmlitemstring = '\

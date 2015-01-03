@@ -64,8 +64,8 @@ function UpdateActionsTable() {
     var callback=RenderActionsTable;
     wsgiCallbackTableData(controldatabase,'actions',callback);
 }
-function RenderActionsTable(actionstable) {
-    var actionsdata=actionstable || [];
+function RenderActionsTable(actionstableresponse) {
+    var actionsdata=actionstableresponse.data || [];
     var index;
     var divhtmlitemstring;
     $("#actionset").html('');

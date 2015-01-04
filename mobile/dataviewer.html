@@ -84,15 +84,15 @@ var actauthlevel=2;
 
 // load ioinfo into DOM
 function GetIOInfo(callbackoptions) {
-    var callbackoptions = callbackoptions || {}
+    callbackoptions = callbackoptions || {}
     var callback=RenderIOInfoTable;
     wsgiCallbackTableData(controldatabase,'ioinfo',callback,callbackoptions)
 }
 function RenderIOInfoTable(datatableresponse) {
-    ioinfo = datatableresponse.data || [];
+    var datatable = datatableresponse.data || [];
     ioinfonames = [];
     ioinfoids = [];
-    for (var i=0; i<datatable.length; i++){
+    for (var i=0; i< datatable.length; i++){
         ioinfoids.push(datatable[i].id)
         ioinfonames.push(datatable[i].name)
     }
@@ -101,11 +101,11 @@ function RenderIOInfoTable(datatableresponse) {
 //// Channels
 function UpdateLogTable() {
     var callback=RenderLogsTable;
-    var callbackoptions={}
+    var callbackoptions={};
     wsgiGetTableNames(logdatabase,callback,callbackoptions)
 }
 function RenderLogsTable(dataresponse) {
-    lognames = dataresponse.data;
+    var datatable = dataresponse.data || [];
     $('#logdatalistview').empty()
     $('#logdatalistview').append('\
         <li data-role="list-divider">\
@@ -113,6 +113,7 @@ function RenderLogsTable(dataresponse) {
         </li>'
     )
     // prune off the metadata table
+
     for (var i=0;i<datatable.length-1;i++){
         $('#logdatalistview').append('\
             <li data-role="fieldcontain" id="logdataset" >\
@@ -168,7 +169,6 @@ function GetPlotSeriesNamesFromViewerControls(){
 
         }
     });
-
 
     var results={seriesnames: seriesnames, seriesshortnames:seriesshortnames,tablenames:tablenames, seriesids:seriesids}
     return results

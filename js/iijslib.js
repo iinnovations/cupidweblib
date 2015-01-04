@@ -344,7 +344,7 @@ function wsgiCallbackTableData (database,table,callback,options) {
     if (options.hasOwnProperty('length')){
         actionobj.length = options.length;
         if (options.hasOwnProperty('start'))
-            actionobj.start = options.start
+            actionobj.start = options.start;
         else
             actionobj.start = 0
     }

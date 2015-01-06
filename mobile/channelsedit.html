@@ -61,8 +61,7 @@ var actauthlevel=2;
 
 //// Channels
 function UpdateChannelsTable() {
-    var callback=RenderChannels;
-    wsgiCallbackTableData(controldatabase,'channels',callback);
+    wsgiCallbackTableData({database:controldatabase,tablename:'channels',callback:RenderChannels});
 }
 function RenderChannels(channelstableresponse) {
     channelnames=['none']
@@ -136,26 +135,16 @@ function RenderChannels(channelstableresponse) {
         $('#' + 'channel_' + index + '_moveupconfirm').off('click.moveup');
         $('#' + 'channel_' + index + '_moveupconfirm').on('click.moveup',{'passindex':index,'name':channelstable[i].name}, function(event){
             var passedindex = event.data.passindex
-//            alert('move up confirmed for channel ' + event.data.name + ' using index ' + passedindex)
-            var arguments={}
-            arguments.tablename='channels';
-            arguments.row1=passedindex-1;
-            arguments.row2=passedindex;
-            arguments.uniqueindex='name';
             var callback = UpdateChannelsTable;
-            wsgiSwapTableRows(controldatabase,arguments,callback)
+            wsgiSwapTableRows({database:controldatabase,tablename:'channels', 'row1':passedindex-1, row2:passedindex,uniqueindex:'name',callback:callback});
+
         })
         $('#' + 'channel_' + index + '_movedownconfirm').off('click.movedown')
         $('#' + 'channel_' + index + '_movedownconfirm').on('click.movedown',{'passindex':index,'name':channelstable[i].name},function(event){
             var passedindex = event.data.passindex
-//            alert('move down confirmed for channel ' + event.data.name + ' using index ' + passedindex)
-            var arguments={}
-            arguments.tablename='channels';
-            arguments.row1=passedindex+1;
-            arguments.row2=passedindex;
-            arguments.uniqueindex='name';
             var callback = UpdateChannelsTable;
-            wsgiSwapTableRows(controldatabase,arguments,callback)
+            wsgiSwapTableRows({database:controldatabase,tablename:'channels', 'row1':passedindex+1, row2:passedindex,uniqueindex:'name',callback:callback});
+
         })
     }
     $('#channelset').trigger('create');

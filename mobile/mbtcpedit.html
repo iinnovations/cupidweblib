@@ -62,8 +62,7 @@ logUserAuths(sessiondata)
 
     //// Outputs
     function UpdateMBTCPTable() {
-        var callback=RenderMBTCPTable;
-        wsgiCallbackTableData(controldatabase,'modbustcp',callback);
+        wsgiCallbackTableData({database:controldatabase,tablename:'modbustcp',callback:RenderMBTCPTable});
     }
     function RenderMBTCPTable(datatableresponse) {
         var datatable = datatableresponse.data || [];
@@ -206,7 +205,7 @@ logUserAuths(sessiondata)
                     </div>'
                 )
                 $('#addiointerface').trigger('create')
-                wsgiCallbackTableData(controldatabase,'interfaces',RenderModbusInterfaces,options);
+                wsgiCallbackTableData({database:controldatabase,tablename:'interfaces',callback:RenderModbusInterfaces});
 
 
                 // Render selectors with actions. These are contextual, e.g. #modbusinterfacejqmselect does not
@@ -249,7 +248,7 @@ logUserAuths(sessiondata)
                 });
             }
             else if (selectedinterfacetype == 'remote') {
-                wsgiCallbackTableData(controldatabase,'interfaces',RenderRemoteInterfaces,options);
+                wsgiCallbackTableData({database:controldatabase,tablename:'interfaces',callbackRenderRemoteInterfaces});
             }
         });
 

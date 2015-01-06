@@ -60,9 +60,8 @@ logUserAuths(sessiondata)
 
     //// Inputs
     function UpdateInterfacesTable(){
-        var callback=RenderInterfacesTable;
-        wsgiCallbackTableData(controldatabase,'interfaces',callback);
-    };
+        wsgiCallbackTableData({database:controldatabase,tablename:'interfaces',callback:RenderInterfacesTable});
+    }
     function RenderInterfacesTable(datatableresponse){
         var datatable = datatableresponse.data || [];
         var divhtmlstring;

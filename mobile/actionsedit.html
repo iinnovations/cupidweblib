@@ -61,8 +61,7 @@ var actauthlevel=2;
 
 //// actions
 function UpdateActionsTable() {
-    var callback=RenderActionsTable;
-    wsgiCallbackTableData(controldatabase,'actions',callback);
+    wsgiCallbackTableData({database:controldatabase,tablename:'actions',callback:RenderActionsTable});
 }
 function RenderActionsTable(actionstableresponse) {
     var actionsdata=actionstableresponse.data || [];
@@ -134,26 +133,15 @@ function RenderActionsTable(actionstableresponse) {
         $('#' + 'action_' + index + '_moveupconfirm').off('click.moveup');
         $('#' + 'action_' + index + '_moveupconfirm').on('click.moveup',{'passindex':index,'name':actionsdata[i].name}, function(event){
             var passedindex = event.data.passindex;
-//            alert('move up confirmed for action ' + event.data.name + ' using index ' + passedindex)
-            var arguments={};
-            arguments.tablename='actions';
-            arguments.row1=passedindex-1;
-            arguments.row2=passedindex;
-            arguments.uniqueindex='name';
             var callback = UpdateActionsTable;
-            wsgiSwapTableRows(controldatabase,arguments,callback);
+            wsgiSwapTableRows({database:controldatabase,tablename:'actions', 'row1':passedindex-1, row2:passedindex,uniqueindex:'name',callback:callback});
+
         });
         $('#' + 'action_' + index + '_movedownconfirm').off('click.movedown');
         $('#' + 'action_' + index + '_movedownconfirm').on('click.movedown',{'passindex':index,'name':actionsdata[i].name},function(event){
             var passedindex = event.data.passindex;
-//            alert('move down confirmed for action ' + event.data.name + ' using index ' + passedindex)
-            var arguments={};
-            arguments.tablename='actions';
-            arguments.row1=passedindex+1;
-            arguments.row2=passedindex;
-            arguments.uniqueindex='name';
             var callback = UpdateActionsTable;
-            wsgiSwapTableRows(controldatabase,arguments,callback);
+            wsgiSwapTableRows({database:controldatabase,tablename:'actions', 'row1':passedindex+1, row2:passedindex,uniqueindex:'name',callback:callback});
         })
     }
 //    $('#actionset').trigger('create');

@@ -64,8 +64,7 @@ logUserAuths(sessiondata)
 
     //// Outputs
     function UpdateOutputsTable() {
-        var callback=RenderOutputsTable;
-        wsgiCallbackTableData(controldatabase,'outputs',callback);
+        wsgiCallbackTableData({database:controldatabase,tablename:'outputs',callback:RenderOutputsTable});
     }
     function RenderOutputsTable(datatableresponse) {
         var datatable = datatableresponse.data || [];
@@ -147,8 +146,7 @@ logUserAuths(sessiondata)
 
     //// Inputs
     function UpdateInputsTable(){
-        var callback=RenderInputsTable;
-        wsgiCallbackTableData(controldatabase,'inputs',callback);
+        wsgiCallbackTableData({database:controldatabase,tablename:'inputs',callback:RenderInputsTable});
     };
     function RenderInputsTable(datatableresponse){
         var datatable = datatablresponse.data || [];
@@ -295,8 +293,8 @@ logUserAuths(sessiondata)
                         <div class="ui-block-b" id="addiooptions" style="width:70%"><input name="addiooptions" type="text" ></div>\
                     </div>'
                 )
-                $('#addiointerface').trigger('create')
-                wsgiCallbackTableData(controldatabase,'interfaces',RenderModbusInterfaces,options);
+                $('#addiointerface').trigger('create');
+                wsgiCallbackTableData({database:controldatabase,tablename:'interfaces',callback:RenderModbusInterfaces});
 
 
                 // Render selectors with actions. These are contextual, e.g. #modbusinterfacejqmselect does not
@@ -345,7 +343,7 @@ logUserAuths(sessiondata)
                 });
             }
             else if (selectedinterfacetype == 'remote') {
-                wsgiCallbackTableData(controldatabase,'interfaces',RenderRemoteInterfaces,options);
+                wsgiCallbackTableData({database:controldatabase,tablename:'interfaces',callback:RenderRemoteInterfaces);
             }
         });
 

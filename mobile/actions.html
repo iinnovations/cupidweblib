@@ -61,8 +61,7 @@ logUserAuths(sessiondata)
 
     //// Channels
     function UpdateActionsTable() {
-        var callback=RenderActionsTable;
-        wsgiCallbackTableData(controldatabase,'actions',callback);
+        wsgiCallbackTableData({database:controldatabase,tablename:'actions',callback:RenderActionsTable);
     }
     function RenderActionsTable(datatableresponse) {
         // Here we render html for each element retrieved

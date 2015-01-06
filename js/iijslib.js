@@ -335,18 +335,13 @@ function isNumber(n) {
 //////////////////////////////////////////////////
 // WSGI Data Retrieval
 
-function wsgiCallbackTableData (database,table,callback,options) {
+function wsgiCallbackTableData (actionobj) {
+
 	// Get the data
-	var options = options || {};
-    var condition = options.condition || '';
-	//console.log(database + ' ' + table + ' ' + callback)
-    var actionobj = {database:database,table:table,condition:condition}
-    if (options.hasOwnProperty('length')){
-        actionobj.length = options.length;
-        if (options.hasOwnProperty('start'))
-            actionobj.start = options.start;
-        else
-            actionobj.start = 0
+	actionobj = actionobj || {};
+    actionobj.action = 'gettabledata';
+    if (!actionobj.hasOwnProperty('start')){
+        actionobj.start = 0;
     }
 	$.ajax({
 		url: "/wsgireadonly",
@@ -355,33 +350,31 @@ function wsgiCallbackTableData (database,table,callback,options) {
 		data: actionobj,
 		success: function(response){
 			// Execute our callback function
-			callback(response,options);
+            response = response || {};
+            if (response.hasOwnProperty('etag')){
+                actionobj.etag = response.etag;
+            }
+			actionobj.callback(response,actionobj);
 		}
 	});	
 }
-function wsgiCallbackMultTableData (database,tablenames,callback,options) {
-	// Get the data
+function wsgiCallbackMultTableData (actionobj) {
+    // Get the data
     // We do this because the wsgi acts funny with things we say are
     // arrays and send in arrays of less than 2 items. So we send in two extra elements
     // and then prune them off in the response.
-    tablenames=['',''].concat(tablenames);
+
+    actionobj.tablenames = ['', ''].concat(actionobj.tablenames);
     //console.log(tablenames)
     var options = options || {};
-        actionobj = {'database':database,'tables':tablenames}
+    actionobj.action = 'gettabledata';
+    if (!options.hasOwnProperty('start')) {
+        actionobj.start =  0;
+    }
 
-
-    if (options.hasOwnProperty('length'))
-        actionobj.length = options.length;
-    else if (options.hasOwnProperty('lengths'))
-        actionobj.lengths = options.lengths
-
-    if (options.hasOwnProperty('starts'))
-        actionobj.starts = options.starts;
-    else if (options.hasOwnProperty('start'))
-        actionobj.start = options.start;
-    else    // default is to start at end.
-        actionobj.start = -1
-
+    if (!options.hasOwnProperty('starts')) {
+        actionobj.start = -1; // default is to start at end.
+    }
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
@@ -390,81 +383,71 @@ function wsgiCallbackMultTableData (database,tablenames,callback,options) {
 		success: function(response){
 			//alert("I worked");
 			// Execute our callback function
-
+            response = response || {};
+            if (response.hasOwnProperty('etag')){
+                actionobj.etag = response.etag;
+            }
             // the slice here is a bit of a hack to prune
             // off the two dummy values we sent in earlier
             response.data=response.data.slice(2);
-			callback(response,options);
+            actionobj.tablesnames=actionobj.tablenames.slice(2);
+			actionobj.callback(response,actionobj);
 		}
 	});	
 }
-function wsgiGetTableNames (database,callback,callbackoptions) {	
+function wsgiGetTableNames (actionobj) {
+    actionobj.action = 'gettablenames';
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
 		datatype:"json",						
-		data: {'database':database,'specialaction':'gettablenames'},
+		data: actionobj,
 		success: function(response){
-			//alert("I worked");
 			// Execute our callback function
-			callback(response,callbackoptions);										
+            response = response || {};
+            if (response.hasOwnProperty('etag')){
+                actionobj.etag = response.etag;
+            }
+			actionobj.callback(response,actionobj);
 		}
 	});
 }
-function wsgiSwapTableRows (database,arguments,callback,callbackoptions) {
+function wsgiSwapTableRows (actionobj) {
+    actionobj.action = 'switchtablerows';
     $.ajax({
         url: "/wsgiactions",
         type: "post",
         datatype:"json",
-        data: {'database':database,'table':arguments.tablename,'specialaction':'switchtablerows','row1':arguments.row1,'row2':arguments.row2,'uniqueindex':arguments.uniqueindex},
+        data: actionobj,
         success: function(response){
-            //alert("I worked");
             // Execute our callback function
-            callback(response,callbackoptions);
+            response = response || {};
+            if (response.hasOwnProperty('etag')){
+                actionobj.etag = response.etag;
+            }
+            actionobj.callback(response,actionobj);
         }
     });
 }
-function wsgiExecuteCallbackQuery (database,query,callback) {
+// can also pass query array
+function wsgiExecuteCallbackQuery (actionobj) {
 	// Get the data
-    callback = callback || logdone;
+    actionobj.callback = actionobj.callback || logdone;
 	$.ajax({
 		url: "/wsgiactions",
 		type: "post",
 		datatype:"json",						
-		data: {'database':database,'query':query},
+		data: actionobj,
 		success: function(response){
-			callback(response)										
+            response = response || {};
+            if (response.hasOwnProperty('etag')){
+                actionobj.etag = response.etag;
+            }
+			actionobj.callback(response,actionobj)
 		}
 	});	
 }
-function wsgiExecuteQuery (database,query,callback) {
-	// Get the data
-    callback=callback || logdone;
-	$.ajax({
-		url: "/wsgiactions",
-		type: "post",
-		datatype:"json",						
-		data: {'database':database,'query':query},
-		success: function(response){
-			//alert("I worked");
-			callback(response);
-		}
-	});	
-}
-function wsgiExecuteQueryArray (database,queryarray,callback) {
-	// Get the data
-    callback = callback || logdone;
-    $.ajax({
-        url: "/wsgiactions",
-        type: "post",
-        datatype:"json",
-        data: {'database':database,'queryarray':queryarray},
-        success: function(response){
-            //alert("I worked");
-            callback(response)
-        }
-    });
-}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //  Data Rendering
@@ -914,10 +897,11 @@ function testFunction(someoptions) {
 // This will change the rendering to databasename + tablename + value. This has not been extensively tested
 
 function GetAndRenderTableData(options){
-    var callback=RenderTableData;
-    wsgiCallbackTableData(options.database,options.tablename,callback,options)
+    options.callback=RenderTableData;
+    wsgiCallbackTableData(options)
 }
 function RenderTableData(datatableresponse,options) {
+    datatableresponse = datatableresponse || {}
     var datatable = datatableresponse.data || [];
     options = options || {};
 
@@ -983,12 +967,11 @@ function RenderTableData(datatableresponse,options) {
 //// Tables Data
 function UpdateTableNamesData(options) {
     options = options || {};
-	var callback=RenderTableNamesData;
+	options.callback=RenderTableNamesData;
     if (! options.hasOwnProperty('database')){
-        alert('i am here')
         options.database = controldatabase;
     }
-    wsgiGetTableNames (options.database,callback,options)
+    wsgiGetTableNames (options)
 }
 function RenderTableNamesData(tablenameresponse,options) {
     var tablenames = tablenameresponse.data;
@@ -1031,7 +1014,7 @@ function RenderTableNamesData(tablenameresponse,options) {
 // constroldatachannelscolumnselect. Add that class and it will be rendered
 
 function UpdateColumnsData(options) {
-	var callback=RenderColumnsData;
+	options.callback=RenderColumnsData;
     if (! options.hasOwnProperty('database')){
         options.database = controldatabase;
     }
@@ -1039,7 +1022,7 @@ function UpdateColumnsData(options) {
     if (! options.hasOwnProperty('table')){
         options.table = 'channels';
     }
-    wsgiCallbackTableData(options.database,options.table,callback,options)
+    wsgiCallbackTableData(options)
 }
 function RenderColumnsData(data,options) {
     options = options || {};
@@ -1094,8 +1077,8 @@ function RenderColumnsData(data,options) {
 
 // Generic Unique Key Render
 function UpdateUniqueKeyData(options) {
-	  var callback = RenderWidgetsFromArrayByUniqueKey
-	  wsgiCallbackTableData(options.database,options.tablename,callback,options);
+	  options.callback = RenderWidgetsFromArrayByUniqueKey
+	  wsgiCallbackTableData(options);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

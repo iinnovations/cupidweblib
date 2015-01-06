@@ -66,9 +66,8 @@ logUserAuths(sessiondata)
 
     //// Channels
     function UpdateLogTable() {
-        var callback=RenderLogs;
-        var callbackoptions={}
-        wsgiGetTableNames(logdatabase,callback,callbackoptions)
+        var options = {callback:RenderLogs};
+        wsgiGetTableNames(options)
     }
     function RenderLogs(dataresponse) {
         var datatable = dataresponse.data || [];

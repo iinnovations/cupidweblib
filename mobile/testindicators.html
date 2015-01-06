@@ -57,8 +57,7 @@ logUserAuths(sessiondata)
 
     //// Channels
     function UpdateIndicatorsTable() {
-        var callback=RenderIndicatorsTable;
-        wsgiCallbackTableData(controldatabase,'indicators',callback);
+        wsgiCallbackTableData({database:controldatabase,tablename:'indicators',callback:RenderIndicatorsTable});
     }
     function RenderIndicatorsTable(datatableresponse) {
         var datatable = datatableresponse.data || [];

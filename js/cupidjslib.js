@@ -335,11 +335,13 @@ function UpdateMetadata(options) {
 // Unique render functions
 //// Metadata
 function UpdatePlotMetadata(options) {
-	var callback=RenderPlotMetadata;
-	wsgiCallbackTableData(logdatabase,'metadata',callback,options);
+	options.callback=RenderPlotMetadata;
+    options.database=logdatabase;
+	wsgiCallbackTableData(options);
 }
 function RenderPlotMetadata(metadataresponse,options) {
     options = options || {};
+    metadataresponse = metadataresponse || {};
     var metadata = metadataresponse.data || [];
     var jqmpage = options.jqmpage || false;
 
@@ -366,10 +368,12 @@ function RenderPlotMetadata(metadataresponse,options) {
 
 //// Control Recipes - uses table names
 function UpdateControlRecipeData(options) {
-	  var callback=RenderControlRecipeData;
-	  wsgiGetTableNames(recipedatabase,callback,options)
+	  options.callback=RenderControlRecipeData;
+      options.database=recipedatabase
+	  wsgiGetTableNames(options)
 }
 function RenderControlRecipeData(reciperesponse,options) {
+    reciperesponse = reciperesponse || {};
     var recipenames = reciperesponse.data;
     options = options || {};
     var jqmpage = options.jqmpage || false;
@@ -409,11 +413,11 @@ function RenderControlRecipeData(reciperesponse,options) {
 
 //// Control Inputs - also do ROM display table at same time
 function UpdateInputsTable(options) {
-	var callback=RenderInputsTable
-    options=options || {}
+    options=options || {};
+	options.callback=RenderInputsTable;
     options.tablename='inputs';
     options.database=controldatabase;
-	wsgiCallbackTableData(options.database,options.tablename,callback,options)
+	wsgiCallbackTableData(options)
 }
 function RenderInputsTable (datatable,options) {
     var tableid = options.tableid || 'inputstable'
@@ -469,11 +473,11 @@ function RenderInputsTable (datatable,options) {
 }
 
 function UpdateOutputsTable(options) {
-	var callback=RenderOutputsTable
-    options=options || {}
+    options=options || {};
+    options.callback=RenderOutputsTable
     options.tablename='outputs';
     options.database=controldatabase;
-	wsgiCallbackTableData(options.database,options.tablename,callback,options)
+	wsgiCallbackTableData(options)
 }
 function RenderOutputsTable (datatable,options) {
     var tableid = options.tableid || 'outputstable'
@@ -530,11 +534,11 @@ function RenderOutputsTable (datatable,options) {
 }
 
 function UpdateIOInfoTable(options) {
-	var callback=RenderIOInfoTable
     options=options || {}
+    options.callback=RenderIOInfoTable
     options.tablename='ioinfo';
     options.database=controldatabase;
-	wsgiCallbackTableData(options.database,options.tablename,callback,options)
+	wsgiCallbackTableData(options)
 }
 function RenderIOInfoTable (datatable,options) {
     var tableid = options.tableid || 'ioinfotable'
@@ -587,11 +591,11 @@ function RenderIOInfoTable (datatable,options) {
 }
 
 function UpdateChannelsTable(options) {
-	var callback=RenderChannelsTable
-    options=options || {}
+    options = options || {};
+	options.callback=RenderChannelsTable
     options.tablename='channels';
     options.database=controldatabase;
-	wsgiCallbackTableData(options.database,options.tablename,callback,options)
+	wsgiCallbackTableData(options)
 }
 function RenderChannelsTable (datatable,options) {
     var tableid = options.tableid || 'channelstable';
@@ -672,11 +676,11 @@ function RenderChannelsTable (datatable,options) {
 }
 
 function UpdateControlAlgorithmsTable(options) {
-	var callback=RenderControlAlgorithmsTable
-    options=options || {}
+    options=options || {};
+    options.callback=RenderControlAlgorithmsTable;
     options.tablename='controlalgorithms';
     options.database=controldatabase;
-	wsgiCallbackTableData(options.database,options.tablename,callback,options)
+	wsgiCallbackTableData(options)
 }
 function RenderControlAlgorithmsTable (datatable,options) {
     var tableid = options.tableid || 'controlalgorithmstable'
@@ -869,7 +873,6 @@ var largeChannelOptionsObj={
 };
 
 function GetAndRenderLogData(options){
-	var callback=RenderLogData;
     // This section lets the timeout function get an updated value for the table
     // it should be retrieving. We can do it by channel or tablename, as long as we
     // keep the naming convention the same!
@@ -881,8 +884,9 @@ function GetAndRenderLogData(options){
         options.logtablename=$('#' + options.channelnameid).val() + '_log'
     }
     // length is passed in with options object
-
-	wsgiCallbackTableData (logdatabase,options.logtablename,callback,options);
+    options.database = logdatabase;
+    options.callback=RenderLogData;
+	wsgiCallbackTableData (options);
 }
 
 function GetAndRenderMultLogsData(logdatabase,options){

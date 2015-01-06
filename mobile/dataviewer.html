@@ -83,10 +83,8 @@ var seriesnames=[];
 var actauthlevel=2;
 
 // load ioinfo into DOM
-function GetIOInfo(callbackoptions) {
-    callbackoptions = callbackoptions || {}
-    var callback=RenderIOInfoTable;
-    wsgiCallbackTableData(controldatabase,'ioinfo',callback,callbackoptions)
+function GetIOInfo() {
+    wsgiCallbackTableData({database:controldatabase,tablename:'ioinfo',callback:RenderIOInfoTable})
 }
 function RenderIOInfoTable(datatableresponse) {
     var datatable = datatableresponse.data || [];
@@ -100,9 +98,9 @@ function RenderIOInfoTable(datatableresponse) {
 
 //// Channels
 function UpdateLogTable() {
-    var callback=RenderLogsTable;
-    var callbackoptions={};
-    wsgiGetTableNames(logdatabase,callback,callbackoptions)
+    var options = {database:logdatabase}
+    options.callback=RenderLogsTable;
+    wsgiGetTableNames(options)
 }
 function RenderLogsTable(dataresponse) {
     var datatable = dataresponse.data || [];

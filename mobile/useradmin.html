@@ -55,8 +55,7 @@ logUserAuths(sessiondata)
 var updateinterval=3000
 //// Channels
 function UpdateUsersTable() {
-    var callback=RenderUsersTable;
-    wsgiCallbackTableData(usersdatabase,'users',callback);
+    wsgiCallbackTableData({database:usersdatabase,tablename:'users',callback:RenderUsersTable});
 }
 function RenderUsersTable(datatableresponse) {
     var datatable = datatablereponse.data || [];

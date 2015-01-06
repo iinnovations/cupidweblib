@@ -71,11 +71,14 @@ var actauthlevel=2;
 var channelnames;
 //// Channels
 function UpdateChannelsTable() {
-	var callback=RenderChannels;
-	wsgiCallbackTableData(controldatabase,'channels',callback);
+    var actionobj = {database:controldatabase,tablename:'channels'};
+    var callback = RenderChannels;
+    actionobj.callback = callback;
+	wsgiCallbackTableData(actionobj);
 }
-function RenderChannels(channelstableresponse) {
+function RenderChannels(channelstableresponse,actionobj) {
 	channelnames=['none'];
+    channelstableresponse = channelstableresponse || {};
 	var channelsdata=channelstableresponse.data || [];
 	for (var i=0; i<channelsdata.length;i++){
 		channelnames.push(channelsdata[i].name);
@@ -224,13 +227,15 @@ $(document).ready(function(){
         UpdateInputsData({'timeout':updateinterval,'jqmpage':true});
         UpdateOutputsData({'timeout':updateinterval,'jqmpage':true});
         UpdateSystemStatusData({'timeout':updateinterval,'jqmpage':true});
-        UpdateChannelsData({'timeout':updateinterval,'jqmpage':true});
 	},1000);
     setTimeout(function(){
         UpdateControlRecipeData({'timeout':updateinterval,'jqmpage':true});
         UpdateControlAlgorithmsData({'timeout':updateinterval,'jqmpage':true});
         UpdatePlotMetadata({'timeout':updateinterval,'jqmpage':true});
 	},2000);
+    setTimeout(function(){
+        UpdateChannelsData({'timeout':updateinterval,'jqmpage':true});
+	},5000);
 //    $('#picontrolenabledtoggle').on('click',function(){
 //
 //    })

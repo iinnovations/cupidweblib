@@ -172,19 +172,27 @@ function addModbusIO(channelname, channeldata, callback){
 // Version and about data
 function UpdateVersionsData(options) {
     options = options || {};
-    GetAndRenderTableData({database:systemdatabase, tablename:'versions'})
+    options.database = systemdatabase;
+    options.tablename = 'versions';
+    GetAndRenderTableData(options)
 }
 
 //// Control Algorithms
 function UpdateControlAlgorithmsData(options) {
     options = options || {};
-    GetAndRenderTableData({database:controldatabase, tablename:'controlalgorithms',selectorclass:'controlalgorithmselect'})
+    options.database = controldatabase;
+    options.tablename = 'controlalgorithms';
+    options.selectorclass = 'controlalgorithmselect';
+    GetAndRenderTableData(options)
 }
 
 //// Control Algorithm Types
 function UpdateControlAlgorithmTypesData(options) {
     options = options || {};
-    GetAndRenderTableData({database:controldatabase, tablename:algorithmtypes, selectorclass:'algorithmtypeselect'})
+    options.database = controldatabase;
+    options.tablename = 'algorithmtypes';
+    options.selectorclass = 'algorithmtypeselect';
+    GetAndRenderTableData(options)
 }
 
 //// Channels Data
@@ -263,7 +271,11 @@ function UpdateMBTCPData(options) {
 //// Indicators
 function UpdateIndicatorsData(options) {
     options = options || {};
-    GetAndRenderTableData({database:controldatabase, tablename:'indicators',selectorclass:'indicatorselect'})
+    options.database = controldatabase;
+    options.tablename = 'indicators';
+    options.selectorclass = 'indicatorselect';
+    options.selectortableitem = 'name';
+    GetAndRenderTableData(options)
 }
 
 //// Actions
@@ -329,7 +341,7 @@ function UpdateMetadata(options) {
     options.database = systemdatabase;
     options.tablename = 'metadata';
     options.index = 1;
-    GetAndRenderTableData({database:systemdatabase, tablename:'metadata',index:1})
+    GetAndRenderTableData(options)
 }
 
 // Unique render functions
@@ -369,7 +381,7 @@ function RenderPlotMetadata(metadataresponse,options) {
 //// Control Recipes - uses table names
 function UpdateControlRecipeData(options) {
 	  options.callback=RenderControlRecipeData;
-      options.database=recipedatabase
+      options.database=recipedatabase;
 	  wsgiGetTableNames(options)
 }
 function RenderControlRecipeData(reciperesponse,options) {

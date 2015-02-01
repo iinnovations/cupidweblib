@@ -86,8 +86,9 @@ var actauthlevel=2;
 function GetIOInfo() {
     wsgiCallbackTableData({database:controldatabase,tablename:'ioinfo',callback:RenderIOInfoTable})
 }
-function RenderIOInfoTable(datatableresponse) {
-    var datatable = datatableresponse.data || [];
+function RenderIOInfoTable(dataresponse) {
+    dataresponse = dataresponse || {};
+    var datatable = dataresponse.data || [];
     ioinfonames = [];
     ioinfoids = [];
     for (var i=0; i< datatable.length; i++){
@@ -99,11 +100,14 @@ function RenderIOInfoTable(datatableresponse) {
 //// Channels
 function UpdateLogTable() {
     var options = {database:logdatabase}
-    options.callback=RenderLogsTable;
-    wsgiGetTableNames(options)
+    var callback=RenderLogsTable;
+    options.database = logdatabase
+    wsgiGetTableNames(options, callback)
 }
 function RenderLogsTable(dataresponse) {
+    dataresponse = dataresponse || {};
     var datatable = dataresponse.data || [];
+    lognames = datatable;
     $('#logdatalistview').empty()
     $('#logdatalistview').append('\
         <li data-role="list-divider">\
@@ -112,7 +116,7 @@ function RenderLogsTable(dataresponse) {
     )
     // prune off the metadata table
 
-    for (var i=0;i<datatable.length-1;i++){
+    for (var i=0;i<datatable.length;i++){
         $('#logdatalistview').append('\
             <li data-role="fieldcontain" id="logdataset" >\
                 <p class="ui-block-a ui-biglabel" style="width: 100%">' + datatable[i] + '</p>\
@@ -147,6 +151,7 @@ function GetPlotSeriesNamesFromViewerControls(){
     seriesnames = [];
     $('.plottoggle').each(function(index,element){
         if (this.value=="On"){
+
             tablenames.push(lognames[index]);
             var thisseriesmeta = parseLogTableName(lognames[index]);
 
@@ -169,24 +174,26 @@ function GetPlotSeriesNamesFromViewerControls(){
     });
 
     var results={seriesnames: seriesnames, seriesshortnames:seriesshortnames,tablenames:tablenames, seriesids:seriesids}
+    console.log(results)
     return results
 }
 
-function updatePlots(renderoptions){
-      renderoptions = renderoptions || {}
+function updatePlots(options){
+      options = options || {}
 
 //    if ( ! renderoptions.hasOwnProperty('renderplotids')) {
         var activePage = $.mobile.activePage.attr("id");
         if (activePage == 'main'){
-            renderoptions.renderplotids = ['plot']
+            options.renderplotids = ['plot']
         }
         else {
-            renderoptions.renderplotids = ['fullplot']
+            options.renderplotids = ['fullplot']
             console.log('full plot!')
         }
 //    }
     var results = GetPlotSeriesNamesFromViewerControls();
     var tablenames = results.tablenames;
+    console.log(tablenames)
 
     if (labeltype == 'names')
         {var serieslabels = results.seriesshortnames;}
@@ -208,16 +215,17 @@ function updatePlots(renderoptions){
     }
 
     var length = $('#plotpointsslider').val();
-    renderoptions.tablenames = tablenames;
-    renderoptions.seriesnames = seriesnames;
-    renderoptions.serieslabels = passedserieslabels;
-    renderoptions.labelincludevalue = labelincludevalue;
-    renderoptions.includelabelvalueprecision = $('#includelabelvalueprecision').val();
-    renderoptions.renderplotoptions = [customOptionsObj];
-    renderoptions.length = parseInt(length);
-    renderoptions.start = -1;
 
-    GetAndRenderMultLogsData(logdatabase,renderoptions);
+    options.tablenames = tablenames;
+    options.seriesnames = seriesnames;
+    options.serieslabels = passedserieslabels;
+    options.labelincludevalue = labelincludevalue;
+    options.includelabelvalueprecision = $('#includelabelvalueprecision').val();
+    options.renderplotoptions = [customOptionsObj];
+    options.length = parseInt(length);
+    options.start = -1;
+
+    GetAndRenderMultLogsData(options);
     //GetAndRenderLogData({logtablename:'input_DS18B20-1_log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
 }
 $(document).ready(function(){
@@ -288,8 +296,8 @@ $(document).ready(function(){
     setTimeout(function(){
         var optionsobject = {'timeoutclass':'updateperiodwidget'};
         var callback = function(){updatePlots(optionsobject)};
-        optionsobject.callback = callback;
-        updatePlots(optionsobject)
+//        optionsobject.callback = callback;
+        updatePlots(optionsobject, callback)
     },1000);
 
 //    setTimeout(function(){updatePlots({timeoutclass:'updateperiodwidget'})},3000)

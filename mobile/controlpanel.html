@@ -64,7 +64,7 @@ var jqmpage=true;
 
 var updatetimeout=100;
 var loginterval=30000;
-var updateinterval=10000;
+var updateinterval=100000;
 
 var actauthlevel=2;
 
@@ -72,11 +72,12 @@ var channelnames;
 //// Channels
 function UpdateChannelsTable() {
     var actionobj = {database:controldatabase,tablename:'channels'};
-    var callback = RenderChannels;
-    actionobj.callback = callback;
+//    var callback = RenderChannels;
+    actionobj.callback = "RenderChannels";
 	wsgiCallbackTableData(actionobj);
 }
 function RenderChannels(channelstableresponse,actionobj) {
+    console.log('succesfully entered RenderChannels')
 	channelnames=['none'];
     channelstableresponse = channelstableresponse || {};
 	var channelsdata=channelstableresponse.data || [];
@@ -207,7 +208,9 @@ function RenderChannels(channelstableresponse,actionobj) {
             //GetAndRenderPlotData([channelsdata[data.index].name],["smallplot" + data.index])
             var channelindex=data.index-1;
             var logtablename=channelsdata[channelindex].name + "_log";
-            GetAndRenderLogData({'logtablename':logtablename, serieslabels:['label','label'], renderplotids:['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue'],renderplotoptions:[channelOptionsObj]})
+            GetAndRenderLogData({'tablename':logtablename, serieslabels:['label','label'], renderplotids:['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue'],renderplotoptions:[channelOptionsObj]})
+//            GetAndRenderLogData({'tablename':logtablename, serieslabels:['label','label'], renderplotids:['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue']})
+//            GetAndRenderLogData({tablename:'blurg', database:'blurg'})
         })
 	}
 

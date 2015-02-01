@@ -23,6 +23,9 @@ var controlrecipenames=[];
 var algorithmtypes=[]
 var modes=['auto','manual'];
 
+function cupidjslibtest() {
+    return true;
+}
 //////////////////////////////////////////////////////
 //   Utility functions
 //
@@ -38,6 +41,7 @@ function isvalidname(name) {
 }
 
 function parseLogTableName(logtablename) {
+    logtablename = logtablename || '';
     var result = {}
     var splitarray = logtablename.split("_")
     if (splitarray[0] == 'input') {
@@ -347,13 +351,16 @@ function UpdateMetadata(options) {
 // Unique render functions
 //// Metadata
 function UpdatePlotMetadata(options) {
-	options.callback=RenderPlotMetadata;
+	//options.callback=RenderPlotMetadata;
+    var callback = "RenderPlotMetadata";
     options.database=logdatabase;
-	wsgiCallbackTableData(options);
+    options.tablename='metadata';
+	wsgiCallbackTableData(options, callback);
 }
 function RenderPlotMetadata(metadataresponse,options) {
     options = options || {};
     metadataresponse = metadataresponse || {};
+    console.log(metadataresponse)
     var metadata = metadataresponse.data || [];
     var jqmpage = options.jqmpage || false;
 
@@ -380,9 +387,9 @@ function RenderPlotMetadata(metadataresponse,options) {
 
 //// Control Recipes - uses table names
 function UpdateControlRecipeData(options) {
-	  options.callback=RenderControlRecipeData;
+	  var callback=RenderControlRecipeData;
       options.database=recipedatabase;
-	  wsgiGetTableNames(options)
+	  wsgiGetTableNames(options, callback)
 }
 function RenderControlRecipeData(reciperesponse,options) {
     reciperesponse = reciperesponse || {};
@@ -604,7 +611,7 @@ function RenderIOInfoTable (datatable,options) {
 
 function UpdateChannelsTable(options) {
     options = options || {};
-	options.callback=RenderChannelsTable
+	options.callback="RenderChannelsTable"
     options.tablename='channels';
     options.database=controldatabase;
 	wsgiCallbackTableData(options)
@@ -689,7 +696,7 @@ function RenderChannelsTable (datatable,options) {
 
 function UpdateControlAlgorithmsTable(options) {
     options=options || {};
-    options.callback=RenderControlAlgorithmsTable;
+    options.callback="RenderControlAlgorithmsTable";
     options.tablename='controlalgorithms';
     options.database=controldatabase;
 	wsgiCallbackTableData(options)
@@ -784,7 +791,8 @@ function UpdateTimestamps(passedoptions){
 /////////////////////////////////////////////////////
 // Plot Stuff
 //
-if ($.jqplot){
+
+if (typeof $.jqplot !== "undefined"){
 
 var channelOptionsObj={
 	legend: {
@@ -888,7 +896,8 @@ function GetAndRenderLogData(options){
     // This section lets the timeout function get an updated value for the table
     // it should be retrieving. We can do it by channel or tablename, as long as we
     // keep the naming convention the same!
-
+    options = options || {};
+    console.log(options);
     if (options.hasOwnProperty('tablenameid')) {
         options.logtablename=$('#' + options.tablenameid).val()
     }
@@ -897,17 +906,69 @@ function GetAndRenderLogData(options){
     }
     // length is passed in with options object
     options.database = logdatabase;
-    options.callback=RenderLogData;
-	wsgiCallbackTableData (options);
+    //var callback=RenderLogData;
+    options.callback = "RenderLogData";
+	wsgiCallbackTableData(options);
 }
 
-function GetAndRenderMultLogsData(logdatabase,options){
-    var callback=RenderMultLogsData;
-    wsgiCallbackMultTableData(logdatabase,options.tablenames,callback,options)
+function RenderLogData (dataresponse,options) {
+    console.log('Rendering: ' + options.logtablename);
+
+    //console.log(options)
+    //
+    var returnedlogdata = dataresponse.data;
+
+    // This function operates on a single returned log table
+
+    // We give this function [seriesnames] and [plotids]
+    // to render to, as properties of the options argument
+    // We then use these to parse the passed datatable
+
+    if (options.timeout>0) {
+		setTimeout(function(){GetAndRenderLogData(options)},options.timeout);
+    }
+    for (i=0;i<options.renderplotids.length;i++) {
+		$('#' + options.renderplotids[i]).html('');
+    }
+    if (! options.hasOwnProperty('serieslabels')) {
+        options.serieslabels = [];
+        for (var i= 0; i<options.seriesnames.length; i++) {
+            options.serieslabels.push('')
+        }
+    }
+    // for each valuename, iterate over j data points,
+    // then render to k plotids
+    var plotseriesarray=[]
+    for (var i=0;i<options.seriesnames.length;i++){
+        var currentseries = []
+        var seriesname = options.seriesnames[i]
+        var serieslabel = options.serieslabels[i]
+        for (var j=0; j<returnedlogdata.length; j++){
+            currentseries.push([returnedlogdata[j].time,returnedlogdata[j][seriesname]])
+            for (var k=0;k<options.renderplotids.length;k++){
+                options.renderplotoptions[k].series[i].label=serieslabel + ' : ' + seriesname;
+            }
+        }
+        plotseriesarray.push(currentseries)
+        //console.log(currentseries)
+    }
+    for (i=0;i<options.renderplotids.length;i++){
+        $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
+    }
+}
+
+function GetAndRenderMultLogsData(options){
+    options = options || {};
+    options.callback="RenderMultLogsData";
+    options.database = logdatabase;
+    wsgiCallbackMultTableData(options)
 }
 
 function RenderMultLogsData(returnedlogdataresponse,options){
-
+    options=options||{}
+    console.log("Mult Log rendering")
+    console.log(returnedlogdataresponse)
+    returnedlogdataresponse = returnedlogdataresponse || {};
     var returnedlogdata = returnedlogdataresponse.data || [];
 
     // This function operates on multiple returned log tables
@@ -939,7 +1000,7 @@ function RenderMultLogsData(returnedlogdataresponse,options){
     if (timeout>0) {
 		setTimeout(options.callback,timeout);
 	}
-
+    options.renderplotids = options.renderplotids || [];
     for (i=0;i<options.renderplotids.length;i++) {
         $('#' + options.renderplotids[i]).html('');
     }
@@ -980,47 +1041,6 @@ function RenderMultLogsData(returnedlogdataresponse,options){
     }
     else {
         console.log('No data returned, so no plot.')
-    }
-}
-function RenderLogData (returnedlogdataresponse,options) {
-
-    var returnedlogdata = returnedlogdataresponse.data || [];
-    // This function operates on a single returned log table
-    //console.log(returnedlogdata)
-    // We give this function [seriesnames] and [plotids]
-    // to render to, as properties of the options argument
-	// We then use these to parse the passed datatable
-
-	if (options.timeout>0) {
-		setTimeout(function(){GetAndRenderLogData(options)},options.timeout);
-	}
-	for (i=0;i<options.renderplotids.length;i++) {
-		$('#' + options.renderplotids[i]).html('');
-	}
-    if (! options.hasOwnProperty('serieslabels')) {
-        options.serieslabels = [];
-        for (var i= 0; i<options.seriesnames.length; i++) {
-            options.serieslabels.push('')
-        }
-    }
-	// for each valuename, iterate over j data points,
-    // then render to k plotids
-    var plotseriesarray=[]
-    for (var i=0;i<options.seriesnames.length;i++){
-        var currentseries = []
-        var seriesname = options.seriesnames[i]
-        var serieslabel = options.serieslabels[i]
-        for (var j=0; j<returnedlogdata.length; j++){
-            currentseries.push([returnedlogdata[j].time,returnedlogdata[j][seriesname]])
-            for (var k=0;k<options.renderplotids.length;k++){
-                options.renderplotoptions[k].series[i].label=serieslabel + ' : ' + seriesname;
-            }
-        }
-        plotseriesarray.push(currentseries)
-        //console.log(currentseries)
-    }
-    for (i=0;i<options.renderplotids.length;i++){
-        $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
     }
 }
 
@@ -1098,8 +1118,8 @@ function makeUserServerMap(locations,labels,content) {
 // should probably do some documentation here on what the
 // possible actions are
 
-function runwsgiActions(actionobj,callback) {
-    callback = callback || logdone;
+function runwsgiActions(actionobj) {
+    var callback = actionobj.callback || logdone;
     $.ajax({
         url: "/wsgiactions",
         type: "post",

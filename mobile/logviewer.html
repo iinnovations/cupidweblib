@@ -66,10 +66,11 @@ logUserAuths(sessiondata)
 
     //// Channels
     function UpdateLogTable() {
-        var options = {callback:RenderLogs};
+        var options = {callback:RenderLogs, database:logdatabase};
         wsgiGetTableNames(options)
     }
     function RenderLogs(dataresponse) {
+        dataresponse = dataresponse || {};
         var datatable = dataresponse.data || [];
         $('#logset').html('')
         for (var i=0;i<datatable.length;i++){

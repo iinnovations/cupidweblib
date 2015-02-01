@@ -67,6 +67,7 @@ logUserAuths(sessiondata)
     }
     function RenderOutputsTable(datatableresponse) {
         var divhtmlstring;
+        datatableresponse = datatableresponse || {};
         var datatable = datatableresponse.data || [];
         $("#outputset").html('');
         for (var i=0; i<datatable.length; i++){
@@ -146,8 +147,9 @@ logUserAuths(sessiondata)
     //// Inputs
     function UpdateInputsTable(){
         wsgiCallbackTableData({database:controldatabase,tablename:'inputs',callback:RenderInputsTable});
-    };
+    }
     function RenderInputsTable(datatableresponse){
+        datatableresponse = datatableresponse || {};
         var datatable = datatableresponse.data || [];
         var divhtmlstring;
 //        console.log(datatable)

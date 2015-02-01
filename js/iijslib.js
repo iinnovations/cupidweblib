@@ -7,6 +7,10 @@ var stdauthmessage='You do not have sufficient authorization for this action';
 // Utility Functions
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+function iijslibtest() {
+    return true;
+}
+
 // Value processing
 
 function getNameFromPath(path){
@@ -336,25 +340,34 @@ function isNumber(n) {
 // WSGI Data Retrieval
 
 function wsgiCallbackTableData (actionobj) {
-
 	// Get the data
-	actionobj = actionobj || {};
     actionobj.action = 'gettabledata';
     if (!actionobj.hasOwnProperty('start')){
         actionobj.start = 0;
     }
+    var starttime = new Date().getTime();
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
 		datatype:"json",				
 		data: actionobj,
 		success: function(response){
+            //console.log('SUCCESS: ' + actionobj.tablename)
 			// Execute our callback function
             response = response || {};
+            var now = new Date().getTime();
+            response.responsetime = now - starttime;
             if (response.hasOwnProperty('etag')){
                 actionobj.etag = response.etag;
             }
-			actionobj.callback(response,actionobj);
+			if (window[actionobj.callback])
+            {
+                console.log('successfully found callback')
+               window[actionobj.callback](response,actionobj);
+            }
+            else {
+                console.log('no callback!')
+            }
 		}
 	});	
 }
@@ -365,14 +378,11 @@ function wsgiCallbackMultTableData (actionobj) {
     // and then prune them off in the response.
 
     actionobj.tablenames = ['', ''].concat(actionobj.tablenames);
-    //console.log(tablenames)
-    var options = options || {};
     actionobj.action = 'gettabledata';
-    if (!options.hasOwnProperty('start')) {
+    if (!actionobj.hasOwnProperty('start')) {
         actionobj.start =  0;
     }
-
-    if (!options.hasOwnProperty('starts')) {
+    if (!actionobj.hasOwnProperty('starts')) {
         actionobj.start = -1; // default is to start at end.
     }
 	$.ajax({
@@ -390,12 +400,18 @@ function wsgiCallbackMultTableData (actionobj) {
             // the slice here is a bit of a hack to prune
             // off the two dummy values we sent in earlier
             response.data=response.data.slice(2);
-            actionobj.tablesnames=actionobj.tablenames.slice(2);
-			actionobj.callback(response,actionobj);
+            actionobj.tablenames=actionobj.tablenames.slice(2);
+			if (window[actionobj.callback])
+            {
+               window[actionobj.callback](response,actionobj);
+            }
+            else {
+                console.log('no callback!')
+            }
 		}
 	});	
 }
-function wsgiGetTableNames (actionobj) {
+function wsgiGetTableNames (actionobj, callback) {
     actionobj.action = 'gettablenames';
 	$.ajax({
 		url: "/wsgireadonly",
@@ -408,7 +424,13 @@ function wsgiGetTableNames (actionobj) {
             if (response.hasOwnProperty('etag')){
                 actionobj.etag = response.etag;
             }
-			actionobj.callback(response,actionobj);
+			if (window[actionobj.callback])
+            {
+               window[actionobj.callback](response,actionobj);
+            }
+            else {
+                console.log('no callback!')
+            }
 		}
 	});
 }
@@ -897,10 +919,11 @@ function testFunction(someoptions) {
 // This will change the rendering to databasename + tablename + value. This has not been extensively tested
 
 function GetAndRenderTableData(options){
-    options.callback=RenderTableData;
+    options.callback="RenderTableData";
     wsgiCallbackTableData(options)
 }
 function RenderTableData(datatableresponse,options) {
+    console.log('rendering' + options.tablename)
     datatableresponse = datatableresponse || {}
     var datatable = datatableresponse.data || [];
     options = options || {};
@@ -967,7 +990,7 @@ function RenderTableData(datatableresponse,options) {
 //// Tables Data
 function UpdateTableNamesData(options) {
     options = options || {};
-	options.callback=RenderTableNamesData;
+	options.callback="RenderTableNamesData";
     if (! options.hasOwnProperty('database')){
         options.database = controldatabase;
     }
@@ -1014,7 +1037,7 @@ function RenderTableNamesData(tablenameresponse,options) {
 // constroldatachannelscolumnselect. Add that class and it will be rendered
 
 function UpdateColumnsData(options) {
-	options.callback=RenderColumnsData;
+	options.callback="RenderColumnsData";
     if (! options.hasOwnProperty('database')){
         options.database = controldatabase;
     }

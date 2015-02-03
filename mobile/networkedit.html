@@ -56,9 +56,10 @@ logUserAuths(sessiondata)
 var updateinterval=3000
 //// Channels
 function UpdateWirelessTable() {
-    wsgiCallbackTableData({database:safedatabase,tablename:'wireless',callback:RenderWirelessTable);
+    wsgiCallbackTableData({database:safedatabase,tablename:'wireless',callback:RenderWirelessTable});
 }
 function RenderWirelessTable(datatableresponse) {
+    datatableresponse = datatableresponse || {};
     var datatable = datatableresponse.data || [];
     // Here we render html for each element retrieved
     // set top of indicator ul

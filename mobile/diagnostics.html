@@ -12,7 +12,7 @@
     <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
     <meta http-equiv="pragma" content="no-cache" />
 
-    <title>CuPID Home</title>
+    <title>Diagnostics</title>
 
     <script src="/js/jquery-1.11.0.min.js"></script>
     <script src="/js/jquery-migrate-1.2.1.min.js"></script>
@@ -53,38 +53,14 @@ logUserAuths(sessiondata)
 <div data-role="page" class="type-home">
 	<div data-role="content">
 		<div class="content-secondary">
-			<div id="jqm-homeheader">
-                <h1>CuPID Controls &reg;</h1>
-				<p>CuPID Controls bring your devices to you.</p>
-			</div>
-			<p class="intro"><strong>Welcome. </strong>Everything you need to control and monitor from home or cloud is here. </p>
-            <ul data-role="listview" data-inset="true" data-theme="c" data-dividertheme="c">
-				<li data-role="list-divider">Introduction and Reference</li>
-
-				<li><a href="quickstart.html"  data-ajax="false">Intro to your CuPID Control</a></li>
-				<li><a href="quickstart.html"  data-ajax="false">Quick start guide</a></li>
-				<li><a href="http://interfaceinnovations.org/cupidcontrols.html"  data-ajax="false">Features/Specifications</a></li>
-				<li><a href="http://interfaceinnovations.org/cupidcontrolsproducts.html" data-ajax="false">Find Accessories and Products</a></li>
-                <li><a href="about.html"  data-ajax="false">About</a></li>
-			</ul>
-		</div><!--/content-secondary-->
-		<div class="content-primary">
-			<nav>
 				<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">
 					<li data-role="list-divider">Control and Monitoring</li>
-					<li><a href="controlpanel.html" data-ajax="false">Main Control Panel</a></li>
-					<li><a href="dataviewer.html" data-ajax="false">Datalog Viewer</a></li>
-					<li><a href="controlrecipes.html" data-ajax="false">Control Recipes</a></li>
-					<li><a href="setpointrecipes.html" data-ajax="false">Temperature Profile Recipes</a></li>
-
-					<li data-role="list-divider">CuPID Settings and Configuration</li>
-                    <li><a href="io.html"  data-ajax="false">Inputs/Outputs</a></li>
-                    <li><a href="actions.html" data-ajax="false">Indicators/Notifications</a></li>
-					<li><a href="network.html" data-ajax="false">Network</a></li>
-					<li><a href="system.html" data-ajax="false">System Status</a></li>
-                    <li><a href="diagnostics.html"  data-ajax="false">Diagnostics</a></li>
+					<li><a href="systemlogs.html" data-ajax="false">System Logs</a></li>
+					<li><a href="tests.html" data-ajax="false">Unit Tests</a></li>
+					<li><a href="wsgitest.html" data-ajax="false">WSGI Test</a></li>
+					<li><a href="/data/phpinfo.php" data-ajax="false">PHP Info</a></li>
+                    <li><a href="/data/phpliteadmin.php"  data-ajax="false">db admin (phpliteadmin)</a></li>
 				</ul>
-			</nav>
 		</div>
 	</div><!-- content -->
 	<div data-role="footer" data-id='fixednav' data-position="fixed" >

@@ -14,6 +14,7 @@
   <script src="/js/iijslib.js" type="text/javascript"></script>
   <script src="/js/cupidjslib.js" type="text/javascript"></script>
   <script>
+
     QUnit.test( "a basic test example", function( assert ) {
       var value = "hello";
       assert.equal( value, "hello", "We expect value to be hello" );
@@ -32,7 +33,6 @@
         function unitcallback(response, actionobj) {
             response = response || {responsetime:9999};
             if (response.responsetime != 9999) {
-
                 if (response.responsetime < 2000) {
                     fastenough = true;
                 }
@@ -47,53 +47,64 @@
         var modulenames=['cupid.pilib', 'cupid.picontrol', 'cupid.controllib', 'cupid.netconfig', 'cupid.netfun'];
         assert.expect(modulenames.length);
 
-        function testCallback1(response,actionobj) {
+        var i=0;
+
+        runwsgiActions({action:'testmodule',modulename:modulenames[0], callback:asyncunitcallback});
+
+        function asyncunitcallback(response,actionobj) {
             if (typeof response !== 'undefined') {
             response.data = response.data || {};
                 console.log(response.data);
-                assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[0]);
+                assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[i]);
+                if (i<modulenames.length-1) {
+                    runwsgiActions({action: 'testmodule', modulename: modulenames[i], callback: asyncunitcallback});
+                    i++;
+                }
+                else {
+                    asyncdone()
+                }
             }
         }
-        runwsgiActions({action:'testmodule',modulename:modulenames[0], callback:testCallback1});
 
         function testCallback2(response,actionobj) {
             if (typeof response !== 'undefined') {
             response.data = response.data || {};
                 console.log(response.data);
                 assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[1]);
+                runwsgiActions({action:'testmodule',modulename:modulenames[2], callback:testCallback3});
             }
         }
-        runwsgiActions({action:'testmodule',modulename:modulenames[1], callback:testCallback2});
 
         function testCallback3(response,actionobj) {
             if (typeof response !== 'undefined') {
             response.data = response.data || {};
                 console.log(response.data);
                 assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[2]);
+                runwsgiActions({action:'testmodule',modulename:modulenames[3], callback:testCallback4});
             }
         }
-        runwsgiActions({action:'testmodule',modulename:modulenames[2], callback:testCallback3});
 
         function testCallback4(response,actionobj) {
             if (typeof response !== 'undefined') {
             response.data = response.data || {};
                 console.log(response.data);
                 assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[3]);
+                runwsgiActions({action:'testmodule',modulename:modulenames[4], callback:testCallback5});
             }
         }
-        runwsgiActions({action:'testmodule',modulename:modulenames[3], callback:testCallback4});
 
         function testCallback5(response,actionobj) {
             if (typeof response !== 'undefined') {
             response.data = response.data || {};
                 console.log(response.data);
                 assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[4]);
+                asyncdone()
             }
         }
-        runwsgiActions({action:'testmodule',modulename:modulenames[4], callback:testCallback5});
-        setTimeout(function(){
-            asyncdone()}, 5000
-        );
+
+//        setTimeout(function(){
+//            asyncdone()}, 5000
+//        );
     });
 
 

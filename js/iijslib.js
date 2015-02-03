@@ -346,6 +346,10 @@ function wsgiCallbackTableData (actionobj) {
         actionobj.start = 0;
     }
     var starttime = new Date().getTime();
+    callback = actionobj.callback || logdone;
+
+    // Need to delete method or ajax will execute
+    delete actionobj.callback;
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
@@ -360,14 +364,17 @@ function wsgiCallbackTableData (actionobj) {
             if (response.hasOwnProperty('etag')){
                 actionobj.etag = response.etag;
             }
-			if (window[actionobj.callback])
-            {
-                console.log('successfully found callback')
-               window[actionobj.callback](response,actionobj);
-            }
-            else {
-                console.log('no callback!')
-            }
+            console.log(callback);
+            callback(response,actionobj);
+            actionobj.callback = callback;
+            //if (window[actionobj.callback])
+            //{
+            //   console.log('successfully found callback')
+            //   window[actionobj.callback](response,actionobj);
+            //}
+            //else {
+            //    console.log('no callback. field delivered: ' + actionobj.callback)
+            //}
 		}
 	});	
 }

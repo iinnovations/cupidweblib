@@ -13,6 +13,37 @@
   <script src="/js/jquery-migrate-1.2.1.min.js"></script>
   <script src="/js/iijslib.js" type="text/javascript"></script>
   <script src="/js/cupidjslib.js" type="text/javascript"></script>
+  <style type="text/css">
+      .resultsheader {
+          padding: 0.5em 0px 0.5em 1em;
+          color: #8699A4;
+          background-color: #0D3349;
+          font-size: 1.5em;
+          line-height: 1em;
+          font-weight: 400;
+          border-radius: 5px 5px 0px 0px;
+      }
+      .resultsheader, .results {
+          margin: 0px;
+      }
+      .results {
+          padding: 0px;
+      }
+      body {
+          font-family: "Helvetica Neue Light","HelveticaNeue-Light","Helvetica Neue",Calibri,Helvetica,Arial,sans-serif;
+      }
+      .results li {
+          padding: 0.4em 1em;
+          border-bottom: 1px solid #FFF;
+          list-style-position: inside;
+      }
+      .results .styleone {
+          color: #f0f0f0;
+          background-color: #d18d52;
+      }
+  </style>
+
+
   <script>
 
     QUnit.test( "a basic test example", function( assert ) {
@@ -29,18 +60,40 @@
     });
     QUnit.test( "Async channels speed test", function( assert ) {
         var asyncdone = assert.async();
+
+        var totaldatasize = 0;
+        var totaldatatime = 0;
         var fastenough = false;
+        var datasources = [[controldatabase, 'channels'], [controldatabase, 'inputs'], [controldatabase, 'outputs'], [controldatabase, 'outputs'],
+            [controldatabase, 'systemstatus']]
+        assert.expect(datasources.length)
+
+        var i=0;
+        wsgiCallbackTableData({database:datasources[i][0], tablename:datasources[i][1], 'datasize':'True', callback:unitcallback})
+
         function unitcallback(response, actionobj) {
             response = response || {responsetime:9999};
             if (response.responsetime != 9999) {
                 if (response.responsetime < 2000) {
                     fastenough = true;
                 }
-                assert.ok(fastenough, "Testing retrieval speed. Time: " + response.responsetime);
-                asyncdone();
+                assert.ok(fastenough, "Retrieval of " + datasources[i][0] + ":" + datasources[i][1] + ". Time: " + response.responsetime + 'ms. Size: ' + response.datasize + ' bytes.');
+                totaldatasize += parseInt(response.datasize)
+                totaldatatime += parseInt(response.responsetime)
+
+                if (i<datasources.length-1) {
+                    i++;
+                    wsgiCallbackTableData({database:datasources[i][0], tablename:datasources[i][1], 'datasize':'True', callback:unitcallback})
+                }
+                else {
+                    $('#ajaxsize').html(totaldatasize)
+                    $('#ajaxtime').html(totaldatatime)
+                    $('#ajaxspeed').html((totaldatasize*1000/totaldatatime).toPrecision(5))
+                    asyncdone();
+                }
             }
         }
-        wsgiCallbackTableData({database:controldatabase, table:'channels', callback:unitcallback});
+        ;
     });
     QUnit.test( "Python library import test functions", function( assert ) {
         var asyncdone = assert.async();
@@ -53,7 +106,7 @@
 
         function asyncunitcallback(response,actionobj) {
             if (typeof response !== 'undefined') {
-            response.data = response.data || {};
+                response.data = response.data || {};
                 console.log(response.data);
                 assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[i]);
                 if (i<modulenames.length-1) {
@@ -65,48 +118,55 @@
                 }
             }
         }
-
-        function testCallback2(response,actionobj) {
+    });
+    QUnit.test( "Netconfig Functions", function( assert ) {
+        var asyncdone = assert.async();
+        var testname = 'netconfig'
+        function netconfigcallback(response, actionobj) {
             if (typeof response !== 'undefined') {
-            response.data = response.data || {};
+                response.data = response.data || {};
                 console.log(response.data);
-                assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[1]);
-                runwsgiActions({action:'testmodule',modulename:modulenames[2], callback:testCallback3});
-            }
-        }
-
-        function testCallback3(response,actionobj) {
-            if (typeof response !== 'undefined') {
-            response.data = response.data || {};
-                console.log(response.data);
-                assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[2]);
-                runwsgiActions({action:'testmodule',modulename:modulenames[3], callback:testCallback4});
-            }
-        }
-
-        function testCallback4(response,actionobj) {
-            if (typeof response !== 'undefined') {
-            response.data = response.data || {};
-                console.log(response.data);
-                assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[3]);
-                runwsgiActions({action:'testmodule',modulename:modulenames[4], callback:testCallback5});
-            }
-        }
-
-        function testCallback5(response,actionobj) {
-            if (typeof response !== 'undefined') {
-            response.data = response.data || {};
-                console.log(response.data);
-                assert.equal(response.data['failurecount'],0, "Import success of " + modulenames[4]);
+                assert.equal(response.data['failurecount'],0, "Run  " + testname);
                 asyncdone()
             }
         }
-
-//        setTimeout(function(){
-//            asyncdone()}, 5000
-//        );
+        runwsgiActions({action: 'testfunction', testname: testname, callback: netconfigcallback});
+    });
+    QUnit.test( "Core CuPID Functions", function( assert ) {
+        var asyncdone = assert.async();
+        var testname = 'systemstatus'
+        function systemstatuscallback(response, actionobj) {
+            if (typeof response !== 'undefined') {
+                response.data = response.data || {};
+                console.log(response.data);
+                assert.equal(response.data['failurecount'],0, "Run  " + testname);
+                asyncdone()
+            }
+        }
+        runwsgiActions({action: 'testfunction', testname: testname, callback: systemstatuscallback});
     });
 
+    QUnit.test( "UpdateIO Test", function( assert ) {
+        var asyncdone = assert.async();
+        var testname = 'updateio'
+        function updateiocallback(response, actionobj) {
+            if (typeof response !== 'undefined') {
+                response.data = response.data || {};
+                console.log(response.data);
+                assert.equal(response.data['failurecount'],0, "Success for  " + testname);
+                asyncdone()
+            }
+        }
+        runwsgiActions({action: 'testfunction', testname: testname, callback: updateiocallback});
+    });
 
   </script>
+    <div id="statsummary" >
+        <h1 class="resultsheader">Test Results</h1>
+        <ul class="results">
+            <li class="styleone">Total ajax data retrieval time: <span id="ajaxtime"></span>ms</li>
+            <li class="styleone">Total data size: <span id="ajaxsize"></span> bytes</li>
+            <li class="styleone"><b>Approximate speed: <span id="ajaxspeed"></span> bytes/s</b></li>
+        </ul>
+    </div>
 </body>

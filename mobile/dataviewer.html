@@ -99,11 +99,12 @@ function RenderIOInfoTable(dataresponse) {
 
 //// Channels
 function UpdateLogTable() {
-    var options = {database:logdatabase}
-    var callback=RenderLogsTable;
-    options.database = logdatabase
-    wsgiGetTableNames(options, callback)
+    var options = {database: logdatabase};
+    options.callback = RenderLogsTable;
+    options.database = logdatabase;
+    wsgiGetTableNames(options);
 }
+
 function RenderLogsTable(dataresponse) {
     dataresponse = dataresponse || {};
     var datatable = dataresponse.data || [];
@@ -169,17 +170,20 @@ function GetPlotSeriesNamesFromViewerControls(){
                 seriesshortnames.push(thisseriesmeta.id);
                 seriesnames.push('controlvalue');
             }
-
+            else {
+                seriesnames.push('value');
+                seriesshortnames.push('value');
+            }
         }
     });
 
-    var results={seriesnames: seriesnames, seriesshortnames:seriesshortnames,tablenames:tablenames, seriesids:seriesids}
+    var results={seriesnames: seriesnames, seriesshortnames:seriesshortnames,tablenames:tablenames, seriesids:seriesids};
     console.log(results)
     return results
 }
 
 function updatePlots(options){
-      options = options || {}
+      options = options || {};
 
 //    if ( ! renderoptions.hasOwnProperty('renderplotids')) {
         var activePage = $.mobile.activePage.attr("id");
@@ -192,8 +196,9 @@ function updatePlots(options){
         }
 //    }
     var results = GetPlotSeriesNamesFromViewerControls();
+//    console.log(results)
     var tablenames = results.tablenames;
-    console.log(tablenames)
+//    console.log(tablenames);
 
     if (labeltype == 'names')
         {var serieslabels = results.seriesshortnames;}
@@ -205,13 +210,14 @@ function updatePlots(options){
     // Get total number of series and label appropriately
     var customOptionsObj=channelOptionsObj;
 
-    customOptionsObj.series=[]
-    var passedserieslabels = []
-    var seriesnames = []
+
+    customOptionsObj.series=[];
+    var passedserieslabels = [];
+    var seriesnames = [];
     for (var i = 0; i < serieslabels.length; i++) {
-        customOptionsObj.series.push([{label: serieslabels[i], axis: 'yaxis'}])
-        passedserieslabels.push([serieslabels[i]])
-        seriesnames.push([results.seriesnames[i]])
+        customOptionsObj.series.push([{label: serieslabels[i], axis: 'yaxis'}]);
+        passedserieslabels.push([serieslabels[i]]);
+        seriesnames.push([results.seriesnames[i]]);
     }
 
     var length = $('#plotpointsslider').val();
@@ -225,11 +231,12 @@ function updatePlots(options){
     options.length = parseInt(length);
     options.start = -1;
 
+//    console.log(options)
     GetAndRenderMultLogsData(options);
     //GetAndRenderLogData({logtablename:'input_DS18B20-1_log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
 }
 $(document).ready(function(){
-    togglestolamps()
+    togglestolamps();
 
     //// Control Algorithms
     // UpdateLogsTable({'timeout':updateinterval})
@@ -243,32 +250,29 @@ $(document).ready(function(){
     });
 
     $('#plotlabelidsbutton').click(function(){
-        $('#plotlabelnamesbutton').removeClass('ui-btn-active')
-        $('#plotlabelidsbutton').removeClass('ui-btn-active')
-        $('#plotlabeltablenamesbutton').removeClass('ui-btn-active')
-
-        $('#plotlabelidsbutton').addClass('ui-btn-active')
-        labeltype = 'ids'
+        $('#plotlabelnamesbutton').removeClass('ui-btn-active');
+        $('#plotlabelidsbutton').removeClass('ui-btn-active');
+        $('#plotlabeltablenamesbutton').removeClass('ui-btn-active');
+        $('#plotlabelidsbutton').addClass('ui-btn-active');
+        labeltype = 'ids';
         $('#maincontrolgroup').listview('refresh');
-    })
+    });
     $('#plotlabelnamesbutton').click(function(){
-        $('#plotlabelnamesbutton').removeClass('ui-btn-active')
-        $('#plotlabelidsbutton').removeClass('ui-btn-active')
-        $('#plotlabeltablenamesbutton').removeClass('ui-btn-active')
-
-        $('#plotlabelnamesbutton').addClass('ui-btn-active')
-        labeltype = 'names'
+        $('#plotlabelnamesbutton').removeClass('ui-btn-active');
+        $('#plotlabelidsbutton').removeClass('ui-btn-active');
+        $('#plotlabeltablenamesbutton').removeClass('ui-btn-active');
+        $('#plotlabelnamesbutton').addClass('ui-btn-active');
+        labeltype = 'names';
         $('#maincontrolgroup').listview('refresh');
-    })
+    });
     $('#plotlabeltablenamesbutton').click(function(){
-        $('#plotlabelnamesbutton').removeClass('ui-btn-active')
-        $('#plotlabelidsbutton').removeClass('ui-btn-active')
-        $('#plotlabeltablenamesbutton').removeClass('ui-btn-active')
-
-        $('#plotlabeltablenamesbutton').addClass('ui-btn-active')
-        labeltype = 'tablenames'
+        $('#plotlabelnamesbutton').removeClass('ui-btn-active');
+        $('#plotlabelidsbutton').removeClass('ui-btn-active');
+        $('#plotlabeltablenamesbutton').removeClass('ui-btn-active');
+        $('#plotlabeltablenamesbutton').addClass('ui-btn-active');
+        labeltype = 'tablenames';
         $('#maincontrolgroup').listview('refresh');
-    })
+    });
     $('#includelabelvalue').click(function(){
         if (labelincludevalue) {
             $('#includelabelvalue').removeClass('ui-btn-active');
@@ -279,13 +283,13 @@ $(document).ready(function(){
             labelincludevalue = true;
         }
         $('#maincontrolgroup').listview('refresh');
-    })
+    });
 
-    UpdateLogTable()
+    UpdateLogTable();
     setTimeout(function(){
         UpdatePlotMetadata({'timeout':'2000'})
     },1000);
-     setTimeout(function(){
+    setTimeout(function(){
         GetIOInfo({'timeout':'2000'})
     },1000);
 
@@ -294,11 +298,10 @@ $(document).ready(function(){
     // create a closure. It works great, if you can wrap your head around it.
 
     setTimeout(function(){
-        var optionsobject = {'timeoutclass':'updateperiodwidget'};
-        var callback = function(){updatePlots(optionsobject)};
-//        optionsobject.callback = callback;
-        updatePlots(optionsobject, callback)
-    },1000);
+        var options = {'timeoutclass':'updateperiodwidget'};
+        options.callback = function(){updatePlots(options)};
+        updatePlots(options)
+    },1000)
 
 //    setTimeout(function(){updatePlots({timeoutclass:'updateperiodwidget'})},3000)
 });

@@ -346,7 +346,7 @@ function wsgiCallbackTableData (actionobj) {
         actionobj.start = 0;
     }
     var starttime = new Date().getTime();
-    callback = actionobj.callback || logdone;
+    var callback = actionobj.callback || logdone;
 
     // Need to delete method or ajax will execute
     delete actionobj.callback;
@@ -355,8 +355,8 @@ function wsgiCallbackTableData (actionobj) {
 		type: "post",
 		datatype:"json",				
 		data: actionobj,
-		success: function(response){
-            //console.log('SUCCESS: ' + actionobj.tablename)
+		success: function(response, textStatus, xhr){
+            console.log(response)
 			// Execute our callback function
             response = response || {};
             var now = new Date().getTime();
@@ -364,21 +364,13 @@ function wsgiCallbackTableData (actionobj) {
             if (response.hasOwnProperty('etag')){
                 actionobj.etag = response.etag;
             }
-            console.log(callback);
-            callback(response,actionobj);
+            callback(response, actionobj, xhr);
             actionobj.callback = callback;
-            //if (window[actionobj.callback])
-            //{
-            //   console.log('successfully found callback')
-            //   window[actionobj.callback](response,actionobj);
-            //}
-            //else {
-            //    console.log('no callback. field delivered: ' + actionobj.callback)
-            //}
 		}
 	});	
 }
 function wsgiCallbackMultTableData (actionobj) {
+
     // Get the data
     // We do this because the wsgi acts funny with things we say are
     // arrays and send in arrays of less than 2 items. So we send in two extra elements
@@ -392,52 +384,57 @@ function wsgiCallbackMultTableData (actionobj) {
     if (!actionobj.hasOwnProperty('starts')) {
         actionobj.start = -1; // default is to start at end.
     }
+    var starttime = new Date().getTime();
+    var callback = actionobj.callback || logdone;
+
+    // Need to delete method or ajax will execute
+    delete actionobj.callback;
+
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
 		datatype:"json",						
 		data: actionobj,
-		success: function(response){
+		success: function(response, textStatus, xhr){
+
 			//alert("I worked");
 			// Execute our callback function
             response = response || {};
+            response.data=response.data.slice(2);
+            actionobj.tablenames=actionobj.tablenames.slice(2);
+
+            var now = new Date().getTime();
+            response.responsetime = now - starttime;
             if (response.hasOwnProperty('etag')){
                 actionobj.etag = response.etag;
             }
-            // the slice here is a bit of a hack to prune
-            // off the two dummy values we sent in earlier
-            response.data=response.data.slice(2);
-            actionobj.tablenames=actionobj.tablenames.slice(2);
-			if (window[actionobj.callback])
-            {
-               window[actionobj.callback](response,actionobj);
-            }
-            else {
-                console.log('no callback!')
-            }
+            callback(response, actionobj, xhr);
+            actionobj.callback = callback;
 		}
 	});	
 }
-function wsgiGetTableNames (actionobj, callback) {
+function wsgiGetTableNames (actionobj) {
     actionobj.action = 'gettablenames';
+     var starttime = new Date().getTime();
+    callback = actionobj.callback || logdone;
+
+    // Need to delete method or ajax will execute
+    delete actionobj.callback;
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
 		datatype:"json",						
 		data: actionobj,
-		success: function(response){
+		success: function(response, textStatus, xhr){
 			// Execute our callback function
             response = response || {};
+            var now = new Date().getTime();
+            response.responsetime = now - starttime;
             if (response.hasOwnProperty('etag')){
                 actionobj.etag = response.etag;
             }
-			if (window[actionobj.callback])
-            {
-               window[actionobj.callback](response,actionobj);
-            }
-            else {
-                console.log('no callback!')
-            }
+            callback(response, actionobj, xhr);
+            actionobj.callback = callback;
 		}
 	});
 }
@@ -926,78 +923,88 @@ function testFunction(someoptions) {
 // This will change the rendering to databasename + tablename + value. This has not been extensively tested
 
 function GetAndRenderTableData(options){
-    options.callback="RenderTableData";
+    options.callback=RenderTableData;
     wsgiCallbackTableData(options)
 }
-function RenderTableData(datatableresponse,options) {
-    console.log('rendering' + options.tablename)
-    datatableresponse = datatableresponse || {}
-    var datatable = datatableresponse.data || [];
-    options = options || {};
+function RenderTableData(datatableresponse, options, xhr) {
 
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
+    var timeout = 0;
     if (options.hasOwnProperty('timeoutclass')) {
-        timeout=$('.' + options.timeoutclass).val()*1000;
+        timeout = $('.' + options.timeoutclass).val() * 1000;
     }
     else if (options.hasOwnProperty('timeout')) {
-        setTimeout(function(){GetAndRenderTableData(options)},options.timeout);
+        setTimeout(function () {
+            GetAndRenderTableData(options)
+        }, options.timeout);
     }
 
-    // Render selector items if instructed to.
-    if (options.hasOwnProperty('selectorclass')){
-        var selectoritems = [];
-        var selectortableitem = options.selectortableitem || 'name';
+    // Only render if data is new and successful
+    if (xhr.status == "200") {
+        console.log('rendering ' + options.tablename)
+        datatableresponse = datatableresponse || {}
+        var datatable = datatableresponse.data || [];
+        options = options || {};
 
-        if (options.hasOwnProperty('selectorhasnoneitem')){
-            selectoritems.push('none')
-        }
+        // Render selector items if instructed to.
+        if (options.hasOwnProperty('selectorclass')) {
+            var selectoritems = [];
+            var selectortableitem = options.selectortableitem || 'name';
 
-        for (var i = 0; i < datatable.length; i++) {
-            selectoritems.push(datatable[i][selectortableitem]);
-        }
-        //        if (selectortableitem == 'ssid') {
-        //            console.log(datatable)
-        //            console.log(selectortableitem)
-        //            console.log(selectoritems)
-        //        }
-        $('.' + options.selectorclass).each(function () {
-            if ($('#' + this.id).length > 0) {
-                UpdateSelect(this.id, selectoritems);
+            if (options.hasOwnProperty('selectorhasnoneitem')) {
+                selectoritems.push('none')
             }
-        });
+
+            for (var i = 0; i < datatable.length; i++) {
+                selectoritems.push(datatable[i][selectortableitem]);
+            }
+            //        if (selectortableitem == 'ssid') {
+            //            console.log(datatable)
+            //            console.log(selectortableitem)
+            //            console.log(selectoritems)
+            //        }
+            $('.' + options.selectorclass).each(function () {
+                if ($('#' + this.id).length > 0) {
+                    UpdateSelect(this.id, selectoritems);
+                }
+            });
+        }
+        // If we want to render a flat table, we have to pass index 1
+        // Otherwise, it will be rendered with the index of 1 in the classnames
+        if (options.hasOwnProperty('index')) {
+            RenderWidgets(options.database, options.tablename, datatable[options.index - 1], options);
+            if (options.hasOwnProperty('auxcallback')) {
+                options.auxcallback(channelsdata[options.index - 1])
+            }
+        }
+        else if (options.hasOwnProperty('indexselector')) {
+            // We pass an index selector id and get the selected index value.
+            // we get the row based on the value of the selector
+            var selectedindex = $('#' + options.indexselector).prop('selectedIndex');
+            RenderWidgets(options.database, options.tablename, datatable[selectedindex], options)
+            if (options.hasOwnProperty('auxcallback')) {
+                options.auxcallback(datatable[selectedindex])
+            }
+        }
+        else {
+            // include index in class render name
+            RenderWidgetsFromArray(options.database, options.tablename, datatable, options)
+            if (options.hasOwnProperty('auxcallback')) {
+                options.auxcallback(datatable)
+            }
+        }
     }
-    // If we want to render a flat table, we have to pass index 1
-    // Otherwise, it will be rendered with the index of 1 in the classnames
-    if (options.hasOwnProperty('index')) {
-		RenderWidgets(options.database,options.tablename,datatable[options.index-1],options);
-        if (options.hasOwnProperty('auxcallback')){
-            options.auxcallback(channelsdata[options.index-1])
-        }
-	}
-	else if (options.hasOwnProperty('indexselector')) {
-        // We pass an index selector id and get the selected index value.
-        // we get the row based on the value of the selector
-        var selectedindex=$('#'+options.indexselector).prop('selectedIndex');
-		RenderWidgets(options.database,options.tablename,datatable[selectedindex],options)
-        if (options.hasOwnProperty('auxcallback')){
-            options.auxcallback(datatable[selectedindex])
-        }
+    else {
+        console.log('status; ' + xhr.status)
     }
-	else {
-        // include index in class render name
-        RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
-        if (options.hasOwnProperty('auxcallback')){
-            options.auxcallback(datatable)
-        }
-	}
 }
 
 
 //// Tables Data
 function UpdateTableNamesData(options) {
     options = options || {};
-	options.callback="RenderTableNamesData";
+	options.callback=RenderTableNamesData;
     if (! options.hasOwnProperty('database')){
         options.database = controldatabase;
     }
@@ -1044,7 +1051,7 @@ function RenderTableNamesData(tablenameresponse,options) {
 // constroldatachannelscolumnselect. Add that class and it will be rendered
 
 function UpdateColumnsData(options) {
-	options.callback="RenderColumnsData";
+	options.callback=RenderColumnsData;
     if (! options.hasOwnProperty('database')){
         options.database = controldatabase;
     }

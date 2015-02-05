@@ -352,28 +352,26 @@ function UpdateMetadata(options) {
 //// Metadata
 function UpdatePlotMetadata(options) {
 	//options.callback=RenderPlotMetadata;
-    var callback = "RenderPlotMetadata";
+    options.callback = RenderPlotMetadata;
     options.database=logdatabase;
     options.tablename='metadata';
-	wsgiCallbackTableData(options, callback);
+	wsgiCallbackTableData(options);
 }
 function RenderPlotMetadata(metadataresponse,options) {
     options = options || {};
     metadataresponse = metadataresponse || {};
-    console.log(metadataresponse)
     var metadata = metadataresponse.data || [];
     var jqmpage = options.jqmpage || false;
 
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
+
+    var timeout=0;
     if (options.hasOwnProperty('timeoutclass')) {
         timeout=$('.' + options.timeoutclass).val()*1000;
     }
     else if (options.hasOwnProperty('timeout')) {
         timeout=options.timeout;
-    }
-    else {
-        timeout=0;
     }
 	if (timeout>0) {
 		setTimeout(function(){UpdatePlotMetadata(options)},timeout);
@@ -387,9 +385,9 @@ function RenderPlotMetadata(metadataresponse,options) {
 
 //// Control Recipes - uses table names
 function UpdateControlRecipeData(options) {
-	  var callback=RenderControlRecipeData;
+	 options.callback=RenderControlRecipeData;
       options.database=recipedatabase;
-	  wsgiGetTableNames(options, callback)
+	  wsgiGetTableNames(options)
 }
 function RenderControlRecipeData(reciperesponse,options) {
     reciperesponse = reciperesponse || {};
@@ -611,7 +609,7 @@ function RenderIOInfoTable (datatable,options) {
 
 function UpdateChannelsTable(options) {
     options = options || {};
-	options.callback="RenderChannelsTable"
+	options.callback=RenderChannelsTable
     options.tablename='channels';
     options.database=controldatabase;
 	wsgiCallbackTableData(options)
@@ -696,7 +694,7 @@ function RenderChannelsTable (datatable,options) {
 
 function UpdateControlAlgorithmsTable(options) {
     options=options || {};
-    options.callback="RenderControlAlgorithmsTable";
+    options.callback=RenderControlAlgorithmsTable;
     options.tablename='controlalgorithms';
     options.database=controldatabase;
 	wsgiCallbackTableData(options)
@@ -907,12 +905,12 @@ function GetAndRenderLogData(options){
     // length is passed in with options object
     options.database = logdatabase;
     //var callback=RenderLogData;
-    options.callback = "RenderLogData";
+    options.callback = RenderLogData;
 	wsgiCallbackTableData(options);
 }
 
 function RenderLogData (dataresponse,options) {
-    console.log('Rendering: ' + options.logtablename);
+    //console.log('Rendering: ' + options.logtablename);
 
     //console.log(options)
     //
@@ -959,15 +957,14 @@ function RenderLogData (dataresponse,options) {
 
 function GetAndRenderMultLogsData(options){
     options = options || {};
-    options.callback="RenderMultLogsData";
+    options.callback=RenderMultLogsData;
+    //options.callback=logdone;
     options.database = logdatabase;
     wsgiCallbackMultTableData(options)
 }
 
 function RenderMultLogsData(returnedlogdataresponse,options){
-    options=options||{}
-    console.log("Mult Log rendering")
-    console.log(returnedlogdataresponse)
+    options=options || {}
     returnedlogdataresponse = returnedlogdataresponse || {};
     var returnedlogdata = returnedlogdataresponse.data || [];
 
@@ -1120,6 +1117,7 @@ function makeUserServerMap(locations,labels,content) {
 
 function runwsgiActions(actionobj) {
     var callback = actionobj.callback || logdone;
+    delete actionobj.callback;
     $.ajax({
         url: "/wsgiactions",
         type: "post",
@@ -1127,12 +1125,14 @@ function runwsgiActions(actionobj) {
         data: actionobj,
         success: function(response){
             callback(response,actionobj);
+            actionobj.callback = callback;
         }
    });
 }
 function getwsgiStatus(callback) {
     var actionobj = {specialaction: 'modwsgistatus'};
     callback = callback || logdone;
+    delete actionobj.callback;
     $.ajax({
         url: "/wsgireadonly",
         type: "post",
@@ -1140,6 +1140,7 @@ function getwsgiStatus(callback) {
         data: actionobj,
         success: function(response){
             callback(response,actionobj);
+            actionobj.callback = callback;
         }
    });
 }

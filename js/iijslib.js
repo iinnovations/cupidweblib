@@ -347,7 +347,7 @@ function wsgiCallbackTableData (actionobj) {
     }
     var starttime = new Date().getTime();
     var callback = actionobj.callback || logdone;
-
+    console.log(callback)
     // Need to delete method or ajax will execute
     delete actionobj.callback;
 	$.ajax({
@@ -356,7 +356,6 @@ function wsgiCallbackTableData (actionobj) {
 		datatype:"json",				
 		data: actionobj,
 		success: function(response, textStatus, xhr){
-            console.log(response)
 			// Execute our callback function
             response = response || {};
             var now = new Date().getTime();
@@ -364,6 +363,7 @@ function wsgiCallbackTableData (actionobj) {
             if (response.hasOwnProperty('etag')){
                 actionobj.etag = response.etag;
             }
+            //console.log(callback)
             callback(response, actionobj, xhr);
             actionobj.callback = callback;
 		}

@@ -46,19 +46,15 @@
 
   <script>
 
-    QUnit.test( "a basic test example", function( assert ) {
-      var value = "hello";
-      assert.equal( value, "hello", "We expect value to be hello" );
-    });
-    QUnit.test( "cupidjslib Test Function", function( assert ) {
+    QUnit.test( "JS: cupidjslib test function", function( assert ) {
         var testreturn = cupidjslibtest();
         assert.ok(testreturn, "True value was returned from library")
     });
-    QUnit.test( "iijslib Test Function", function( assert ) {
+    QUnit.test( "JS: iijslib Test Function", function( assert ) {
         var testreturn = iijslibtest();
         assert.ok(testreturn, "True value was returned from library")
     });
-    QUnit.test( "Async channels speed test", function( assert ) {
+    QUnit.test( "AJAX: Async channels speed test", function( assert ) {
         var asyncdone = assert.async();
 
         var totaldatasize = 0;
@@ -93,7 +89,6 @@
                 }
             }
         }
-        ;
     });
     QUnit.test( "Python library import test functions", function( assert ) {
         var asyncdone = assert.async();
@@ -119,7 +114,7 @@
             }
         }
     });
-    QUnit.test( "Netconfig Functions", function( assert ) {
+    QUnit.test( "Python: Netconfig Execute", function( assert ) {
         var asyncdone = assert.async();
         var testname = 'netconfig'
         function netconfigcallback(response, actionobj) {
@@ -132,21 +127,21 @@
         }
         runwsgiActions({action: 'testfunction', testname: testname, callback: netconfigcallback});
     });
-    QUnit.test( "Core CuPID Functions", function( assert ) {
+    QUnit.test( "Python: Systemstatus Execute", function( assert ) {
         var asyncdone = assert.async();
         var testname = 'systemstatus'
         function systemstatuscallback(response, actionobj) {
             if (typeof response !== 'undefined') {
                 response.data = response.data || {};
-                console.log(response.data);
-                assert.equal(response.data['failurecount'],0, "Run  " + testname);
+                assert.equal(response.data.errorcount,0, "Run  " + testname + '. Errors: ' + response.data.errors.replace('log',
+                ''));
                 asyncdone()
             }
         }
         runwsgiActions({action: 'testfunction', testname: testname, callback: systemstatuscallback});
     });
 
-    QUnit.test( "UpdateIO Test", function( assert ) {
+    QUnit.test( "Python: UpdateIO Execute", function( assert ) {
         var asyncdone = assert.async();
         var testname = 'updateio'
         function updateiocallback(response, actionobj) {
@@ -162,7 +157,7 @@
 
   </script>
     <div id="statsummary" >
-        <h1 class="resultsheader">Test Results</h1>
+        <h1 class="resultsheader">AJAX Speed Test Results</h1>
         <ul class="results">
             <li class="styleone">Total ajax data retrieval time: <span id="ajaxtime"></span>ms</li>
             <li class="styleone">Total data size: <span id="ajaxsize"></span> bytes</li>

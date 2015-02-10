@@ -1122,6 +1122,7 @@ function runwsgiActions(actionobj) {
         url: "/wsgiactions",
         type: "post",
         datatype:"json",
+        timeout:20000,
         data: actionobj,
         success: function(response){
             callback(response,actionobj);

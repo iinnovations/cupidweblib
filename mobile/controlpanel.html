@@ -73,7 +73,7 @@ var channelnames;
 function UpdateChannelsTable() {
     var actionobj = {database:controldatabase,tablename:'channels'};
 //    var callback = RenderChannels;
-    actionobj.callback = "RenderChannels";
+    actionobj.callback = RenderChannels;
 	wsgiCallbackTableData(actionobj);
 }
 function RenderChannels(channelstableresponse,actionobj) {

@@ -347,13 +347,13 @@ function wsgiCallbackTableData (actionobj) {
     }
     var starttime = new Date().getTime();
     var callback = actionobj.callback || logdone;
-    console.log(callback)
     // Need to delete method or ajax will execute
     delete actionobj.callback;
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
-		datatype:"json",				
+		datatype:"json",
+        tiemout:2000,
 		data: actionobj,
 		success: function(response, textStatus, xhr){
 			// Execute our callback function
@@ -364,9 +364,17 @@ function wsgiCallbackTableData (actionobj) {
                 actionobj.etag = response.etag;
             }
             //console.log(callback)
-            callback(response, actionobj, xhr);
             actionobj.callback = callback;
-		}
+            callback(response, actionobj, xhr);
+		},
+        error: function(xhr, textstatus, errorthrown){
+            console.log('error function: ' + errorthrown)
+            actionobj.callback = callback;
+            callback({}, actionobj, xhr);
+        },
+        complete: function(){
+            //console.log('complete function')
+        }
 	});	
 }
 function wsgiCallbackMultTableData (actionobj) {
@@ -395,7 +403,7 @@ function wsgiCallbackMultTableData (actionobj) {
 		type: "post",
 		datatype:"json",						
 		data: actionobj,
-		success: function(response, textStatus, xhr){
+		success: function(response, textstatus, xhr){
 
 			//alert("I worked");
 			// Execute our callback function
@@ -408,9 +416,14 @@ function wsgiCallbackMultTableData (actionobj) {
             if (response.hasOwnProperty('etag')){
                 actionobj.etag = response.etag;
             }
-            callback(response, actionobj, xhr);
             actionobj.callback = callback;
-		}
+            callback(response, actionobj, xhr);
+		},
+        error: function(xhr, textstatus, errorthrown){
+
+
+        },
+        complete: function(){console.log('complete function')}
 	});	
 }
 function wsgiGetTableNames (actionobj) {

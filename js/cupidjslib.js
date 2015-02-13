@@ -1115,36 +1115,7 @@ function makeUserServerMap(locations,labels,content) {
 // should probably do some documentation here on what the
 // possible actions are
 
-function runwsgiActions(actionobj) {
-    var callback = actionobj.callback || logdone;
-    delete actionobj.callback;
-    $.ajax({
-        url: "/wsgiactions",
-        type: "post",
-        datatype:"json",
-        timeout:20000,
-        data: actionobj,
-        success: function(response){
-            callback(response,actionobj);
-            actionobj.callback = callback;
-        }
-   });
-}
-function getwsgiStatus(callback) {
-    var actionobj = {specialaction: 'modwsgistatus'};
-    callback = callback || logdone;
-    delete actionobj.callback;
-    $.ajax({
-        url: "/wsgireadonly",
-        type: "post",
-        datatype:"json",
-        data: actionobj,
-        success: function(response){
-            callback(response,actionobj);
-            actionobj.callback = callback;
-        }
-   });
-}
+
 function setUserAuths(args){
     actionobj=args;
     args.action='usermodify'

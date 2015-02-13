@@ -487,6 +487,37 @@ function wsgiExecuteCallbackQuery (actionobj) {
 	});	
 }
 
+function runwsgiActions(actionobj) {
+    var callback = actionobj.callback || logdone;
+    delete actionobj.callback;
+    $.ajax({
+        url: "/wsgiactions",
+        type: "post",
+        datatype:"json",
+        timeout:20000,
+        data: actionobj,
+        success: function(response){
+            callback(response,actionobj);
+            actionobj.callback = callback;
+        }
+   });
+}
+
+function getwsgiStatus(callback) {
+    var actionobj = {specialaction: 'modwsgistatus'};
+    callback = callback || logdone;
+    delete actionobj.callback;
+    $.ajax({
+        url: "/wsgireadonly",
+        type: "post",
+        datatype:"json",
+        data: actionobj,
+        success: function(response){
+            callback(response,actionobj);
+            actionobj.callback = callback;
+        }
+   });
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //  Data Rendering
@@ -593,7 +624,7 @@ function setWidgetActions(options){
         //alert('i have a condition: ' + args.condition)
     }
     var $selectclasses= $(baseclass + 'select');
-    $.each($selectclasses,function() { // could use key, value, but don't needn
+    $.each($selectclasses,function() { // could use key, value, but don't need
         $(this).off('change.update');
         $(this).on('change.update', function (event) {
             // Check for authrequirement class. This doesn't actually perform
@@ -1137,11 +1168,11 @@ function UpdateUniqueKeyData(options) {
 
 function dropTable(database,tablename) {
     var query='drop table \"' + tablename  + '\"';
-    wsgiExecuteQuery (database,query, callback);
+    runwsgiActions({action:'runquery',database:database,query:query, callback:callback});
 }
 function deleteRow(database,table,callback,identifier,value){
     var query='delete from \"' + table + '\" where \"' + identifier + '\"=\"' + value + '\"';
-    wsgiExecuteQuery (database,query,callback);
+    runwsgiActions({action:'runquery',database:database,query:query,callback:callback});
 }
 function addDBRow(database, table, callback, valuenames,values) {
     var valuenames=valuenames || [];
@@ -1178,5 +1209,5 @@ function addDBRow(database, table, callback, valuenames,values) {
         query+=' default values';
     }
 //    console.log(query)
-    wsgiExecuteQuery (database,query, callback);
+    runwsgiActions({action:'runquery', database:database,query:query, callback:callback});
 }

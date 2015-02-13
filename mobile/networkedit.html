@@ -110,7 +110,7 @@ function RenderWirelessTable(datatableresponse) {
             if ($('#password' + event.data.index + '_1').val() == $('#password' + event.data.index + '_2').val()) {
 //                alert('setting password to ' + $('#password' + index + '_1').val())
 //                alert('update wireless set password=\'' + $('#password' + index + '_1').val() + '\' where SSID=\'' + datatable[event.data.i].SSID + '\'')
-                wsgiExecuteQuery(safedatabase,'update wireless set password=\'' + $('#password' + index + '_1').val() + '\' where SSID=\'' + datatable[event.data.i].SSID + '\'')
+                runwsgiActions({action:'runquery',database:safedatabase,query:'update wireless set password=\'' + $('#password' + index + '_1').val() + '\' where SSID=\'' + datatable[event.data.i].SSID + '\''})
                 $("#enterpasswordpopup" + event.data.index).popup('close')
             }
             else {

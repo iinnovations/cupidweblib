@@ -343,7 +343,7 @@ logUserAuths(sessiondata)
                 });
             }
             else if (selectedinterfacetype == 'remote') {
-                wsgiCallbackTableData({database:controldatabase,tablename:'interfaces',callback:RenderRemoteInterfaces);
+                wsgiCallbackTableData({database:controldatabase,tablename:'interfaces',callback:RenderModbusInterfaces});
             }
         });
 

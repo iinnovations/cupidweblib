@@ -147,6 +147,19 @@
         }
         runwsgiActions({action: 'testfunction', testname: testname, callback: updateiocallback});
     });
+    QUnit.test( "Python: PiControl Execute", function( assert ) {
+        var asyncdone = assert.async();
+        var testname = 'picontrol'
+        function picontrolcallback(response, actionobj) {
+            if (typeof response !== 'undefined') {
+                response.data = response.data || {};
+                console.log(response.data);
+                assert.equal(response.data['failurecount'],0, "Success for  " + testname);
+                asyncdone()
+            }
+        }
+        runwsgiActions({action: 'testfunction', testname: testname, callback: picontrolcallback});
+    });
 
   </script>
     <div id="statsummary" >

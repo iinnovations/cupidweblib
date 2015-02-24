@@ -167,8 +167,15 @@ function GetPlotSeriesNamesFromViewerControls(){
                 }
             }
             else if (thisseriesmeta.type == 'channel') {
-                seriesshortnames.push(thisseriesmeta.id);
+                seriesshortnames.push(thisseriesmeta.id + ' PV');
                 seriesnames.push('controlvalue');
+
+                // push another tablename instance for multiple values
+                tablenames.push(lognames[index]);
+                seriesids.push(thisseriesmeta.id);
+
+                seriesshortnames.push(thisseriesmeta.id + ' SV');
+                seriesnames.push('setpointvalue');
             }
             else {
                 seriesnames.push('value');
@@ -183,6 +190,19 @@ function GetPlotSeriesNamesFromViewerControls(){
 }
 
 function updatePlots(options){
+
+    // Ok, this is a bit complicated. Typically when we want to do repeated asynchronous rendering, we pass
+    // everything we need to the table retrieval and rendering function, GetAndRenderMultLogsData.
+    // In this case, however, we need to retrieve the metadata and tablenames and pass it to the render function
+    // fresh each time. We want to do so asynchronously, however, so we need to pass it as a callback.
+
+    // Because the render function passes its own callback to the ajax, we need to add an 'auxcallback', which we delete
+    // and reinsert in the ajax call as the regular callback. It will call the updatePlots function with a closure each
+    // time. Phew!
+
+    // If you're looking for the auxcallback, it's defined in the call to this function in the options
+    // object.
+
       options = options || {};
 
 //    if ( ! renderoptions.hasOwnProperty('renderplotids')) {
@@ -295,11 +315,12 @@ $(document).ready(function(){
 
     // This is some interesting stuff. We put the callback to the top-level function in here, so
     // that when it's called from deeper it pulls in everything new. To do so, however, we need to
-    // create a closure. It works great, if you can wrap your head around it.
+    // create a closure. It works great, if you can wrap your head around it. More details in the
+    // updatePlots definition.
 
     setTimeout(function(){
         var options = {'timeoutclass':'updateperiodwidget'};
-        options.callback = function(){updatePlots(options)};
+        options.auxcallback = function(){updatePlots(options)};
         updatePlots(options)
     },1000)
 

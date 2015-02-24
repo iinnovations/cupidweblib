@@ -398,6 +398,11 @@ function wsgiCallbackMultTableData (actionobj) {
     // Need to delete method or ajax will execute
     delete actionobj.callback;
 
+    if (actionobj.hasOwnProperty('auxcallback')) {
+        var auxcallback = actionobj.auxcallback;
+        delete actionobj.auxcallback;
+    }
+
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
@@ -408,7 +413,11 @@ function wsgiCallbackMultTableData (actionobj) {
 			//alert("I worked");
 			// Execute our callback function
             response = response || {};
-            response.data=response.data.slice(2);
+
+            // response might be 304 not modified. Need to consider this down the line as well
+            if (response.hasOwnProperty('data')) {
+                 response.data=response.data.slice(2);
+            }
             actionobj.tablenames=actionobj.tablenames.slice(2);
 
             var now = new Date().getTime();
@@ -417,7 +426,11 @@ function wsgiCallbackMultTableData (actionobj) {
                 actionobj.etag = response.etag;
             }
             actionobj.callback = callback;
+            if (typeof auxcallback !== 'undefined') {
+                actionobj.auxcallback = auxcallback;
+            }
             callback(response, actionobj, xhr);
+
 		},
         error: function(xhr, textstatus, errorthrown){
 
@@ -986,7 +999,7 @@ function RenderTableData(datatableresponse, options, xhr) {
 
     // Only render if data is new and successful
     if (xhr.status == "200") {
-        console.log('rendering ' + options.tablename)
+        //console.log('rendering ' + options.tablename)
         datatableresponse = datatableresponse || {}
         var datatable = datatableresponse.data || [];
         options = options || {};

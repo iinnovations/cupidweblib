@@ -125,7 +125,7 @@ function RenderChannels(channelstableresponse,actionobj) {
                   <ul data-role="listview" data-inset="false" class="controllist">\
                     <li >\
                       <label for="channelssetpointvalue' + index + 'slider" class="ui-biglabel" style="width:100%; padding-right:10px">Setpoint</label>\
-                      <input type="range" class="channelssetpointvalue' + index + 'slider reqauth3" id="channelssetpointvalue' + index + 'slider"  value="60" min="0" max="100" />\
+                      <input type="range" class="channelssetpointvalue' + index + 'slider reqauth3" id="channelssetpointvalue' + index + 'slider"  value="60" min="0" max="400" />\
                     </li>\
                     <li data-role="fieldcontain" >\
                         <label for="channelsenabled' + index +  'toggle"  style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>\
@@ -415,7 +415,7 @@ $(document).ready(function(){
                   <ul data-role="listview" data-inset="false">
                     <li data-role="fieldcontain">
                       <label for="slider-1" class="ui-biglabel">Setpoint Value</label>
-                      <input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
+                      <input type="range" name="slider-1" id="slider-1" value="60" min="0" max="400" />
                     </li>
                     <li data-role="fieldcontain" >
                         <label for="flip-1" style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>

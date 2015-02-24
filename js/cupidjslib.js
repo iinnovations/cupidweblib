@@ -391,33 +391,40 @@ function UpdateControlRecipeData(options) {
 }
 function RenderControlRecipeData(reciperesponse,options) {
     reciperesponse = reciperesponse || {};
-    var recipenames = reciperesponse.data;
+
     options = options || {};
     var jqmpage = options.jqmpage || false;
 
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
+    var timeout=0;
     if (options.hasOwnProperty('timeoutclass')) {
         timeout=$('.' + options.timeoutclass).val()*1000;
     }
     else if (options.hasOwnProperty('timeout')) {
         timeout=options.timeout;
     }
-    else {
-        timeout=0;
-    }
-	controlrecipenames=['none'];
-	controlrecipenames.push(recipenames);
+
 //    console.log(controlrecipenames)
 	if (options.timeout>0) {
 		setTimeout(function(){UpdateControlRecipeData(options)},options.timeout)
 	}
 
-	$('.controlrecipeselect').each(function(){
-		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, controlrecipenames)
-		}
-	});
+    // condition for 304
+    if (reciperesponse.hasOwnProperty('data')) {
+        console.log('i have recipe data')
+        controlrecipenames=['none'];
+        var recipenames = reciperesponse.data;
+        controlrecipenames.push(recipenames);
+        $('.controlrecipeselect').each(function () {
+            if ($('#' + this.id).length > 0) {
+                UpdateSelect(this.id, controlrecipenames)
+            }
+        });
+    }
+    else {
+        console.log('i do not have recipe data')
+    }
 }
 
 
@@ -855,7 +862,7 @@ var largeChannelOptionsObj={
 	},
 	axes:{
 		xaxis:{
-			renderer:$.DateAxisRenderer,
+			renderer:$.jqplot.DateAxisRenderer,
 			tickOptions:{mark:'inside'}
 		},
 		 
@@ -864,9 +871,9 @@ var largeChannelOptionsObj={
 		},  
 		y2axis:{
             autoscale: true,
-		  min:-110,
-		  max:110,
-		  ticks:[-100,-50,0,50,100],
+		  min:-200,
+		  max:200,
+		  ticks:[-200,-100,0,100,200],
 		  tickOptions:{showGridline:false, mark:'inside'},
 		  showTicks: true
 		}
@@ -897,10 +904,10 @@ function GetAndRenderLogData(options){
     options = options || {};
     console.log(options);
     if (options.hasOwnProperty('tablenameid')) {
-        options.logtablename=$('#' + options.tablenameid).val()
+        options.tablename=$('#' + options.tablenameid).val()
     }
     else if (options.hasOwnProperty('channelnameid')) {
-        options.logtablename=$('#' + options.channelnameid).val() + '_log'
+        options.tablename='channel_' + $('#' + options.channelnameid).val() + '_log'
     }
     // length is passed in with options object
     options.database = logdatabase;
@@ -912,46 +919,52 @@ function GetAndRenderLogData(options){
 function RenderLogData (dataresponse,options) {
     //console.log('Rendering: ' + options.logtablename);
 
-    //console.log(options)
-    //
-    var returnedlogdata = dataresponse.data;
-
-    // This function operates on a single returned log table
-
-    // We give this function [seriesnames] and [plotids]
-    // to render to, as properties of the options argument
-    // We then use these to parse the passed datatable
-
     if (options.timeout>0) {
 		setTimeout(function(){GetAndRenderLogData(options)},options.timeout);
     }
-    for (i=0;i<options.renderplotids.length;i++) {
-		$('#' + options.renderplotids[i]).html('');
-    }
-    if (! options.hasOwnProperty('serieslabels')) {
-        options.serieslabels = [];
-        for (var i= 0; i<options.seriesnames.length; i++) {
-            options.serieslabels.push('')
+
+    if (dataresponse.hasOwnProperty('data')) {
+        var returnedlogdata = dataresponse.data;
+        // This function operates on a single returned log table
+
+        // We give this function [seriesnames] and [plotids]
+        // to render to, as properties of the options argument
+        // We then use these to parse the passed datatable
+
+
+        for (i = 0; i < options.renderplotids.length; i++) {
+            $('#' + options.renderplotids[i]).html('');
         }
-    }
-    // for each valuename, iterate over j data points,
-    // then render to k plotids
-    var plotseriesarray=[]
-    for (var i=0;i<options.seriesnames.length;i++){
-        var currentseries = []
-        var seriesname = options.seriesnames[i]
-        var serieslabel = options.serieslabels[i]
-        for (var j=0; j<returnedlogdata.length; j++){
-            currentseries.push([returnedlogdata[j].time,returnedlogdata[j][seriesname]])
-            for (var k=0;k<options.renderplotids.length;k++){
-                options.renderplotoptions[k].series[i].label=serieslabel + ' : ' + seriesname;
+        if (!options.hasOwnProperty('serieslabels')) {
+            options.serieslabels = [];
+            for (var i = 0; i < options.seriesnames.length; i++) {
+                options.serieslabels.push('')
             }
         }
-        plotseriesarray.push(currentseries)
-        //console.log(currentseries)
+        // for each valuename, iterate over j data points,
+        // then render to k plotids
+        var plotseriesarray = [];
+        for (var i = 0; i < options.seriesnames.length; i++) {
+
+            var currentseries = [];
+            var seriesname = options.seriesnames[i];
+            var serieslabel = options.serieslabels[i];
+            for (var j = 0; j < returnedlogdata.length; j++) {
+                currentseries.push([returnedlogdata[j].time, returnedlogdata[j][seriesname]]);
+                for (var k = 0; k < options.renderplotids.length; k++) {
+                    options.renderplotoptions[k].series[i].label = serieslabel + ' : ' + seriesname;
+                }
+            }
+            plotseriesarray.push(currentseries);
+            //console.log(currentseries)
+        }
+        for (i = 0; i < options.renderplotids.length; i++) {
+            console.log(options.renderplotoptions[i])
+            $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
+        }
     }
-    for (i=0;i<options.renderplotids.length;i++){
-        $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
+    else {
+        console.log('no data returned, so no plot modification.')
     }
 }
 
@@ -963,7 +976,7 @@ function GetAndRenderMultLogsData(options){
     wsgiCallbackMultTableData(options)
 }
 
-function RenderMultLogsData(returnedlogdataresponse,options){
+function RenderMultLogsData(returnedlogdataresponse,options, xhr){
     options=options || {}
     returnedlogdataresponse = returnedlogdataresponse || {};
     var returnedlogdata = returnedlogdataresponse.data || [];
@@ -995,49 +1008,55 @@ function RenderMultLogsData(returnedlogdataresponse,options){
         var timeout=0;
     }
     if (timeout>0) {
-		setTimeout(options.callback,timeout);
-	}
-    options.renderplotids = options.renderplotids || [];
-    for (i=0;i<options.renderplotids.length;i++) {
-        $('#' + options.renderplotids[i]).html('');
-    }
-    var plotseriesarray=[];
-    // For each log table
-    var totalseriescount=0;
-    for (var l=0;l<returnedlogdata.length;l++){
-        // For the i-th series in the l-th table
-        for (var i=0;i<options.serieslabels[l].length;i++){
-            var currentseries = [];
-            var seriesname = options.seriesnames[l][i];
-            var serieslabel = options.serieslabels[l][i];
-            var serieslength = returnedlogdata[l].length;
-            if (options.labelincludevalue) {
-//                get last point, and round with set precision
-                serieslabel += ': ' + Math.round(returnedlogdata[l][0][seriesname]* Math.pow(10,options.includelabelvalueprecision))/Math.pow(10,options.includelabelvalueprecision)
-//                serieslabel += ': ' + Math.round(returnedlogdata[l][serieslength-1][seriesname])
-            }
-
-            for (var j=0; j<returnedlogdata[l].length; j++){
-                currentseries.push([returnedlogdata[l][j].time,returnedlogdata[l][j][seriesname]]);
-                for (var k=0;k<options.renderplotids.length;k++){
-                    // For now the options reside in the html. Probably most flexible this way.
-//                    options.renderplotoptions[k].series[totalseriescount].label=options.serieslabels[l][i];
-                    options.renderplotoptions[k].series[totalseriescount].label=serieslabel;
-                }
-            }
-
-            plotseriesarray.push(currentseries);
-            totalseriescount += 1;
+        if (options.hasOwnProperty('auxcallback')) {
+            //console.log('i am an auxcallback!')
+            setTimeout(options.auxcallback, timeout);
         }
-    }
+	}
+    // If no data (could be 304 not modified), do absolutely nothing with plots
     if (returnedlogdata.length > 0) {
+        options.renderplotids = options.renderplotids || [];
+        for (i=0;i<options.renderplotids.length;i++) {
+            $('#' + options.renderplotids[i]).html('');
+        }
+        var plotseriesarray=[];
+        // For each log table
+        var totalseriescount=0;
+        for (var l=0;l<returnedlogdata.length;l++) {
+            // For the i-th series in the l-th table
+            for (var i = 0; i < options.serieslabels[l].length; i++) {
+                var currentseries = [];
+                var seriesname = options.seriesnames[l][i];
+                //alert(seriesname)
+                var serieslabel = options.serieslabels[l][i];
+                var serieslength = returnedlogdata[l].length;
+                if (options.labelincludevalue) {
+                    //                get last point, and round with set precision
+                    serieslabel += ': ' + Math.round(returnedlogdata[l][0][seriesname] * Math.pow(10, options.includelabelvalueprecision)) / Math.pow(10, options.includelabelvalueprecision)
+                    //                serieslabel += ': ' + Math.round(returnedlogdata[l][serieslength-1][seriesname])
+                }
+
+                for (var j = 0; j < returnedlogdata[l].length; j++) {
+                    currentseries.push([returnedlogdata[l][j].time, returnedlogdata[l][j][seriesname]]);
+                    for (var k = 0; k < options.renderplotids.length; k++) {
+                        // For now the options reside in the html. Probably most flexible this way.
+                        //                    options.renderplotoptions[k].series[totalseriescount].label=options.serieslabels[l][i];
+                        options.renderplotoptions[k].series[totalseriescount].label = serieslabel;
+                    }
+                }
+
+                plotseriesarray.push(currentseries);
+                totalseriescount += 1;
+            }
+        }
+        console.log(plotseriesarray)
         for (var i = 0; i < options.renderplotids.length; i++) {
             console.log(options.renderplotoptions[i])
             $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
         }
     }
     else {
-        console.log('No data returned, so no plot.')
+        console.log('No data returned, so no plot modification. Status: ' + xhr.status)
     }
 }
 

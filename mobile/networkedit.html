@@ -169,6 +169,10 @@ $(document).ready(function(){
         runwsgiActions({action:'setsystemflag',systemflag:'netconfig'})
         $('#restartnetworkpopup').popup('close')
     })
+    $('#rebootconfirmbutton').on('click',function(){
+        runwsgiActions({action:'setsystemflag',systemflag:'reboot'})
+        $('#rebootpopup').popup('close')
+    })
     $('#reloadnetconfigbutton').on('click',function(){
         UpdateNetConfigData({jqmpage:true})
     })
@@ -222,8 +226,19 @@ $(document).ready(function(){
             </div>
             <div data-role="content" data-theme="g" style="background:none" class="ui-corner-bottom ui-dialog-content">
                 <h3 class="ui-dialog-title">Restart Network? </h3>
-                <div class="ui-dialog-content"><p>You may lose your connection, and transition to ap from static will require reboot.</p><p>Ensure settings are good.</p></div>
+                <div class="ui-dialog-content"><p>You may lose your connection, and transition to ap from static may require reboot.</p><p>Ensure settings are good.</p></div>
                 <div data-role="button" data-icon="refresh" data-theme="f" id="restartnetworkconfirmbutton" style="margin:15px 20px 0px 20px">Restart</div>
+                <div>&nbsp;</div>
+            </div>
+        </div>
+        <a data-role="button" data-icon="check" data-theme="f" id="rebootbutton" data-rel="popup" href="#rebootnetworkpopup">Reboot CuPID</a>
+        <div data-role="popup" data-theme="g" data-dividertheme="g" id="rebootpopup" data-dismissible="false" style="max-width:400px;" class="ui-corner-all">
+            <div data-role="header" data-theme="g" class="ui-corner-top ui-dialog-header" >
+                <h3>Restart Network</h3>
+            </div>
+            <div data-role="content" data-theme="g" style="background:none" class="ui-corner-bottom ui-dialog-content">
+                <h3 class="ui-dialog-title">Reboot CuPID? </h3>
+                <div data-role="button" data-icon="refresh" data-theme="f" id="rebootconfirmbutton" style="margin:15px 20px 0px 20px">Restart</div>
                 <div>&nbsp;</div>
             </div>
         </div>

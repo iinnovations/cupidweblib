@@ -10,6 +10,7 @@ var systemdatabase='/var/www/data/systemdata.db';
 var authdatabase='/var/www/data/authlog.db';
 var safedatabase='/var/wwwsafe/safedata.db'
 var usersdatabase='/var/wwwsafe/users.db'
+var motesdatabase='/var/www/data/motes.db'
 
 // Define all the globals.
 // We define these globally so that when we render tables that need them

@@ -194,7 +194,7 @@ function RenderChannels(channelstableresponse,actionobj) {
                 </div><!-- Edit collapsible -->\
                 <div data-role="collapsible" data-collapsed="true" class="smallplotcollapsible" id="smallplotcollapsible' + index + '">\
               		<h4><span style="float:left;">Quick Plot</span>\
-                    <span class="' + channelsdata[i].name.replace(/ /g,'_') + '_logpoints ui-btn-up-c  ui-btn-corner-all cnt" style="float:right; font-size:12px; padding-left:7px; padding-right:7px">0</span></h4>\
+                    <span class="channel_' + channelsdata[i].name.replace(/ /g,'_') + '_logpoints ui-btn-up-c  ui-btn-corner-all cnt" style="float:right; font-size:12px; padding-left:7px; padding-right:7px">0</span></h4>\
               		<div class="smallplot" id="smallplot' + index + '">Loading ...</div>\
             	</div><!-- plot collapsible -->\
               </li><!-- Edit Collapsible set -->\
@@ -207,7 +207,7 @@ function RenderChannels(channelstableresponse,actionobj) {
             // Send index of channel and name of div to render to
             //GetAndRenderPlotData([channelsdata[data.index].name],["smallplot" + data.index])
             var channelindex=data.index-1;
-            var logtablename=channelsdata[channelindex].name + "_log";
+            var logtablename='channel_' + channelsdata[channelindex].name + "_log";
             GetAndRenderLogData({'tablename':logtablename, serieslabels:['label','label'], renderplotids:['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue'],renderplotoptions:[channelOptionsObj]})
 //            GetAndRenderLogData({'tablename':logtablename, serieslabels:['label','label'], renderplotids:['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue']})
 //            GetAndRenderLogData({tablename:'blurg', database:'blurg'})
@@ -313,9 +313,9 @@ $(document).ready(function(){
                 </fieldset>
             </li>
             <li data-role="fieldcontain" class="sm-inset-header">
-                <fieldset class="ui-grid-a ui-biglabel">
-                  <div class="ui-block-a ui-stdlabel" >Last Inputs Poll</div>
-                  <div class="ui-block-b ui-stdlabel systemstatuslastinputspoll">0</div>
+                <fieldset class="ui-grid-a">
+                  <div class="ui-block-a ui-stdlabel" >Last IO Poll</div>
+                  <div class="ui-block-b ui-stdlabel systemstatuslastiopoll">0</div>
                 </fieldset>
             </li>
             <li data-role="fieldcontain" class="sm-inset-header">
@@ -384,7 +384,7 @@ $(document).ready(function(){
             </li>
         </div>
         <li data-role="fieldcontain">
-		  <a href="systemstatus.html">System Status</a>
+		  <a href="system.html">System Status</a>
 		</li>
 	  </ul>
 	</div><!--/content-secondary-->

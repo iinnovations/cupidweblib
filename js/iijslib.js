@@ -1058,6 +1058,53 @@ function RenderTableData(datatableresponse, options, xhr) {
 }
 
 
+function GetAndRenderTableTimeMessageBlob(options){
+    options = options || {};
+    options.callback=RenderTableTimeMessageBlob;
+    //console.log(options.numentriesid)
+    options.numentries=$('#' + options.numentriesid).val()
+    //console.log('numentries ' + options.numentries)
+    wsgiCallbackTableData(options)
+}
+
+function RenderTableTimeMessageBlob(dataresponse, options, xhr){
+
+        var timeordinate=options.timeordinate || 'time';
+        var jqmpage = options.jqmpage || false;
+        var timeout = 0;
+        // Set interval function. We either pass a class to retrieve it from,
+        // a static value, or nothing
+        if (options.hasOwnProperty('timeoutclass')) {
+            timeout = $('.' + options.timeoutclass).val() * 1000;
+        }
+        else if (options.hasOwnProperty('timeout')) {
+            timeout = options.timeout;
+        }
+
+        if (options.timeout > 0) {
+            setTimeout(function () {
+                GetAndRenderTableTimeMessageBlob(options)
+            }, options.timeout);
+        }
+    if (xhr.status == "200") {
+        dataresponse.data.reverse();
+        var data = '';
+        var length = options.numentries;
+        if (dataresponse.data.length < length){
+            length = dataresponse.data.length;
+        }
+        console.log('NUMENTRIES ' + length)
+        for (i = 0; i < length; i++) {
+            data += dataresponse.data[i][timeordinate] + ' : ' + dataresponse.data[i].message + '<br />';
+        }
+        $(options.renderid).html(data);
+    }
+    else {
+        console.log('no new data')
+        }
+}
+
+
 //// Tables Data
 function UpdateTableNamesData(options) {
     options = options || {};

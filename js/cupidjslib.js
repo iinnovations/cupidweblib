@@ -815,21 +815,16 @@ var channelOptionsObj={
 		},
 		 
 		yaxis:{
-			tickOptions:{mark:'inside'},
             autoscale:true,
-            labelOptions: {
-                fontSize: '18pt'
-            }
-		},  
+			tickOptions:{mark:'inside'}
+		},
 		y2axis:{
-            min:-101,
-            max:101,
-            ticks:[-100,-50,0,50,100],
-            tickOptions:{showGridline:false, mark:'inside'},
-            showTicks: false,
-            labelOptions: {
-                fontSize: '18pt'
-            }
+            autoscale: true,
+		  min:-200,
+		  max:200,
+		  ticks:[-200,-100,0,100,200],
+		  tickOptions:{showGridline:false, mark:'inside'},
+		  showTicks: true
 		}
 	},
 	seriesDefaults:{
@@ -867,7 +862,8 @@ var largeChannelOptionsObj={
 			tickOptions:{mark:'inside'}
 		},
 		 
-		yaxis:{autoscale:true,
+		yaxis:{
+            autoscale:true,
 			tickOptions:{mark:'inside'}
 		},  
 		y2axis:{
@@ -892,8 +888,8 @@ var largeChannelOptionsObj={
 	  showTooltip:true
 	},
 	series:[
-	  {label: 'Control Value'},
-	  {label: 'Setpoint Value'},
+	  {label: 'Control Value',yaxis:'yaxis'},
+	  {label: 'Setpoint Value',yaxis:'yaxis'},
 	  {label: 'Action (%)',yaxis:'y2axis'} 
 	]
 };
@@ -960,7 +956,6 @@ function RenderLogData (dataresponse,options) {
             //console.log(currentseries)
         }
         for (i = 0; i < options.renderplotids.length; i++) {
-            console.log(options.renderplotoptions[i])
             $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
         }
     }
@@ -978,9 +973,11 @@ function GetAndRenderMultLogsData(options){
 }
 
 function RenderMultLogsData(returnedlogdataresponse,options, xhr){
-    options=options || {}
+    options=options || {};
     returnedlogdataresponse = returnedlogdataresponse || {};
     var returnedlogdata = returnedlogdataresponse.data || [];
+
+    //[datatable, datatable, datatable]
 
     // This function operates on multiple returned log tables
     // This means that the log data and seriesnames have an additional dimension
@@ -999,19 +996,22 @@ function RenderMultLogsData(returnedlogdataresponse,options, xhr){
     // if we want to render labels, options.serieslabels, value specified by
     // options.labelincludevalue, options.labelvalueprecision
 
+    var timeout =0;
     if (options.hasOwnProperty('timeoutclass')) {
         var timeout=$('.' + options.timeoutclass).val()*1000;
     }
     else if (options.hasOwnProperty('timeout')) {
         var timeout=options.timeout;
     }
-    else {
-        var timeout=0;
-    }
-    if (timeout>0) {
-        if (options.hasOwnProperty('auxcallback')) {
+
+    if (options.hasOwnProperty('auxcallback')) {
+        if (timeout>0) {
             //console.log('i am an auxcallback!')
             setTimeout(options.auxcallback, timeout);
+        }
+        // one-off callback (this is unnecessary syntax, but here to remind us of what we're doing
+        else{
+            options.auxcallback()
         }
 	}
     // If no data (could be 304 not modified), do absolutely nothing with plots
@@ -1023,6 +1023,7 @@ function RenderMultLogsData(returnedlogdataresponse,options, xhr){
         var plotseriesarray=[];
         // For each log table
         var totalseriescount=0;
+        // there are l tables, each containing i series
         for (var l=0;l<returnedlogdata.length;l++) {
             // For the i-th series in the l-th table
             for (var i = 0; i < options.serieslabels[l].length; i++) {
@@ -1030,29 +1031,30 @@ function RenderMultLogsData(returnedlogdataresponse,options, xhr){
                 var seriesname = options.seriesnames[l][i];
                 //alert(seriesname)
                 var serieslabel = options.serieslabels[l][i];
+                var seriesaxis = options.seriesaxes[l][i] || 'yaxis';
                 var serieslength = returnedlogdata[l].length;
                 if (options.labelincludevalue) {
                     //                get last point, and round with set precision
                     serieslabel += ': ' + Math.round(returnedlogdata[l][0][seriesname] * Math.pow(10, options.includelabelvalueprecision)) / Math.pow(10, options.includelabelvalueprecision)
                     //                serieslabel += ': ' + Math.round(returnedlogdata[l][serieslength-1][seriesname])
                 }
-
-                for (var j = 0; j < returnedlogdata[l].length; j++) {
+                // squirt in the data
+                for (var j=0;j<returnedlogdata[l].length;j++) {
                     currentseries.push([returnedlogdata[l][j].time, returnedlogdata[l][j][seriesname]]);
-                    for (var k = 0; k < options.renderplotids.length; k++) {
-                        // For now the options reside in the html. Probably most flexible this way.
-                        //                    options.renderplotoptions[k].series[totalseriescount].label=options.serieslabels[l][i];
-                        options.renderplotoptions[k].series[totalseriescount].label = serieslabel;
-                    }
                 }
-
+                for (var k = 0; k < options.renderplotids.length; k++) {
+                    // For now the options reside in the html. Probably most flexible this way.
+                    //                    options.renderplotoptions[k].series[totalseriescount].label=options.serieslabels[l][i];
+                    options.renderplotoptions[k].series[totalseriescount].label = serieslabel;
+                    options.renderplotoptions[k].series[totalseriescount].yaxis = seriesaxis;
+                    //console.log('assigning ' + seriesaxis + ' to ' + serieslabel)
+                }
                 plotseriesarray.push(currentseries);
+
                 totalseriescount += 1;
             }
         }
-        console.log(plotseriesarray)
         for (var i = 0; i < options.renderplotids.length; i++) {
-            console.log(options.renderplotoptions[i])
             $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
         }
     }

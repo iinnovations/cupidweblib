@@ -76,16 +76,17 @@ var labeltype = 'ids';
 var labelincludevalue = true;
 
 // globals for selected items
+// these need to put into a single object
 var seriesids=[];
 var tablenames=[];
 var seriesshortnames=[];
-var seriesnames=[];
 var actauthlevel=2;
 
 // load ioinfo into DOM
 function GetIOInfo() {
     wsgiCallbackTableData({database:controldatabase,tablename:'ioinfo',callback:RenderIOInfoTable})
 }
+
 function RenderIOInfoTable(dataresponse) {
     dataresponse = dataresponse || {};
     var datatable = dataresponse.data || [];
@@ -108,6 +109,8 @@ function UpdateLogTable() {
 function RenderLogsTable(dataresponse) {
     dataresponse = dataresponse || {};
     var datatable = dataresponse.data || [];
+
+    // render to global
     lognames = datatable;
     $('#logdatalistview').empty()
     $('#logdatalistview').append('\
@@ -145,19 +148,20 @@ function GetPlotSeriesNamesFromViewerControls(){
     // Seriesshortnames are what we want to use for a colloquial name for the series
     // seriesnames are what the name of the value is that we're getting from the table, e.g. 'value' or 'controlvalue'
 
-    var thisseriesid;
     tablenames = [];
     seriesids = [];
     seriesshortnames = [];
     seriesnames = [];
+    seriesaxes = [];
     $('.plottoggle').each(function(index,element){
         if (this.value=="On"){
-
+            // use global list of lognames to create a list of activated tablenames
             tablenames.push(lognames[index]);
             var thisseriesmeta = parseLogTableName(lognames[index]);
 
             seriesids.push(thisseriesmeta.id);
             if (thisseriesmeta.type == 'input') {
+                seriesaxes.push('yaxis')
                 seriesnames.push('value');
                 if (ioinfoids.indexOf(thisseriesmeta.id) > 0) {
                     seriesshortnames.push(ioinfonames[ioinfoids.indexOf(thisseriesmeta.id)]);
@@ -169,6 +173,7 @@ function GetPlotSeriesNamesFromViewerControls(){
             else if (thisseriesmeta.type == 'channel') {
                 seriesshortnames.push(thisseriesmeta.id + ' PV');
                 seriesnames.push('controlvalue');
+                seriesaxes.push('yaxis')
 
                 // push another tablename instance for multiple values
                 tablenames.push(lognames[index]);
@@ -176,20 +181,31 @@ function GetPlotSeriesNamesFromViewerControls(){
 
                 seriesshortnames.push(thisseriesmeta.id + ' SV');
                 seriesnames.push('setpointvalue');
+                seriesaxes.push('yaxis')
+
+                // push another tablename instance for multiple values
+                tablenames.push(lognames[index]);
+                seriesids.push(thisseriesmeta.id);
+
+                seriesshortnames.push(thisseriesmeta.id + ' action');
+                seriesnames.push('action');
+                seriesaxes.push('y2axis')
             }
             else {
                 seriesnames.push('value');
                 seriesshortnames.push('value');
+                seriesaxes.push('yaxis')
             }
         }
     });
 
-    var results={seriesnames: seriesnames, seriesshortnames:seriesshortnames,tablenames:tablenames, seriesids:seriesids};
+    var results={seriesnames: seriesnames, seriesshortnames:seriesshortnames,tablenames:tablenames, seriesids:seriesids, seriesaxes:seriesaxes};
     console.log(results)
     return results
 }
 
 function updatePlots(options){
+    setUpdating(true);
 
     // Ok, this is a bit complicated. Typically when we want to do repeated asynchronous rendering, we pass
     // everything we need to the table retrieval and rendering function, GetAndRenderMultLogsData.
@@ -203,18 +219,16 @@ function updatePlots(options){
     // If you're looking for the auxcallback, it's defined in the call to this function in the options
     // object.
 
-      options = options || {};
+    options = options || {};
 
-//    if ( ! renderoptions.hasOwnProperty('renderplotids')) {
-        var activePage = $.mobile.activePage.attr("id");
-        if (activePage == 'main'){
-            options.renderplotids = ['plot']
-        }
-        else {
-            options.renderplotids = ['fullplot']
-            console.log('full plot!')
-        }
-//    }
+    var activePage = $.mobile.activePage.attr("id");
+    if (activePage == 'main'){
+        options.renderplotids = ['plot']
+    }
+    else {
+        options.renderplotids = ['fullplot']
+        console.log('full plot!')
+    }
     var results = GetPlotSeriesNamesFromViewerControls();
 //    console.log(results)
     var tablenames = results.tablenames;
@@ -230,21 +244,22 @@ function updatePlots(options){
     // Get total number of series and label appropriately
     var customOptionsObj=channelOptionsObj;
 
-
     customOptionsObj.series=[];
     var passedserieslabels = [];
     var seriesnames = [];
+    var seriesaxes =[];
     for (var i = 0; i < serieslabels.length; i++) {
-        customOptionsObj.series.push([{label: serieslabels[i], axis: 'yaxis'}]);
+        customOptionsObj.series.push([{label: serieslabels[i], axis: seriesaxes[i]}]);
         passedserieslabels.push([serieslabels[i]]);
         seriesnames.push([results.seriesnames[i]]);
+        seriesaxes.push([results.seriesaxes[i]]);
     }
-
     var length = $('#plotpointsslider').val();
 
     options.tablenames = tablenames;
     options.seriesnames = seriesnames;
     options.serieslabels = passedserieslabels;
+    options.seriesaxes = seriesaxes;
     options.labelincludevalue = labelincludevalue;
     options.includelabelvalueprecision = $('#includelabelvalueprecision').val();
     options.renderplotoptions = [customOptionsObj];
@@ -255,13 +270,26 @@ function updatePlots(options){
     GetAndRenderMultLogsData(options);
     //GetAndRenderLogData({logtablename:'input_DS18B20-1_log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
 }
+
+function setUpdating(status){
+    status=status || false;
+    if (status) {
+        $('.updatingbubble').css("display","block")
+    }
+    else{
+        $('.updatingbubble').css("display","none")
+    }
+}
+
 $(document).ready(function(){
     togglestolamps();
 
     //// Control Algorithms
     // UpdateLogsTable({'timeout':updateinterval})
     $('#plotrefresh').click(function(event){
-        var renderoptions = {renderplotids:['plot']};
+        setUpdating(true)
+        var auxcallback=function(){setUpdating(false)};
+        var renderoptions = {renderplotids:['plot'], auxcallback:auxcallback};
         updatePlots(renderoptions)
     });
     $('#fullplotrefresh').click(function(event){
@@ -318,9 +346,29 @@ $(document).ready(function(){
     // create a closure. It works great, if you can wrap your head around it. More details in the
     // updatePlots definition.
 
+//    setTimeout(function(){
+//        var options = {'timeoutclass':'updateperiodwidget'};
+//        options.auxcallback =
+//                function(){
+//                    setUpdating(false);
+//                    updatePlots(options);
+//                };
+//        updatePlots(options)
+//    },1000)
+
+    // this is a new take on the timed callback. We send in a callback with a timed
+    // and non-timed component. This is probably how we should structure callbacks in
+    // the future to avoid loading the primitives with hacky stuff. It's also a bit more flexibl
+
     setTimeout(function(){
-        var options = {'timeoutclass':'updateperiodwidget'};
-        options.auxcallback = function(){updatePlots(options)};
+        var options ={};
+        options.auxcallback =
+                function(){
+                    var timeout=$('.' + 'updateperiodwidget').val()*1000;
+//                    alert(timeout)
+                    setUpdating(false);
+                    setTimeout(function(){updatePlots(options)},timeout);
+                };
         updatePlots(options)
     },1000)
 
@@ -376,8 +424,8 @@ $(document).ready(function(){
     <div class="content-primary">
         <div data-role="button" data-theme="c" id="plotrefresh">Refresh Plot</div>
         <ul data-role="listview" data-inset="true" data-dividertheme="c" id="channellistview">
-            <li data-role="list-divider">
-                <h4>Data Plot</h4>
+            <li data-role="list-divider" style="height:45px">
+                <h4><span style="float:left; line-height: 24px">Data Plot</span><span class="updatingbubble ui-btn-up-c  ui-btn-corner-all cnt" style="float:right; font-size:12px; padding: 7px 7px; display:none">Updating</span></h4>
             </li>
             <li data-role="fieldcontain" >
                 <div id="plot" class="plots" ></div>
@@ -420,7 +468,7 @@ $(document).ready(function(){
         var serieslabels = results.seriesnames;
 
         // Get total number of series and label appropriately
-        var customOptionsObj=channelOptionsObj;
+        var customOptionsObj=largeChannelOptionsObj;
         var totalseries=0;
         customOptionsObj.series=[]
         for (var i=0; i<seriesnames.length;i++){
@@ -436,7 +484,7 @@ $(document).ready(function(){
         <div class="content-primary" style="width:90%">
             <ul data-role="listview" data-inset="true" datadividertheme="c">
                 <li data-role="list-divider">
-                    <h4>Full Plot</h4>
+                     <h4><span style="float:left; line-height: 24px">Full Plot</span><span class="updatingbubble ui-btn-up-c  ui-btn-corner-all cnt" style="float:right; font-size:12px; padding: 7px 7px; display:none">Updating</span></h4>
                 </li>
                 <li data-role="fieldcontain" >
                     <div id="fullplot" class="fullplots" ></div>

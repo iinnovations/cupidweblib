@@ -85,6 +85,11 @@ strong { font-weight: bold; }
 #jqm-homeheader img { width: 275px; height: 78px; margin-top:-20px; }
 img { max-width: 100%; }
 
+/* Make them small unless we make them bit */
+.ui-field-contain div.ui-slider-switch {
+    width: 4.5em;
+}
+
 /* fluid images moved from jquery.mobile.core.css*/
 .ui-mobile img {
 	max-width: 100%;
@@ -270,7 +275,7 @@ dd h4 { margin:15px 0 0 0; }
 
 /* docs site layout */
 
-@media all and (min-width: 650px){
+@media all and (min-width: 750px){
 	.type-home .ui-content {
 		margin-top: 5px;
 	}
@@ -357,7 +362,7 @@ dd h4 { margin:15px 0 0 0; }
 	}
 	/* .content-secondary .ui-collapsible-heading {
 		display: none;
-	} 
+	}
 	.content-secondary .ui-collapsible-contain {
 		margin:0;
 	}
@@ -385,16 +390,19 @@ dd h4 { margin:15px 0 0 0; }
     .fullplots {
         height:300px;
     }
+    .ui-field-contain div.ui-slider-switch {
+        width: 5.5em;
+    }
 }
 @media all and (min-width: 750px){
 	.type-home .ui-content {
 		background-position: 39%;
 	}
 	.content-secondary {
-		width: 34%;
+		width: 40%;
 	}
 	.content-primary {
-		width: 56%;
+		width: 50%;
 		padding-right: 1%;
 	}
     .plots {
@@ -410,7 +418,7 @@ dd h4 { margin:15px 0 0 0; }
 		background-position: 38.5%;
 	}
 	.content-secondary {
-		width: 30%;
+		width: 35%;
 		padding-right:6%;
 		margin: 10px 0 20px 5%;
 	}
@@ -419,7 +427,7 @@ dd h4 { margin:15px 0 0 0; }
 		padding: 0;
 	}
 	.content-primary {
-		width: 50%;
+		width: 45%;
 		margin-right: 5%;
 		padding-right: 3%;
 	}

@@ -63,8 +63,8 @@ logUserAuths(sessiondata)
 var jqmpage=true;
 
 var updatetimeout=100;
-var loginterval=30000;
-var updateinterval=100000;
+var loginterval=5000;
+var updateinterval=5000;
 
 var actauthlevel=2;
 
@@ -248,6 +248,18 @@ $(document).ready(function(){
 	<div class="content-secondary">
 	  <ul data-role="listview" data-inset="true">
 		<li data-role="list-divider"><h4>Master Controls</h4></li>
+        <li data-role="fieldcontain" >
+            <span class="justalamp">
+			  <label for="ssenabled" class="ui-biglabel" style="
+			  display:inline-block; width:50%; ">
+			  System Status
+			  </label>
+			  <select name="ssenabled" id="systemstatussystemstatusstatustoggle" class="systemstatussystemstatusstatustoggle" data-role="slider" >
+                <option value="Off">Off</option>
+                <option value="On">On</option>
+			  </select>
+           </span>
+		</li>
 		<li data-role="fieldcontain" >
             <span class="justalamp">
 			  <label for="pcenabled" class="ui-biglabel" style="
@@ -295,6 +307,17 @@ $(document).ready(function(){
 		</li>
         <li data-role="fieldcontain">
           <span class="justalamp">
+			  <label for="systemstatusnetconfigenabled" class="ui-biglabel" style="display:inline-block; width:50%;">
+			  Netconfig
+			  </label>
+			  <select name="systemstatusnetconfigenabled" class="systemstatusnetconfigenabledtoggle" data-role="slider">
+			  <option value="Off">Off</option>
+			  <option value="On">On</option>
+			  </select>
+            </span>
+		</li>
+        <li data-role="fieldcontain">
+          <span class="justalamp">
 			  <label for="systemstatusupdateioenabled" class="ui-biglabel" style="display:inline-block; width:50%;">
 			  Serial Handler
 			  </label>
@@ -330,6 +353,14 @@ $(document).ready(function(){
         </div>
         <div data-role="collapsible" data-collapsed="true" data-inset="false" data-count-theme="b" data-content-theme="b">
            <h3>Edit</h3>
+            <li data-role="fieldcontain">
+			  <label for="systemstatussystemstatusenabledtoggle" style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">System Status
+			  </label>
+			  <select id="systemstatussystemstatusenabledtoggle" class="systemstatussystemstatusenabledtoggle reqauth3" data-role="slider" >
+			  <option value="Off">Off</option>
+			  <option value="On">On</option>
+			  </select>
+			</li>
              <li data-role="fieldcontain">
 			  <label for="systemstatuspicontrolenabledtoggle" style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">Pi Control
 			  </label>
@@ -352,6 +383,15 @@ $(document).ready(function(){
 			  Inputs Read
 			  </label>
 			  <select id="systemstatusupdateioenabledtoggle" class="systemstatusupdateioenabledtoggle reqauth3" data-role="slider">
+			  <option value="Off">Off</option>
+			  <option value="On">On</option>
+			  </select>
+            </li>
+            <li data-role="fieldcontain">
+			  <label for="systemstatusnetconfigenabledtoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
+			  Netconfig
+			  </label>
+			  <select id="systemstatusnetconfigenabledtoggle" class="systemstatusnetconfigenabledtoggle reqauth3" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>

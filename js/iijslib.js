@@ -938,18 +938,23 @@ function RenderWidgetsFromArray(database,tablename,data,options) {
 
 // this needs to be updated before it is used to be consistent with arguments
 
-function RenderWidgetsFromArrayByUniqueKey(data,args) {
+function RenderWidgetsFromArrayByUniqueKey(dataresponse,args) {
     var callback = args.callback || logdone;
     var uniquekeyname=args.uniquekeyname || 'parameter';
     var updatetimeout=500; // ms to wait to avoid duplicate events
-//            console.log(data)
+    var data = dataresponse.data || []
+
+    console.log('DATA!');
+    console.log(uniquekeyname)
+    console.log(data.length);
+
 
     for (var i=0; i<data.length;i++){
         // Set each possibility
         var uniquekey = data[i][uniquekeyname];
         $.each(data[i],function(key,value){
             var baseclass='.' + args.tablename + uniquekeyname + uniquekey + key;
-//            console.log('rendering ' + baseclass + key);
+            console.log('rendering ' + baseclass + key);
             setWidgetValues(baseclass, value, args);
             setWidgetActions({'baseclass':baseclass,'database':args.database,'tablename':args.tablename,'key':key,'condition':uniquekeyname+'='+uniquekey});
         })

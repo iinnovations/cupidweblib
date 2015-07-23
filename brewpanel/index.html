@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Brewery Panel Home</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="jqm/themes/base.css" />
+
+    <link rel="stylesheet" href="jqm/themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="jqm/jquery.mobile.custom.structure.min.css" />
+    <link rel="stylesheet" href="css/brewpanel.css" />
+
+    <!--jQuery Mobile is 1.4.5-->
+	<script src="js/jquery-1.11.1.js"></script>
+	<script src="jqm/jquery.mobile.custom.js"></script>
+
+	<script src="/js/iijslib.js"></script>
+    <script src="/js/cupidjslib.js"></script>
+    <script src="js/brewjs.js"></script>
+
+</head>
+
+<body>
+	<div data-role="page" id="demo-page" class="my-page" data-theme="d">
+
+    <script>
+        $(document).ready(function(){
+            setTimeout(
+                function(){updateBrewIndexPanelData({likecriterion:'dataclasses', likecriterionvalue: 'index', timeout: 5000})},1000
+            );
+            setInterval(function(){
+                $('.currenttime').html(getStringTime({UTC:true}))
+            },2000);
+        })
+    </script>
+	<div data-role="header" data-theme="d">
+		<h1>Brewery Control Panel</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+		<ul data-role="listview" data-inset="true">
+            <li>
+                <a href="brew.html" data-ajax="false">
+                <img src="img/tiles/brewtile.png" class="ui-li-thumb">
+                <h2>Brew Panel</h2>
+                <p class="subheadtext">Brewdeck Controls and Conditions</p>
+                <p class="ui-li-aside">Kettle/MLT/HLT:<span class="kettletempvalue">?</span>/<span class="mashtempvalue">?</span>/<span class="hlttempvalue">?</span></p>
+                </a>
+            </li>
+            <li>
+                <a href="tanks.html" data-ajax="false">
+                <img src="img/tiles/tankstile.png" class="ui-li-thumb">
+                <h2>Tanks</h2>
+                <p class="subheadtext">Vessel Temperatures and Activity</p>
+                <p class="ui-li-aside"><span class="AC_Vessel_Loadvalue">?</span>blurg</p>
+                </a>
+            </li>
+            <li>
+                <a href="actions.html" data-ajax="false">
+                <img src="img/tiles/actions_tile.png" class="ui-li-thumb">
+                <h2>Actions</h2>
+                <p class="subheadtext">Email, SMS alerts and acknowledgement</p>
+                <p class="ui-li-aside">Alerts and Notifications</p>
+                </a>
+            </li>
+            <li>
+                <a href="dataexport.html" data-ajax="false">
+                <img src="img/tiles/dataexport_tile.png" class="ui-li-thumb">
+                <h2>Data Import/export</h2>
+                <p class="subheadtext">Handle your data.</p>
+                <p class="ui-li-aside">&nbsp;</p>
+                </a>
+            </li>
+            <li>
+                <a href="settings.html" data-ajax="false">
+                <img src="img/tiles/settings_tile.png" class="ui-li-thumb">
+                <h2>Panel Settings</h2>
+                <p class="subheadtext">Details, details</p>
+                <p class="ui-li-aside">3 Updates Available.</p>
+                </a>
+            </li>
+		</ul>
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="d">
+		<div class="footertext">Copyright 2014 Hyak Electroworks.</div>
+	</div><!-- /footer -->
+</div><!-- /page -->
+
+</body>
+</html>

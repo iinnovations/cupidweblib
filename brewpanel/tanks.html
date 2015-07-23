@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Brewery Panel Home</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="jqm/themes/base.css" />
+
+    <link rel="stylesheet" href="jqm/themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="jqm/jquery.mobile.custom.structure.min.css" />
+    <link rel="stylesheet" href="css/brewpanel.css" />
+
+    <!--jQuery Mobile is 1.4.5-->
+	<script src="js/jquery-1.11.1.js"></script>
+	<script src="jqm/jquery.mobile.custom.js"></script>
+
+	<script src="/js/iijslib.js"></script>
+    <script src="/js/cupidjslib.js"></script>
+    <script src="js/brewjs.js"></script>
+    <script type="text/javascript" src="/js/SegmentDisplay/segment-display.js"></script>
+
+</head>
+
+<body>
+	<div data-role="page" id="demo-page" class="my-page" data-theme="d">
+
+    <script>
+        function displayfactory(displayid, passedobjectname) {
+            var objectname = passedobjectname || displayid + '_display'
+            window[objectname] = new SegmentDisplay(displayid);
+            window[objectname].pattern = "##.#";
+            window[objectname].displayAngle = 6;
+            window[objectname].digitHeight = 28;
+            window[objectname].digitWidth = 17;
+            window[objectname].digitDistance = 4.4;
+            window[objectname].segmentWidth = 3.4;
+            window[objectname].segmentDistance = 1.3;
+            window[objectname].segmentCount = 7;
+            window[objectname].cornerType = 3;
+            window[objectname].colorOn = "#24dd22";
+            window[objectname].colorOff = "#1b4105";
+            window[objectname].draw();
+            return window[displayid + '_display']
+        }
+
+        $(document).ready(function(){
+            setTimeout(
+                function(){updateTanksPanelData({likecriterion:'dataclasses', likecriterionvalue: 'index', timeout: 5000})},1000
+            );
+            setInterval(function(){
+                $('.currenttime').html(getStringTime({UTC:true}))
+            },2000);
+
+            tanknamelist = ['tankone', 'tanktwo', 'tankthree', 'tankfour', 'tankfive']
+            for (var i=0;i<tanknamelist.length;i++) {
+                var displayobject = displayfactory(tanknamelist[i] +'pvdisplay')
+                displayobject.setValue(zeropad(73.0,2,1))
+                var displayobject = displayfactory(tanknamelist[i] +'svdisplay')
+                displayobject.setValue(zeropad(74.0,2,1))
+            }
+
+        })
+    </script>
+	<div data-role="header" data-theme="d">
+		<h1>Brewery Control Panel</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+		<ul data-role="listview" data-inset="true">
+            <li>
+                <a href="tankone.html" data-ajax="false">
+                <img src="img/tiles/brewtank.png" class="ui-li-thumb">
+                <h2>Unitank 1</h2>
+                <div align="right" style=" vertical-align: top"><p class="subheadtext" style="font-size:24px; padding-right:0.1em;">PV: <canvas id="tankonepvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="tankonesvdisplay" width="120" height="30"></canvas></p>
+                </div>
+                    <p class="ui-li-aside">Mode:<span class="tankonerun">Run</span></p>
+                </a>
+            </li>
+            <li>
+                <a href="tankone.html" data-ajax="false">
+                <img src="img/tiles/brewtank.png" class="ui-li-thumb">
+                <h2>Unitank 2</h2>
+                <div align="right"><p class="subheadtext">PV: <canvas id="tanktwopvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="tanktwosvdisplay" width="120" height="30"></canvas></p>
+                </div>
+                <p class="ui-li-aside">Mode:<span class="tankonerun">Run</span></p>
+                </a>
+            </li>
+            <li>
+                <a href="tankone.html" data-ajax="false">
+                <img src="img/tiles/brewtank.png" class="ui-li-thumb">
+                <h2>Unitank 3</h2>
+                <div align="right"><p class="subheadtext">PV: <canvas id="tankthreepvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="tankthreesvdisplay" width="120" height="30"></canvas></p>
+                </div>
+                <p class="ui-li-aside">Mode:<span class="tankonerun">Run</span></p>
+                </a>
+            </li>
+            <li>
+                <a href="tankone.html" data-ajax="false">
+                <img src="img/tiles/conicalbrewtank.png" class="ui-li-thumb">
+                <h2>Bright Tank 1</h2>
+                <div align="right"><p class="subheadtext">PV: <canvas id="tankfourpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="tankfoursvdisplay" width="120" height="30"></canvas></p>
+                </div>
+                <p class="ui-li-aside">Mode:<span class="tankonerun">Run</span></p>
+                </a>
+            </li>
+            <li>
+                <a href="tankone.html" data-ajax="false">
+                <img src="img/tiles/conicalbrewtank.png" class="ui-li-thumb">
+                <h2>Bright Tank 2</h2>
+                <div align="right"><p class="subheadtext">PV: <canvas id="tankfivepvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="tankfivesvdisplay" width="120" height="30"></canvas></p>
+                </div>
+                <p class="ui-li-aside">Mode:<span class="tankonerun">Run</span></p>
+                </a>
+            </li>
+		</ul>
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="d">
+		<div class="footertext">Copyright 2015 Interface Innovations</div>
+	</div><!-- /footer -->
+</div><!-- /page -->
+
+</body>
+</html>

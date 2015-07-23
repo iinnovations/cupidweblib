@@ -149,7 +149,7 @@ logUserAuths(sessiondata)
         wsgiCallbackTableData({database:controldatabase,tablename:'inputs',callback:RenderInputsTable});
     };
     function RenderInputsTable(datatableresponse){
-        var datatable = datatablresponse.data || [];
+        var datatable = datatableresponse.data || [];
         var divhtmlitemstring;
 //        console.log(datatable)
         $("#inputset").html('');

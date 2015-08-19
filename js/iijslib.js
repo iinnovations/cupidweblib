@@ -13,6 +13,17 @@ function iijslibtest() {
 
 // Value processing
 
+function jsonstringparser(string){
+    var dataobject = {}
+    var split = string.split(',');
+    for (var i=0; i<split.length; i++) {
+        var anothersplit = split[i].split(':');
+        var key = anothersplit[0].replace("'","").replace('"',"")
+        var value = anothersplit[1].replace("'","").replace('"',"")
+        dataobject[key] = value
+    }
+    return dataobject
+}
 function getNameFromPath(path){
     path  = path.replace(/\//g,' ')
     path = path.trim()
@@ -35,14 +46,19 @@ function setprecision(num, digits) {
 	return roundednumber;
 }
 function zeropad(num, sizebefore, sizeafter) {
+    var allfrac = (num%1);
+    console.log(allfrac)
 	var frac = Math.round((num%1)*Math.pow(10,sizeafter))/Math.pow(10,sizeafter);
-	var whole = num-frac;
+    console.log(frac)
+	var whole = num-allfrac;
+    console.log(whole)
 	//console.log("whole: " + whole + " frac: " + frac)
 	var after = frac + "";
 	after = after.slice(2);
 	var before = whole+"";
 	while (before.length < sizebefore) before = "0" + before;	
 	while (after.length < sizeafter) after = after + "0";
+    console.log("FINAL ANSWER" + before + "." + after)
     return before + "." + after;
 }
 function booleansToIntegerString(boolean) {
@@ -707,6 +723,9 @@ function setWidgetActions(options){
     // Actions for jqm objects. We pass the jqmpage boolean so that we don't
     // attempt to use methods/properties that don't exist if we haven't loaded jqm
     if (jqmpage) {
+        //console.log(baseclass + 'toggle')
+        //console.log('rendering jqmpage actions')
+
         var $toggleclasses = $(baseclass + 'toggle');
         $.each($toggleclasses, function() { // could use key, value, but don't need
             $(this).off('slidestop.update');
@@ -860,26 +879,29 @@ function setWidgetActions(options){
             }
         });
     }
+    else {
+        //console.log(' NO JQMPAGE selected !')
+    }
 }
 
 // This are the generic rendering algorithms. These are used for the more specific table
 // renderers. There are three types of tables dealt with here and several types of widgets
 //
-// Flat table - use RenderWidgets
+// Flat table - use renderWidgets
 //   Columns are item names, values are values. One table row
 //   classnames : tablename + columnname + widget type (optional)
 //   example : systemstatuslastpicontrolfreqslider
 
-// Array table - use RenderWidgetsFromArray
+// Array table - use renderWidgetsFromArray
 //   Columns are item names, values are values, multiple tablerows
 //   classnames : tablename + columname + index (1 indexed)
 //   example : channelssetpointvalue1 (first row channelsetpointvalue)
 
-// Unique key table - use RenderWidgetsFromArrayByUniqueKey
+// Unique key table - use renderWidgetsFromArrayByUniqueKey
 //   See functions below
 
 // This works for a flat table only
-function RenderWidgets(database,tablename,data,options) {
+function renderWidgets(database,tablename,data,options) {
     var jqmpage = options.jqmpage || false;
     var callback = options.callback || logdone;
     var usedbname = options.usedbname || false;
@@ -904,7 +926,7 @@ function RenderWidgets(database,tablename,data,options) {
 
 // This works for a table with multiple rows, where we take zero-indexed
 // rows, increment them by one and append to the value.
-function RenderWidgetsFromArray(database,tablename,data,options) {
+function renderWidgetsFromArray(database,tablename,data,options) {
     var jqmpage = options.jqmpage || false;
     var callback = options.callback || logdone;
     var usedbname = options.usedbname || false;
@@ -938,28 +960,53 @@ function RenderWidgetsFromArray(database,tablename,data,options) {
 
 // this needs to be updated before it is used to be consistent with arguments
 
-function RenderWidgetsFromArrayByUniqueKey(dataresponse,args) {
-    var callback = args.callback || logdone;
-    var uniquekeyname=args.uniquekeyname || 'parameter';
-    var updatetimeout=500; // ms to wait to avoid duplicate events
-    var data = dataresponse.data || []
+// Generic Unique Key Render
+function getAndRenderUniqueKeyData(options) {
+	  options.callback = renderWidgetsFromArrayByUniqueKey;
+	  wsgiCallbackTableData(options);
+}
 
-    console.log('DATA!');
-    console.log(uniquekeyname)
-    console.log(data.length);
+function renderWidgetsFromArrayByUniqueKey(dataresponse, options, xhr) {
+    var uniquekeyname=options.uniquekeyname || 'parameter';
+    var data = dataresponse.data || [];
+    var includekeyname = false;
+    if ( options.hasOwnProperty('includekeyname')) {
+        includekeyname = options.includekeyname;
+    }
+    //var includekeyname = options.includekeyname // || true;
+    //console.log(includekeyname)
+    //console.log('DATA!');
+    //console.log(uniquekeyname)
+    //console.log(data.length);
 
 
     for (var i=0; i<data.length;i++){
         // Set each possibility
         var uniquekey = data[i][uniquekeyname];
         $.each(data[i],function(key,value){
-            var baseclass='.' + args.tablename + uniquekeyname + uniquekey + key;
-            console.log('rendering ' + baseclass + key);
-            setWidgetValues(baseclass, value, args);
-            setWidgetActions({'baseclass':baseclass,'database':args.database,'tablename':args.tablename,'key':key,'condition':uniquekeyname+'='+uniquekey});
+            var baseclass = '.';
+            if (includekeyname) {
+                baseclass += options.tablename + uniquekeyname + uniquekey + key;
+            }
+            else {
+                // uisettings + showgpiologs + value
+                baseclass += options.tablename + uniquekey + key;
+            }
+            //console.log('rendering ' + baseclass + ' with value ' + value);
+            setWidgetValues(baseclass, value, options);
+            options.baseclass = baseclass;
+            options.key = key;
+            options.condition = '"' + uniquekeyname + '"=\''+uniquekey + "'"
+            setWidgetActions(options);
         })
     }
     togglestolamps();
+    if (options.hasOwnProperty('auxcallback')) {
+            options.auxcallback(dataresponse, options, xhr)
+    }
+    if (options.hasOwnProperty('rendertoDOM')) {
+            renderToDOM(dataresponse, options, xhr)
+    }
 }
 
 function testFunction(someoptions) {
@@ -984,11 +1031,11 @@ function testFunction(someoptions) {
 // either use different table names between databases, or set option.usedbname = true
 // This will change the rendering to databasename + tablename + value. This has not been extensively tested
 
-function GetAndRenderTableData(options){
-    options.callback=RenderTableData;
+function getAndRenderTableData(options){
+    options.callback=renderTableData;
     wsgiCallbackTableData(options)
 }
-function RenderTableData(datatableresponse, options, xhr) {
+function renderTableData(dataresponse, options, xhr) {
 
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
@@ -998,15 +1045,15 @@ function RenderTableData(datatableresponse, options, xhr) {
     }
     else if (options.hasOwnProperty('timeout')) {
         setTimeout(function () {
-            GetAndRenderTableData(options)
+            getAndRenderTableData(options)
         }, options.timeout);
     }
 
     // Only render if data is new and successful
     if (xhr.status == "200") {
         //console.log('rendering ' + options.tablename)
-        datatableresponse = datatableresponse || {}
-        var datatable = datatableresponse.data || [];
+        dataresponse = dataresponse || {}
+        var datatable = dataresponse.data || [];
         options = options || {};
 
         // Render selector items if instructed to.
@@ -1035,7 +1082,7 @@ function RenderTableData(datatableresponse, options, xhr) {
         // If we want to render a flat table, we have to pass index 1
         // Otherwise, it will be rendered with the index of 1 in the classnames
         if (options.hasOwnProperty('index')) {
-            RenderWidgets(options.database, options.tablename, datatable[options.index - 1], options);
+            renderWidgets(options.database, options.tablename, datatable[options.index - 1], options);
             if (options.hasOwnProperty('auxcallback')) {
                 options.auxcallback(channelsdata[options.index - 1])
             }
@@ -1044,17 +1091,20 @@ function RenderTableData(datatableresponse, options, xhr) {
             // We pass an index selector id and get the selected index value.
             // we get the row based on the value of the selector
             var selectedindex = $('#' + options.indexselector).prop('selectedIndex');
-            RenderWidgets(options.database, options.tablename, datatable[selectedindex], options)
+            renderWidgets(options.database, options.tablename, datatable[selectedindex], options)
             if (options.hasOwnProperty('auxcallback')) {
                 options.auxcallback(datatable[selectedindex])
             }
         }
         else {
             // include index in class render name
-            RenderWidgetsFromArray(options.database, options.tablename, datatable, options)
+            renderWidgetsFromArray(options.database, options.tablename, datatable, options)
             if (options.hasOwnProperty('auxcallback')) {
                 options.auxcallback(datatable)
             }
+        }
+        if (options.hasOwnProperty('rendertoDOM')) {
+            renderToDOM(dataresponse, options, xhr)
         }
     }
     else {
@@ -1062,9 +1112,9 @@ function RenderTableData(datatableresponse, options, xhr) {
     }
 }
 
-function GetAndRenderTableTimeMessageBlob(options){
+function getAndRenderTableTimeMessageBlob(options){
     options = options || {};
-    options.callback=RenderTableTimeMessageBlob;
+    options.callback=renderTableTimeMessageBlob;
     //console.log(options.numentriesid)
     if (options.hasOwnProperty('numentriesid')) {
         options.numentries = $('#' + options.numentriesid).val();
@@ -1073,7 +1123,7 @@ function GetAndRenderTableTimeMessageBlob(options){
     wsgiCallbackTableData(options)
 }
 
-function RenderTableTimeMessageBlob(dataresponse, options, xhr){
+function renderTableTimeMessageBlob(dataresponse, options, xhr){
 
     var timeordinate=options.timeordinate || 'time';
     var jqmpage = options.jqmpage || false;
@@ -1089,7 +1139,7 @@ function RenderTableTimeMessageBlob(dataresponse, options, xhr){
 
     if (options.timeout > 0) {
         setTimeout(function () {
-            GetAndRenderTableTimeMessageBlob(options)
+            getAndRenderTableTimeMessageBlob(options)
         }, options.timeout);
     }
     if (xhr.status == "200") {
@@ -1111,15 +1161,15 @@ function RenderTableTimeMessageBlob(dataresponse, options, xhr){
 }
 
 //// Tables Data
-function UpdateTableNamesData(options) {
+function updateTableNamesData(options) {
     options = options || {};
-	options.callback=RenderTableNamesData;
+	options.callback=renderTableNamesData;
     if (! options.hasOwnProperty('database')){
         options.database = controldatabase;
     }
     wsgiGetTableNames (options)
 }
-function RenderTableNamesData(tablenameresponse,options) {
+function renderTableNamesData(tablenameresponse,options) {
     var tablenames = tablenameresponse.data;
     options = options || {};
     var jqmpage = options.jqmpage || false;
@@ -1134,7 +1184,7 @@ function RenderTableNamesData(tablenameresponse,options) {
     }
 
 	if (options.timeout>0) {
-		setTimeout(function(){UpdateTableNamesData(options)},options.timeout);
+		setTimeout(function(){updateTableNamesData(options)},options.timeout);
 	}
 	var cleandbname = getNameFromPath(options.database)
 	$('.' + cleandbname + 'tableselect').each(function(){
@@ -1159,8 +1209,8 @@ function RenderTableNamesData(tablenameresponse,options) {
 // So for the database controldata, table channels, the selector would be
 // constroldatachannelscolumnselect. Add that class and it will be rendered
 
-function UpdateColumnsData(options) {
-	options.callback=RenderColumnsData;
+function updateColumnsData(options) {
+	options.callback=renderColumnsData;
     if (! options.hasOwnProperty('database')){
         options.database = controldatabase;
     }
@@ -1170,7 +1220,7 @@ function UpdateColumnsData(options) {
     }
     wsgiCallbackTableData(options)
 }
-function RenderColumnsData(data,options) {
+function renderColumnsData(data,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
 
@@ -1185,7 +1235,7 @@ function RenderColumnsData(data,options) {
     }
 
 	if (options.timeout>0) {
-		setTimeout(function(){UpdateColumnsData(options)},options.timeout);
+		setTimeout(function(){updateColumnsData(options)},options.timeout);
 	}
     var columnnames=[];
     $.each(data[0],function(key,value){
@@ -1220,11 +1270,7 @@ function RenderColumnsData(data,options) {
     }
 }
 
-// Generic Unique Key Render
-function UpdateUniqueKeyData(options) {
-	  options.callback = RenderWidgetsFromArrayByUniqueKey
-	  wsgiCallbackTableData(options);
-}
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 //  Sqlite table functions

@@ -61,154 +61,316 @@ logUserAuths(sessiondata)
 
 <div data-role="page" class="type-home" id="main">
 
-<script>
+<script type="text/javascript">
 
 // define some globals
 var jqmpage=true;
 var updatetimeout=100;
 var loginterval=30000;
 var updateinterval=30000;
-var lognames = [];
-var ioinfo = [];
-var ioinfonames = [];
-var ioinfoids = [];
-var labeltype = 'ids';
-var labelincludevalue = true;
+
+var actauthlevel=2;
 
 // globals for selected items
 // these need to put into a single object
-var seriesids=[];
-var tablenames=[];
-var seriesshortnames=[];
-var actauthlevel=2;
 
-// load ioinfo into DOM
-function GetIOInfo() {
-    wsgiCallbackTableData({database:controldatabase,tablename:'ioinfo',callback:RenderIOInfoTable})
+var sortedseriesmeta = {};
+
+
+var ioinfo = {};
+var logdata = {};
+var plotdata = {};
+var globaldata;
+
+// defaults
+var uisettings = {showinputgpiologs:true, showinput1wirelogs:true, showchannellogs:true, labeltype:'name', labelincludevalue: true}
+
+// Converter
+function JSONToCSVConvertor(JSONData, ReportTitle, labels, labelstrings) {
+    //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+    var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
+
+    var CSV = '';
+    //Set Report title in first row or line
+
+    CSV += ReportTitle + '\r\n\n';
+
+    //This condition will generate the Label/Header
+    if (labels) {
+        var row = "";
+
+        //This loop will extract the label from 1st index of on array
+        for (var i=0;i<arrData.length;i++) {
+            row += labelstrings[i] + ',' + labelstrings[i] + ',';
+        }
+        row = row.slice(0, -1);
+
+        //append Label row with line break
+        CSV += row + '\r\n';
+    }
+
+    //1st loop is to extract each row
+//    console.log(arrData.length)
+
+    // arrData.length is the number of series
+    for (var index in arrData[0]) {
+        var row = '';
+        // hardcoded at two values. Can fix this easily enough
+        for (var i=0;i<arrData.length;i++) {
+            row += arrData[i][index] + ',';
+        }
+        row.slice(0, row.length - 1);
+        CSV += row + '\r\n';
+    }
+//    for (var i = 0; i < arrData.length; i++) {
+//        var row = "";
+//
+//        //2nd loop will extract each column and convert it in string comma-seprated
+//        for (var index in arrData[i]) {
+//            row += arrData[i][index] + ',';
+//        }
+//
+//        row.slice(0, row.length - 1);
+//
+//        //add a line break after each row
+//        CSV += row + 'AA \r\n';
+//        console.log('ROW: ' + row)
+//    }
+
+    if (CSV == '') {
+        alert("Invalid data");
+        return;
+    }
+
+    //Generate a file name
+    var fileName = "MyReport_";
+    //this will remove the blank-spaces from the title and replace it with an underscore
+    fileName += ReportTitle.replace(/ /g,"_");
+
+    //Initialize file format you want csv or xls
+    var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
+
+    // Now the little tricky part.
+    // you can use either>> window.open(uri);
+    // but this will not work in some browsers
+    // or you will not get the correct file extension
+
+    //this trick will generate a temp <a /> tag
+    var link = document.createElement("a");
+    link.href = uri;
+
+    //set the visibility hidden so it will not effect on your web-layout
+    link.style = "visibility:hidden";
+    link.download = fileName + ".csv";
+
+    //this part will append the anchor tag and remove it after automatic click
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
-function RenderIOInfoTable(dataresponse) {
+//load ioinfo into DOM
+function getAndRenderIOInfo() {
+    wsgiCallbackTableData({database:controldatabase,tablename:'ioinfo',callback:renderIOInfo})
+}
+
+function renderIOInfo(dataresponse, options, xhr) {
+    // This puts this stuff into globals. We can probably avoid this.
+    // This is deprecated with the use of the more general RendertoDOM callback
+
     dataresponse = dataresponse || {};
     var datatable = dataresponse.data || [];
-    ioinfonames = [];
-    ioinfoids = [];
+    var ioinfonames = [];
+    var ioinfoids = [];
     for (var i=0; i< datatable.length; i++){
         ioinfoids.push(datatable[i].id)
         ioinfonames.push(datatable[i].name)
     }
+    // render into global object
+    ioinfo.ids = ioinfoids;
+    ioinfo.names = ioinfonames;
 }
 
-//// Channels
-function UpdateLogTable() {
+function renderUISettings(dataresponse, options, xhr) {
+    // This puts this stuff into globals. We can probably avoid this.
+    // This is deprecated with the use of the more general RendertoDOM callback
+
+    dataresponse = dataresponse || {};
+    var datatable = dataresponse.data || [];
+//    console.log(datatable)
+    for (var i=0; i< datatable.length; i++){
+        uisettings[datatable[i].setting] = datatable[i].value
+    }
+}
+
+//// Logs
+
+function updateLogTable() {
+
+    // I think we should do this from the metadata table. This way we can store the shortnames in
+    // globals that we retrieve from metadata. This will simplify processing into plots as well.
+    // The main point is that it will also allow using colloquial names for data selection for the plot
+
+    // old method: get table names and perform callback
     var options = {database: logdatabase};
-    options.callback = RenderLogsTable;
+    options.callback = renderLogsTable;
     options.database = logdatabase;
     wsgiGetTableNames(options);
+
 }
 
-function RenderLogsTable(dataresponse) {
+function renderLogsTable(dataresponse, options, xhr) {
     dataresponse = dataresponse || {};
     var datatable = dataresponse.data || [];
 
-    // render to global
-    lognames = datatable;
-    $('#logdatalistview').empty()
-    $('#logdatalistview').append('\
-        <li data-role="list-divider">\
-            <h4>Content Selection</h4>\
-        </li>'
-    )
-    // prune off the metadata table
+    // This datatable is the list of logtablenames
+    // we're going to put them into the metadata component of the logdata object
 
-    for (var i=0;i<datatable.length;i++){
-        $('#logdatalistview').append('\
-            <li data-role="fieldcontain" id="logdataset" >\
-                <p class="ui-block-a ui-biglabel" style="width: 100%">' + datatable[i] + '</p>\
-                <fieldset class="ui-grid-a" style="margin-top:40px">\
-                    <div class="ui-block-a" style="width:75%" >\
-                        <label for="none' + datatable[i] + 'toggle" style="font-size:14px; margin-left: 0px; margin-right: 5px; position: relative; top:-6px">Plot</label>\
-                        <select id="plotme' + datatable[i] + 'toggle" class="plotme' + datatable[i] + 'toggle plottoggle" data-role="slider">\
-                        <option value="Off">Off</option>\
-                        <option value="On">On</option>\
-                        </select>\
-                    </div>\
-                    <div class="' + datatable[i].replace(/ /g,'_') + 'points ui-block-b ui-btn-up-d  ui-btn-corner-all cnt" style="float:right; margin:3px 1px 5px 0px; padding: 7px 10px; text-align: center; width: 60px">52\
-                    </div>\
-                </fieldset>\
-            </li>'
+    var metadata = [];
+//    console.log(datatable.length)
+    for (var i=0; i<datatable.length; i++) {
+        // So determine what type of log it is by what the name is.
+        // We can pretty easily parse it.
+        var thisseriesmeta = parseLogTableName(datatable[i]);
+//        console.log(thisseriesmeta)
+        var render = false;
+
+//        console.log(thisseriesmeta.type)
+//        console.log(thisseriesmeta.subtype)
+        if (thisseriesmeta.type == 'input' && thisseriesmeta.subtype == 'GPIO' && uisettings.showinputgpiologs == 1) {
+            render = true;
+//            console.log('render GPIO')
+        }
+        else if (thisseriesmeta.type == 'input' && thisseriesmeta.subtype == '1Wire' && uisettings.showinput1wirelogs == 1) {
+            render = true;
+//            console.log('render 1Wire')
+
+        }
+        else if (thisseriesmeta.type == 'channel' && uisettings.showchannellogs == 1) {
+            render = true;
+//            console.log('render channel')
+
+        }
+        if (render) {
+            // Determine if there is a short name to be had. If not, just put short name in ID
+            // We are going to hide the real ID in the logtable list anyway and just make the text human readable
+            thisseriesmeta.name = thisseriesmeta.id;
+
+            // search for the shortname
+            var index = ioinfo.ids.indexOf(thisseriesmeta.id);
+            if ( index >=0 ) {
+                thisseriesmeta.name = ioinfo.names[index];
+            }
+
+            // now set display names
+            thisseriesmeta.displayname = thisseriesmeta.tablename;
+            if (uisettings.labeltype == 'id'){
+                thisseriesmeta.displayname = thisseriesmeta.id;
+            }
+            else if (uisettings.labeltype == 'name') {
+                thisseriesmeta.displayname = thisseriesmeta.name;
+            }
+            metadata.push(thisseriesmeta)
+        }
+    }
+    logdata.metadata = metadata;
+    // TODO: should do sorting in here
+
+    var loglistview =  $('#logdatalistview')
+    loglistview.empty();
+    loglistview.append(
+        '<li data-role="list-divider">' +
+            '<h4>Content Selection</h4>' +
+        '</li>'
+    );
+
+    for (var i=0;i<logdata.metadata.length;i++){
+        loglistview.append(
+            '<li data-role="fieldcontain" id="logdataset" >' +
+                '<p class="ui-block-a ui-biglabel" style="width: 100%">' + logdata.metadata[i].displayname + '</p>' +
+                '<fieldset class="ui-grid-a" style="margin-top:40px">' +
+                    '<div class="ui-block-a" style="width:75%" >' +
+                        '<label for="' + logdata.metadata[i].tablename + 'toggle" style="font-size:14px; margin-left: 0px; margin-right: 5px; position: relative; top:-6px">Plot</label>' +
+                        '<select id="plotme' + logdata.metadata[i].tablename + 'toggle" class="plotme' + logdata.metadata[i].tablename + 'toggle plottoggle" data-role="slider">' +
+                        '<option value="Off">Off</option>' +
+                        '<option value="On">On</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="' + logdata.metadata[i].tablename + 'points ui-block-b ui-btn-up-d  ui-btn-corner-all cnt" style="float:right; margin:3px 1px 5px 0px; padding: 7px 10px; text-align: center; width: 60px">52' +
+                    '</div>' +
+                '</fieldset>' +
+            '</li>'
         )
     }
-    $('#logdatalistview').listview('refresh')
-    $('#logdatalistview').trigger("create")
+    loglistview.listview('refresh')
+    loglistview.trigger("create")
+
+    updatePlotMetadata();
 }
 
-function GetPlotSeriesNamesFromViewerControls(){
+function getPlotSeriesNamesFromViewerControls(){
 
     // Ok, this is confusing as hell.
     // Seriesshortnames are what we want to use for a colloquial name for the series
     // seriesnames are what the name of the value is that we're getting from the table, e.g. 'value' or 'controlvalue'
 
-    tablenames = [];
-    seriesids = [];
-    seriesshortnames = [];
-    seriesnames = [];
-    seriesaxes = [];
+    plotdata.seriestablenames = [];
+    plotdata.seriesids = [];
+    plotdata.seriesdisplaynames = [];
+
+    plotdata.seriesnames = [];
+    plotdata.seriesaxes = [];
+
     $('.plottoggle').each(function(index,element){
         if (this.value=="On"){
-            // use global list of lognames to create a list of activated tablenames
-            tablenames.push(lognames[index]);
-            var thisseriesmeta = parseLogTableName(lognames[index]);
 
-            seriesids.push(thisseriesmeta.id);
-            if (thisseriesmeta.type == 'input') {
-                seriesaxes.push('yaxis')
-                seriesnames.push('value');
-                if (ioinfoids.indexOf(thisseriesmeta.id) > 0) {
-                    seriesshortnames.push(ioinfonames[ioinfoids.indexOf(thisseriesmeta.id)]);
-                }
-                else {
-                    seriesshortnames.push(thisseriesmeta.id);
-                }
+            var metaelement = logdata.metadata[index];
+            // use global list of lognames in metadata
+            plotdata.seriestablenames.push(metaelement.tablename);
+            plotdata.seriesids.push(metaelement.id);
+
+            if (metaelement.type == 'input') {
+                plotdata.seriesaxes.push('yaxis')
+                plotdata.seriesnames.push('value');
+                plotdata.seriesdisplaynames.push(metaelement.displayname)
             }
-            else if (thisseriesmeta.type == 'channel') {
-                seriesshortnames.push(thisseriesmeta.id + ' PV');
-                seriesnames.push('controlvalue');
-                seriesaxes.push('yaxis')
+            else if (metaelement.type == 'channel') {
+                plotdata.seriesdisplaynames.push(metaelement.displayname + ' PV');
+                plotdata.seriesnames.push('controlvalue');
+                plotdata.seriesaxes.push('yaxis')
 
                 // push another tablename instance for multiple values
-                tablenames.push(lognames[index]);
-                seriesids.push(thisseriesmeta.id);
+                plotdata.seriestablenames.push(metaelement.tablenames);
+                plotdata.seriesids.push(metaelement.ids);
 
-                seriesshortnames.push(thisseriesmeta.id + ' SV');
-                seriesnames.push('setpointvalue');
-                seriesaxes.push('yaxis')
+                plotdata.seriesdisplaynames.push(metaelement.displayname + ' SV');
+                plotdata.seriesnames.push('setpointvalue');
+                plotdata.seriesaxes.push('yaxis')
 
                 // push another tablename instance for multiple values
-                tablenames.push(lognames[index]);
-                seriesids.push(thisseriesmeta.id);
+                plotdata.seriestablenames.push(metaelement.tablename);
+                plotdata.seriesids.push(metaelement.id);
 
-                seriesshortnames.push(thisseriesmeta.id + ' action');
-                seriesnames.push('action');
-                seriesaxes.push('y2axis')
+                plotdata.seriesdisplaynames.push(metaelement.id + ' action');
+                plotdata.seriesnames.push('action');
+                plotdata.seriesaxes.push('y2axis')
             }
             else {
-                seriesnames.push('value');
-                seriesshortnames.push('value');
-                seriesaxes.push('yaxis')
+                plotdata.seriesnames.push('value');
+                plotdata.seriesdisplaynames.push('value');
+                plotdata.seriesaxes.push('yaxis')
             }
         }
     });
 
-    var results={seriesnames: seriesnames, seriesshortnames:seriesshortnames,tablenames:tablenames, seriesids:seriesids, seriesaxes:seriesaxes};
-    console.log(results)
-    return results
+    return plotdata
 }
 
 function updatePlots(options){
     setUpdating(true);
 
     // Ok, this is a bit complicated. Typically when we want to do repeated asynchronous rendering, we pass
-    // everything we need to the table retrieval and rendering function, GetAndRenderMultLogsData.
+    // everything we need to the table retrieval and rendering function, getAndRenderMultLogsData.
     // In this case, however, we need to retrieve the metadata and tablenames and pass it to the render function
     // fresh each time. We want to do so asynchronously, however, so we need to pass it as a callback.
 
@@ -229,17 +391,18 @@ function updatePlots(options){
         options.renderplotids = ['fullplot']
         console.log('full plot!')
     }
-    var results = GetPlotSeriesNamesFromViewerControls();
-//    console.log(results)
-    var tablenames = results.tablenames;
-//    console.log(tablenames);
+    var results = getPlotSeriesNamesFromViewerControls();
+    var tablenames = results.seriestablenames;
 
-    if (labeltype == 'names')
-        {var serieslabels = results.seriesshortnames;}
-    else if (labeltype == 'ids')
-        {var serieslabels = results.seriesids;}
+    var serieslabels = [];
+    if (uisettings.labeltype == 'name'){
+        serieslabels = results.seriesdisplaynames;
+    }
+    else if (uisettings.labeltype == 'id') {
+        serieslabels = results.seriesids;
+    }
     else
-        {var serieslabels = results.tablenames;}
+        {serieslabels = results.seriestablenames;}
 
     // Get total number of series and label appropriately
     var customOptionsObj=channelOptionsObj;
@@ -248,6 +411,7 @@ function updatePlots(options){
     var passedserieslabels = [];
     var seriesnames = [];
     var seriesaxes =[];
+
     for (var i = 0; i < serieslabels.length; i++) {
         customOptionsObj.series.push([{label: serieslabels[i], axis: seriesaxes[i]}]);
         passedserieslabels.push([serieslabels[i]]);
@@ -260,15 +424,15 @@ function updatePlots(options){
     options.seriesnames = seriesnames;
     options.serieslabels = passedserieslabels;
     options.seriesaxes = seriesaxes;
-    options.labelincludevalue = labelincludevalue;
+    options.labelincludevalue = uisettings.labelincludevalue;
     options.includelabelvalueprecision = $('#includelabelvalueprecision').val();
     options.renderplotoptions = [customOptionsObj];
     options.length = parseInt(length);
     options.start = -1;
 
 //    console.log(options)
-    GetAndRenderMultLogsData(options);
-    //GetAndRenderLogData({logtablename:'input_DS18B20-1_log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
+    getAndRenderMultLogsData(options);
+    //getAndRenderLogData({logtablename:'input_DS18B20-1_log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
 }
 
 function setUpdating(status){
@@ -282,12 +446,22 @@ function setUpdating(status){
 }
 
 $(document).ready(function(){
+
+    // Put IOInfo metadata into the DOM for rendering properly
+//    getAndRenderTableData({database:controldatabase, tablename:'ioinfo', rendertoDOM:true, objectname:'ioinfo',  jqmpage:true});
+    getAndRenderIOInfo();
+
+    // Get uisettings data and render it to DOM
+    getAndRenderUniqueKeyData({auxcallback: renderUISettings, database:systemdatabase, tablename:'uisettings', uniquekeyname:'setting', includekeyname: false, jqmpage:true});
+//    getAndRenderToDOM({database:systemdatabase, tablename:'uisettings', rendertoDOM:true, objectname:'uisettings'});
+
     togglestolamps();
 
-    //// Control Algorithms
+    //// Button click responses
+
     // UpdateLogsTable({'timeout':updateinterval})
     $('#plotrefresh').click(function(event){
-        setUpdating(true)
+        setUpdating(true);
         var auxcallback=function(){setUpdating(false)};
         var renderoptions = {renderplotids:['plot'], auxcallback:auxcallback};
         updatePlots(renderoptions)
@@ -296,13 +470,12 @@ $(document).ready(function(){
         var renderoptions = {renderplotids:['fullplot']};
         updatePlots(renderoptions)
     });
-
     $('#plotlabelidsbutton').click(function(){
         $('#plotlabelnamesbutton').removeClass('ui-btn-active');
         $('#plotlabelidsbutton').removeClass('ui-btn-active');
         $('#plotlabeltablenamesbutton').removeClass('ui-btn-active');
         $('#plotlabelidsbutton').addClass('ui-btn-active');
-        labeltype = 'ids';
+        uisettings.labeltype = 'id';
         $('#maincontrolgroup').listview('refresh');
     });
     $('#plotlabelnamesbutton').click(function(){
@@ -310,7 +483,7 @@ $(document).ready(function(){
         $('#plotlabelidsbutton').removeClass('ui-btn-active');
         $('#plotlabeltablenamesbutton').removeClass('ui-btn-active');
         $('#plotlabelnamesbutton').addClass('ui-btn-active');
-        labeltype = 'names';
+        uisettings.labeltype = 'name';
         $('#maincontrolgroup').listview('refresh');
     });
     $('#plotlabeltablenamesbutton').click(function(){
@@ -318,28 +491,44 @@ $(document).ready(function(){
         $('#plotlabelidsbutton').removeClass('ui-btn-active');
         $('#plotlabeltablenamesbutton').removeClass('ui-btn-active');
         $('#plotlabeltablenamesbutton').addClass('ui-btn-active');
-        labeltype = 'tablenames';
+        uisettings.labeltype = 'tablenames';
         $('#maincontrolgroup').listview('refresh');
     });
     $('#includelabelvalue').click(function(){
-        if (labelincludevalue) {
+        if (uisettings.labelincludevalue) {
             $('#includelabelvalue').removeClass('ui-btn-active');
-            labelincludevalue = false;
+            uisettings.labelincludevalue = false;
         }
         else {
             $('#includelabelvalue').addClass('ui-btn-active');
-            labelincludevalue = true;
+            uisettings.labelincludevalue = true;
         }
         $('#maincontrolgroup').listview('refresh');
     });
 
-    UpdateLogTable();
-    setTimeout(function(){
-        UpdatePlotMetadata({'timeout':'2000'})
-    },1000);
-    setTimeout(function(){
-        GetIOInfo({'timeout':'2000'})
-    },1000);
+    $('#uisettingsshowinputgpiologsvaluetoggle').change(function() {
+        updateLogTable();
+    });
+     $('#uisettingsshowinput1wirevaluetoggle').change(function() {
+        updateLogTable();
+    });
+     $('#uisettingsshowchannellogsvaluetoggle').change(function() {
+        updateLogTable();
+    });
+
+    $('#dumpdata').click(function(){
+        if(globaldata == '')
+            return;
+        JSONToCSVConvertor(globaldata, "Data Export", true, plotdata.seriesdisplaynames);
+    });
+
+    setTimeout(function(){updateLogTable()}, 2000);
+//    setTimeout(function(){
+//        updatePlotMetadata({'timeout':'2000'})
+//    },1000);
+//    setTimeout(function(){
+//        getAndRenderIOInfo({'timeout':'2000'})
+//    },1000);
 
     // This is some interesting stuff. We put the callback to the top-level function in here, so
     // that when it's called from deeper it pulls in everything new. To do so, however, we need to
@@ -363,14 +552,14 @@ $(document).ready(function(){
     setTimeout(function(){
         var options ={};
         options.auxcallback =
-                function(){
-                    var timeout=$('.' + 'updateperiodwidget').val()*1000;
+            function(){
+                var timeout=$('.' + 'updateperiodwidget').val()*1000;
 //                    alert(timeout)
-                    setUpdating(false);
-                    setTimeout(function(){updatePlots(options)},timeout);
-                };
+                setUpdating(false);
+                setTimeout(function(){updatePlots(options)},timeout);
+            };
         updatePlots(options)
-    },1000)
+    },1000);
 
 //    setTimeout(function(){updatePlots({timeoutclass:'updateperiodwidget'})},3000)
 });
@@ -407,6 +596,30 @@ $(document).ready(function(){
                     </div>
                 </div>
             </div>
+            <div data-role="collapsible" data-collapsed="true" data-inset="false" data-count-theme="b" data-content-theme="b">
+                <h4>Content</h4>
+                <li class="sm-inset-header">
+                    <label for="uisettingsshowinput1wirelogsvaluetoggle" style="width:50%">Show input 1Wire logs</label>
+                    <select id="uisettingsshowinput1wirelogsvaluetoggle" class="uisettingsshowinput1wirelogsvaluetoggle" data-role="slider" style="width:25%">
+                        <option value="Off">Off</option>
+                        <option value="On">On</option>
+                    </select>
+                </li>
+                <li class="sm-inset-header">
+                    <label for="uisettingsshowinputgpiologsvaluetoggle" style="width:50%">Show Input GPIO Logs</label>
+                    <select id="uisettingsshowinputgpiologsvaluetoggle" class="uisettingsshowinputgpiologsvaluetoggle" data-role="slider" style="width:25%">
+                        <option value="Off">Off</option>
+                        <option value="On">On</option>
+                    </select>
+                </li>
+                <li class="sm-inset-header">
+                    <label for="uisettingsshowchannellogsvaluetoggle" style="width:50%">Show Channel Logs</label>
+                    <select id="uisettingsshowchannellogsvaluetoggle" class="uisettingsshowchannellogsvaluetoggle" data-role="slider" style="width:25%">
+                        <option value="Off">Off</option>
+                        <option value="On">On</option>
+                    </select>
+                </li>
+            </div>
             <li data-role="fieldcontain">
                 <a href="logviewer.html" data-ajax="false">Log Viewer</a>
             </li>
@@ -432,6 +645,7 @@ $(document).ready(function(){
             </li>
         </ul>
         <div><a href="#fullplotpage" data-role="button">Full Screen Plot</a></div>
+        <div><a href="#" data-role="button" id="dumpdata">Download Data</a></div>
     </div><!--content-primary-->
     </div><!--content-->
     <div data-role="footer" data-id='fixednav' data-position="fixed" >
@@ -459,26 +673,26 @@ $(document).ready(function(){
 
 <div data-role="page" id="fullplotpage">
 <script>
-    $( document ).on( "pageinit", "#fullplotpage", function( event ) {
-        togglestolamps()
-        var results=GetPlotSeriesNamesFromViewerControls();
-        var tablenames = results.tablenames;
+$( document ).on( "pageinit", "#fullplotpage", function( event ) {
+    togglestolamps()
+    var results=getPlotSeriesNamesFromViewerControls();
+    var tablenames = results.tablenames;
+    var seriesnames = results.seriesnames;
+    // we'll choose ids or names here.
+    var serieslabels = results.seriesnames;
 
-        // we'll choose ids or names here.
-        var serieslabels = results.seriesnames;
-
-        // Get total number of series and label appropriately
-        var customOptionsObj=largeChannelOptionsObj;
-        var totalseries=0;
-        customOptionsObj.series=[]
-        for (var i=0; i<seriesnames.length;i++){
-            for (var j=0;j<seriesnames[i].length;j++){
-                customOptionsObj.series.push({label:tablenames[i] + ' : ' + seriesnames[i][j], axis:'yaxis'})
-            }
-            totalseries+=seriesnames[i].length;
+    // Get total number of series and label appropriately
+    var customOptionsObj=largeChannelOptionsObj;
+    var totalseries=0;
+    customOptionsObj.series=[]
+    for (var i=0; i<seriesnames.length;i++){
+        for (var j=0;j<seriesnames[i].length;j++){
+            customOptionsObj.series.push({label:tablenames[i] + ' : ' + seriesnames[i][j], axis:'yaxis'})
         }
-        GetAndRenderMultLogsData(logdatabase,{'tablenames':tablenames,'serieslabels':serieslabels,renderplotids:['fullplot'],renderplotoptions:[customOptionsObj]})
-    });
+        totalseries+=seriesnames[i].length;
+    }
+    getAndRenderMultLogsData(logdatabase,{'tablenames':tablenames,'serieslabels':serieslabels,renderplotids:['fullplot'],renderplotoptions:[customOptionsObj]})
+});
 </script>
     <div data-role="content">
         <div class="content-primary" style="width:90%">

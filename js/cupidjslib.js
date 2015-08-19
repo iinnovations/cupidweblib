@@ -45,17 +45,27 @@ function parseLogTableName(logtablename) {
     logtablename = logtablename || '';
     var result = {}
     var splitarray = logtablename.split("_")
+
+    var type = 'unknown'
+    var subtype = 'unknown'
     if (splitarray[0] == 'input') {
-        var type = 'input'
+        type = 'input'
     }
     else if (splitarray[0] == 'channel') {
-        var type = 'channel'
+        type = 'channel'
     }
-    else {
-        type = 'unknown'
+    if (splitarray.length > 1) {
+        if (splitarray[1].indexOf('GPIO') >= 0) {
+            subtype = 'GPIO'
+        }
+        else if (splitarray[1].indexOf('1wire') >= 0 || splitarray[1].indexOf('1wire')  >= 0) {
+            subtype = '1Wire'
+        }
     }
-    result.id = splitarray.slice(1,-1).join("_")
-    result.type = type
+    result.tablename = logtablename;
+    result.id = splitarray.slice(1,-1).join("_");
+    result.type = type;
+    result.subtype = subtype;
     return result
 
 }
@@ -121,6 +131,7 @@ function userAdd(options) {
     options.action = 'useradd'
     runwsgiActions(options)
 }
+
 function userModify(options) {
     // Need to pass : usertodelete, session username, session hpass
     var options = options || {};
@@ -179,7 +190,7 @@ function UpdateVersionsData(options) {
     options = options || {};
     options.database = systemdatabase;
     options.tablename = 'versions';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Control Algorithms
@@ -188,7 +199,7 @@ function UpdateControlAlgorithmsData(options) {
     options.database = controldatabase;
     options.tablename = 'controlalgorithms';
     options.selectorclass = 'controlalgorithmselect';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Control Algorithm Types
@@ -197,7 +208,7 @@ function UpdateControlAlgorithmTypesData(options) {
     options.database = controldatabase;
     options.tablename = 'algorithmtypes';
     options.selectorclass = 'algorithmtypeselect';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Channels Data
@@ -206,7 +217,7 @@ function UpdateChannelsData(options) {
     options.database = controldatabase;
     options.tablename = 'channels';
     options.selectorclass = 'channelselect';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 function UpdateChannelIndicesData(options) {
@@ -215,7 +226,7 @@ function UpdateChannelIndicesData(options) {
     options.tablename = 'channels';
     options.selectortableitem = 'channelindex';
     options.selectorclass = 'channelindexselect';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Outputs
@@ -226,7 +237,7 @@ function UpdateOutputsData(options) {
     options.selectorclass = 'outputselect';
     options.selectorhasnoneitem = true;
 //    options.selectortableitem = 'id';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Inputs
@@ -237,7 +248,7 @@ function UpdateInputsData(options) {
     options.selectorclass = 'inputselect';
     options.selectorhasnoneitem = true;
 //    options.selectortableitem = 'id';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Interfaces
@@ -248,7 +259,7 @@ function UpdateInterfacesData(options) {
     options.selectorclass = 'interfaceselect';
     options.selectorhasnoneitem = true;
 //    options.selectortableitem = 'id';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// motes
@@ -259,7 +270,7 @@ function UpdateMotesData(options) {
     options.selectorclass = 'remotesselect';
     options.selectorhasnoneitem = true;
 //    options.selectortableitem = 'id';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// MBTCP
@@ -270,7 +281,7 @@ function UpdateMBTCPData(options) {
     options.selectorclass = 'mbtcpselect';
     options.selectorhasnoneitem = true;
 //    options.selectortableitem = 'id';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Indicators
@@ -280,7 +291,7 @@ function UpdateIndicatorsData(options) {
     options.tablename = 'indicators';
     options.selectorclass = 'indicatorselect';
     options.selectortableitem = 'name';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Actions
@@ -290,7 +301,7 @@ function UpdateActionsData(options) {
     options.tablename = 'actions';
     options.selectorclass = 'actionselect';
     options.selectortableitem = 'name';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 /// Single table row
@@ -300,7 +311,7 @@ function UpdateSystemStatusData(options) {
     options.database = controldatabase;
     options.tablename = 'systemstatus';
     options.index = 1;
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Network Status
@@ -309,7 +320,7 @@ function UpdateNetStatusData(options) {
     options.database = systemdatabase;
     options.tablename = 'netstatus';
     options.index = 1;
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Netauths Data
@@ -320,7 +331,7 @@ function UpdateNetAuthsData(options) {
     options.selectorclass = 'ssidselect';
     options.selectorhasnoneitem = true;
     options.selectortableitem = 'SSID'
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Netauths Data
@@ -328,7 +339,7 @@ function UpdateUsersData(options) {
     options = options || {};
     options.database = usersdatabase;
     options.tablename = 'users';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 //// Netconfig Status
@@ -337,7 +348,7 @@ function UpdateNetConfigData(options) {
     options.database = systemdatabase;
     options.tablename = 'netconfig';
     options.index = 1;
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 // Metadata
@@ -346,19 +357,19 @@ function UpdateMetadata(options) {
     options.database = systemdatabase;
     options.tablename = 'metadata';
     options.index = 1;
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 // Unique render functions
 //// Metadata
-function UpdatePlotMetadata(options) {
-	//options.callback=RenderPlotMetadata;
-    options.callback = RenderPlotMetadata;
+function updatePlotMetadata(options) {
+	options = options || {};
+    options.callback = renderPlotMetadata;
     options.database=logdatabase;
     options.tablename='metadata';
 	wsgiCallbackTableData(options);
 }
-function RenderPlotMetadata(metadataresponse,options) {
+function renderPlotMetadata(metadataresponse,options, xhr) {
     options = options || {};
     metadataresponse = metadataresponse || {};
     var metadata = metadataresponse.data || [];
@@ -375,11 +386,13 @@ function RenderPlotMetadata(metadataresponse,options) {
         timeout=options.timeout;
     }
 	if (timeout>0) {
-		setTimeout(function(){UpdatePlotMetadata(options)},timeout);
+		setTimeout(function(){updatePlotMetadata(options)},timeout);
 	}
 	for (var i=0;i<metadata.length;i++){
         //$('.' + metadata[i].name.replace(' ','_') + 'points').html(88);
-		$('.' + metadata[i].name.replace(/ /g,'_') + 'points').html(metadata[i].numpoints);
+		$('.' + metadata[i].name + 'points').html(metadata[i].numpoints);
+        //console.log('rendering ' + '.' + metadata[i].name + 'points')
+        //console.log(metadata[i].numpoints)
 	    //alert('.' + metadata[i].name.replace(' ','_') + 'points')
 	}
 }
@@ -494,7 +507,7 @@ function RenderInputsTable (datatable,options) {
             {value:datatable[j].polltime, cellclass:options.tablename + "polltime" + String(j+1) + "text",type:"value"}
         ]);
     }
-//    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+//    renderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }
 
 function UpdateOutputsTable(options) {
@@ -555,7 +568,7 @@ function RenderOutputsTable (datatable,options) {
             {value:datatable[j].polltime, cellclass:options.tablename + "polltime" + String(j+1) + "text",type:"value"}
         ])
     }
-//    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+//    renderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }
 
 function UpdateIOInfoTable(options) {
@@ -612,7 +625,7 @@ function RenderIOInfoTable (datatable,options) {
             ]);
         }
     }
-//    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+//    renderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }
 
 function UpdateChannelsTable(options) {
@@ -640,17 +653,17 @@ function RenderChannelsTable (datatable,options) {
 		}
 	});
 
+
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
+    var timeout = 0;
     if (options.hasOwnProperty('timeoutclass')) {
         timeout=$('.' + options.timeoutclass).val()*1000;
     }
     else if (options.hasOwnProperty('timeout')) {
         timeout=options.timeout;
     }
-    else {
-        timeout=0;
-    }
+
 	if (timeout>0) {
 		setTimeout(function(){UpdateChannelsTable(options)},timeout);
 	}
@@ -696,7 +709,7 @@ function RenderChannelsTable (datatable,options) {
         }
     }
     // I don't think this is necessary.
-//    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+//    renderWidgetsFromArray(options.database,options.tablename,datatable,options)
 
 }
 
@@ -774,7 +787,7 @@ function RenderControlAlgorithmsTable (datatable,options) {
            ]);
        }
     }
-//    RenderWidgetsFromArray(options.database,options.tablename,datatable,options)
+//    renderWidgetsFromArray(options.database,options.tablename,datatable,options)
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -792,6 +805,23 @@ function UpdateTimestamps(passedoptions){
 	for (var i=0;i<passedoptions.renderids.length;i++){
 		$("#"+passedoptions.renderids[i]).html(logreadtime);
 	}
+}
+
+/////////////////////////////////////////////////////
+// Get stuff into DOM
+//
+
+function getAndRenderToDOM(options) {
+    // need database, table, object
+    options.callback = renderToDOM
+    wsgiCallbackTableData(options)
+}
+
+function renderToDOM(dataresponse, options, xhr) {
+    if (xhr.status == 200) {
+        //console.log(dataresponse.data)
+        window[options.objectname] = dataresponse.data;
+    }
 }
 
 /////////////////////////////////////////////////////
@@ -894,7 +924,7 @@ var largeChannelOptionsObj={
 	]
 };
 
-function GetAndRenderLogData(options){
+function getAndRenderLogData(options){
     // This section lets the timeout function get an updated value for the table
     // it should be retrieving. We can do it by channel or tablename, as long as we
     // keep the naming convention the same!
@@ -908,16 +938,16 @@ function GetAndRenderLogData(options){
     }
     // length is passed in with options object
     options.database = logdatabase;
-    //var callback=RenderLogData;
-    options.callback = RenderLogData;
+    //var callback=renderLogData;
+    options.callback = renderLogData;
 	wsgiCallbackTableData(options);
 }
 
-function RenderLogData (dataresponse,options) {
+function renderLogData (dataresponse,options) {
     //console.log('Rendering: ' + options.logtablename);
 
     if (options.timeout>0) {
-		setTimeout(function(){GetAndRenderLogData(options)},options.timeout);
+		setTimeout(function(){getAndRenderLogData(options)},options.timeout);
     }
 
     if (dataresponse.hasOwnProperty('data')) {
@@ -964,15 +994,15 @@ function RenderLogData (dataresponse,options) {
     }
 }
 
-function GetAndRenderMultLogsData(options){
+function getAndRenderMultLogsData(options){
     options = options || {};
-    options.callback=RenderMultLogsData;
+    options.callback=renderMultLogsData;
     //options.callback=logdone;
     options.database = logdatabase;
     wsgiCallbackMultTableData(options)
 }
 
-function RenderMultLogsData(returnedlogdataresponse,options, xhr){
+function renderMultLogsData(returnedlogdataresponse,options, xhr){
     options=options || {};
     returnedlogdataresponse = returnedlogdataresponse || {};
     var returnedlogdata = returnedlogdataresponse.data || [];
@@ -1056,6 +1086,7 @@ function RenderMultLogsData(returnedlogdataresponse,options, xhr){
         }
         for (var i = 0; i < options.renderplotids.length; i++) {
             $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
+            globaldata = plotseriesarray;
         }
     }
     else {

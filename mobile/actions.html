@@ -70,146 +70,152 @@ logUserAuths(sessiondata)
         var datatable = datatableresponse.data || [];
         for (var i=0; i<datatable.length; i++){
             var index=i+1;
-            var divhtmlitemstring = '\
-                <div data-role="collapsible" data-collapsed="true"  > <!--control item -->\
-                    <h3><span class="actionsname' + index + '"></span></h3>\
-                    <li data-role="fieldcontain">\
-                        <fieldset class="ui-grid-a">\
-                          <div class="ui-block-a ui-biglabel inset-header" style="width:30%">Type</div>\
-                          <div class="ui-block-b ui-biglabel inset-header actionsactiontype' + index + '">Email</div>\
-                        </fieldset>\
-                    </li>\
-                    <li data-role="fieldcontain">\
-                        <fieldset class="ui-grid-a">\
-                          <div class="ui-block-a ui-biglabel inset-header" style="width:30%">Detail</div>\
-                          <div class="ui-block-b ui-biglabel inset-header actionsactiondetail' + index + '"></div>\
-                        </fieldset>\
-                    </li>\
-                    <li data-role="fieldcontain">\
-                        <span class="justalamp">\
-                        <label for="actionenabledtoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">\
-                        Enabled\
-                        </label>\
-                        <select id="actionsenabled' + index + 'toggle" class="actionsenabled' + index + 'toggle justalamp" data-role="slider">\
-                            <option value="Off">Off</option>\
-                            <option value="On">On</option>\
-                        </select>\
-                        </span>\
-                    </li>\
-                    <li data-role="fieldcontain">\
-                        <span class="justalamp">\
-                        <label for="actionsstatus' + index + 'toggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">\
-                        Status\
-                        </label>\
-                        <select id="actionsstatus' + index + 'toggle" class="actionsstatus' + index + 'toggle justalamp" data-role="slider">\
-                            <option value="Off">Off</option>\
-                            <option value="On">On</option>\
-                        </select>\
-                        </span>\
-                    </li>\
-                    <li data-role="fieldcontain">\
-                        <span class="justalamp">\
-                        <label for="actionactivetoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">\
-                        Active\
-                        </label>\
-                        <select id="actionactive' + index + 'toggle" class="actionactive' + index + 'toggle justalamp" data-role="slider">\
-                            <option value="Off">Off</option>\
-                            <option value="On">On</option>\
-                        </select>\
-                        </span>\
-                    </li>\
-                    <li data-role="collapsible-set" data-content-theme="c" data-theme="d" data-inset="true">\
-                        <div data-role="collapsible" data-collapsed="true" >\
-                            <h4>Edit</h4>\
-                            <ul data-role="listview" data-inset="false">\
-                                <li data-role="fieldcontain">\
-                                    <label for="actionstatustoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">\
-                                    Enabled\
-                                    </label>\
-                                    <select id="actionsenabled' + index + 'toggle" class="actionsenabled' + index + 'toggle reqauth4" data-role="slider">\
-                                    <option value="Off">Off</option>\
-                                    <option value="On">On</option>\
-                                    </select>\
-                                </li>\
-                                <li>\
-                                    <label for="actionscriteriontype' + index + 'jqmselect"><h3>Criteron Type</h3></label>\
-                                    <select id="actionscriteriontype' + index + 'jqmselect" class="actionscriteriontype' + index + 'jqmselect reqatuth4">\
-                                        <option value="dbvalue">dbvalue</option>\
-                                    </select>\
-                                </li>\
-                                <li>\
-                                    <label for="actionstablename' + index + 'jqmselect"><h3>Table</h3></label>\
-                                    <select id="actionstablename' + index + 'jqmselect" class="actionstablename' + index + 'jqmselect controldatatableselect">\
-                                        <option value="channels">channels</option>\
-                                    </select>\
-                                </li>\
-                                <li>\
-                                    <label for="actionschannelindex' + index + 'jqmselect"><h3>Channel Index</h3></label>\
-                                    <select id="actionsvaluerowid' + index + 'jqmselect" class="actionsvaluerowid' + index + 'jqmselect channelindexselect">\
-                                        <option value="channels">99</option>\
-                                    </select>\
-                                </li>\
-                                 <li>\
-                                    <label for="actionsvariablename' + index + 'jqmselect"><h3>Valuename</h3></label>\
-                                    <select id="actionsvariablename' + index + 'jqmselect" class="actionsvariablename' + index + 'jqmselect controldatachannelscolumnjqmselect">\
-                                        <option value="controlvalue">Control Value</option>\
-                                        <option value="action">Action</option>\
-                                    </select>\
-                                </li>\
-                                <li>\
-                                    <label for="actionsoperator' + index + 'jqmselect"><h3>Operator?</h3></label>\
-                                    <select id="actionsoperator' + index + 'jqmselect" class="actionsoperator' + index + 'jqmselect actionsoperator' + index + 'jqmselect actionsoperatorselect">\
-                                        <option value="equal"> = (Equal to)</option>\
-                                        <option value="less">&lt; (Less than)</option>\
-                                        <option value="greater">&gt; (Greater than)</option>\
-                                    </select>\
-                                </li>\
-                                <li>\
-                                    <h3>Criterion Value</h3>\
-                                    <div class="ui-grid-a">\
-                                        <div class="ui-block-a"><input type="text" class="actionscriterion' + index + 'text"  value="detail"  ></div>\
-                                        <div class="ui-block-b actionscriterion' + index + 'textupdate" id="actionscriterion' + index + 'textupdate" ><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Update</a></div>\
-                                    </div>\
-                                </li>\
-                                <li>\
-                                    <label for="actionsactiontype' + index + 'jqmselect"><h3>Action Type</h3></label>\
-                                    <select id="actionsactiontype' + index + 'jqmselect" class="actiontypeselect">\
-                                        <option value="email">Email</option>\
-                                        <option value="indicator">Indicator</option>\
-                                    </select>\
-                                </li>\
-                                <li>\
-                                    <h3>Detail</h3>\
-                                    <div class="ui-grid-a">\
-                                        <div class="ui-block-a "><input type="text" class="actionsactiondetail' + index + 'text"  value="detail" ></div>\
-                                        <div class="ui-block-b actionsactiondetail' + index + 'textupdate" id="actionsactiondetail' + index + 'textupdate" ><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Update</a></div>\
-                                    </div>\
-                                </li>\
-                                <li data-role="fieldcontain">\
-                                    <label for="actionsactivereset' + index + 'toggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">\
-                                    Active Reset\
-                                    </label>\
-                                    <select id="actionsactivereset' + index + 'toggle" class="actionsactivereset' + index + 'toggle justalamp" data-role="slider">\
-                                    <option value="Off">Off</option>\
-                                    <option value="On">On</option>\
-                                    </select>\
-                                </li>\
-                                <li data-role="fieldcontain">\
-                                  <label for="actionsondelay' + index + 'slider" class="ui-biglabel">On Delay</label>\
-                                  <input type="range" class="actionsondelay' + index + 'slider" id="actionsondelay' + index + 'slider" value="60" min="0" max="100" />\
-                                </li>\
-                                <li data-role="fieldcontain">\
-                                  <label for="actionsoffdelay' + index + 'slider" class="ui-biglabel">Off Delay</label>\
-                                  <input type="range" class="actionsoffdelay' + index + 'slider" id="actionsoffdelay' + index + 'slider" value="60" min="0" max="100" />\
-                                </li>\
-                                <li data-role="fieldcontain">\
-                                  <label for="actionsactionfrequency' + index + 'slider" class="ui-biglabel">Action Frequency</label>\
-                                  <input type="range" class="actionsactionfrequency' + index + 'slider" id="actionsactionfrequency' + index + 'slider" value="60" min="0" max="100" />\
-                                </li>\
-                            </ul><!-- Edit set-->\
-                        </div><!-- Edit collapsible -->\
-                    </li><!-- Edit Collapsible set -->\
-                </div> <!-- Control Item -->'
+            var divhtmlitemstring =
+                '<div data-role="collapsible" data-collapsed="true"  > <!--control item -->' +
+                    '<h3><span class="actionsname' + index + '"></span></h3>' +
+                    '<li data-role="fieldcontain">' +
+                        '<fieldset class="ui-grid-a">' +
+                          '<div class="ui-block-a ui-biglabel inset-header" style="width:30%">Type</div>' +
+                          '<div class="ui-block-b ui-biglabel inset-header actionsactiontype' + index + '">Email</div>' +
+                        '</fieldset>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<fieldset class="ui-grid-a">' +
+                          '<div class="ui-block-a ui-biglabel inset-header" style="width:30%">Detail</div>' +
+                          '<div class="ui-block-b ui-biglabel inset-header actionsactiondetail' + index + '"></div>' +
+                        '</fieldset>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<span class="justalamp">' +
+                        '<label for="actionenabledtoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">' +
+                        'Enabled' +
+                        '</label>' +
+                        '<select id="actionsenabled' + index + 'toggle" class="actionsenabled' + index + 'toggle justalamp" data-role="slider">' +
+                            '<option value="Off">Off</option>' +
+                            '<option value="On">On</option>' +
+                        '</select>' +
+                        '</span>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<span class="justalamp">' +
+                        '<label for="actionsstatus' + index + 'toggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">' +
+                        'Status' +
+                        '</label>' +
+                        '<select id="actionsstatus' + index + 'toggle" class="actionsstatus' + index + 'toggle justalamp" data-role="slider">' +
+                            '<option value="Off">Off</option>' +
+                            '<option value="On">On</option>' +
+                        '</select>' +
+                        '</span>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<span class="justalamp">' +
+                        '<label for="actionsactivetoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">' +
+                        'Active' +
+                        '</label>' +
+                        '<select id="actionsactive' + index + 'toggle" class="actionsactive' + index + 'toggle justalamp" data-role="slider">' +
+                            '<option value="Off">Off</option>' +
+                            '<option value="On">On</option>' +
+                        '</select>' +
+                        '</span>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<fieldset class="ui-grid-a">' +
+                          '<div class="ui-block-a ui-biglabel inset-header" style="width:30%">Status</div>' +
+                          '<div class="ui-block-b inset-header actionsstatusmsg' + index + '">The status</div>' +
+                        '</fieldset>' +
+                    '</li>' +
+                    '<li data-role="collapsible-set" data-content-theme="c" data-theme="d" data-inset="true">' +
+                        '<div data-role="collapsible" data-collapsed="true" >' +
+                            '<h4>Edit</h4>' +
+                            '<ul data-role="listview" data-inset="false">' +
+                                '<li data-role="fieldcontain">' +
+                                    '<label for="actionstatustoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">' +
+                                    'Enabled' +
+                                    '</label>' +
+                                    '<select id="actionsenabled' + index + 'toggle" class="actionsenabled' + index + 'toggle reqauth4" data-role="slider">' +
+                                    '<option value="Off">Off</option>' +
+                                    '<option value="On">On</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<label for="actionscriteriontype' + index + 'jqmselect"><h3>Criteron Type</h3></label>' +
+                                    '<select id="actionscriteriontype' + index + 'jqmselect" class="actionscriteriontype' + index + 'jqmselect reqatuth4">' +
+                                        '<option value="dbvalue">dbvalue</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<label for="actionstablename' + index + 'jqmselect"><h3>Table</h3></label>' +
+                                    '<select id="actionstablename' + index + 'jqmselect" class="actionstablename' + index + 'jqmselect controldatatableselect">' +
+                                        '<option value="channels">channels</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<label for="actionschannelindex' + index + 'jqmselect"><h3>Channel Index</h3></label>' +
+                                    '<select id="actionsvaluerowid' + index + 'jqmselect" class="actionsvaluerowid' + index + 'jqmselect channelindexselect">' +
+                                        '<option value="channels">99</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<label for="actionsvariablename' + index + 'jqmselect"><h3>Valuename</h3></label>' +
+                                    '<select id="actionsvariablename' + index + 'jqmselect" class="actionsvariablename' + index + 'jqmselect controldatachannelscolumnjqmselect">' +
+                                        '<option value="controlvalue">Control Value</option>' +
+                                        '<option value="action">Action</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<label for="actionsoperator' + index + 'jqmselect"><h3>Operator?</h3></label>' +
+                                    '<select id="actionsoperator' + index + 'jqmselect" class="actionsoperator' + index + 'jqmselect actionsoperator' + index + 'jqmselect actionsoperatorselect">' +
+                                        '<option value="equal"> = (Equal to)</option>' +
+                                        '<option value="less">&lt; (Less than)</option>' +
+                                        '<option value="greater">&gt; (Greater than)</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<h3>Criterion Value</h3>' +
+                                    '<div class="ui-grid-a">' +
+                                        '<div class="ui-block-a"><input type="text" class="actionscriterion' + index + 'text"  value="detail"  ></div>' +
+                                        '<div class="ui-block-b actionscriterion' + index + 'textupdate" id="actionscriterion' + index + 'textupdate" ><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Update</a></div>' +
+                                    '</div>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<label for="actionsactiontype' + index + 'jqmselect"><h3>Action Type</h3></label>' +
+                                    '<select id="actionsactiontype' + index + 'jqmselect" class="actiontypeselect">' +
+                                        '<option value="email">Email</option>' +
+                                        '<option value="indicator">Indicator</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<h3>Detail</h3>' +
+                                    '<div class="ui-grid-a">' +
+                                        '<div class="ui-block-a "><input type="text" class="actionsactiondetail' + index + 'text"  value="detail" ></div>' +
+                                        '<div class="ui-block-b actionsactiondetail' + index + 'textupdate" id="actionsactiondetail' + index + 'textupdate" ><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Update</a></div>' +
+                                    '</div>' +
+                                '</li>' +
+                                '<li data-role="fieldcontain">' +
+                                    '<label for="actionsactivereset' + index + 'toggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">' +
+                                    'Active Reset' +
+                                    '</label>' +
+                                    '<select id="actionsactivereset' + index + 'toggle" class="actionsactivereset' + index + 'toggle justalamp" data-role="slider">' +
+                                    '<option value="Off">Off</option>' +
+                                    '<option value="On">On</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li data-role="fieldcontain">' +
+                                  '<label for="actionsondelay' + index + 'slider" class="ui-biglabel">On Delay</label>' +
+                                  '<input type="range" class="actionsondelay' + index + 'slider" id="actionsondelay' + index + 'slider" value="60" min="0" max="100" />' +
+                                '</li>' +
+                                '<li data-role="fieldcontain">' +
+                                  '<label for="actionsoffdelay' + index + 'slider" class="ui-biglabel">Off Delay</label>' +
+                                  '<input type="range" class="actionsoffdelay' + index + 'slider" id="actionsoffdelay' + index + 'slider" value="60" min="0" max="100" />' +
+                                '</li>' +
+                                '<li data-role="fieldcontain">' +
+                                  '<label for="actionsactionfrequency' + index + 'slider" class="ui-biglabel">Action Frequency</label>' +
+                                  '<input type="range" class="actionsactionfrequency' + index + 'slider" id="actionsactionfrequency' + index + 'slider" value="60" min="0" max="100" />' +
+                                '</li>' +
+                            '</ul><!-- Edit set-->' +
+                        '</div><!-- Edit collapsible -->' +
+                    '</li><!-- Edit Collapsible set -->' +
+                '</div> <!-- Control Item -->'
 
             $('#actionset').append(divhtmlitemstring).trigger( "create" );
 
@@ -224,7 +230,7 @@ logUserAuths(sessiondata)
             $('#actionstablename' + index + 'jqmselect').on('change.options',function(){
 
 //                alert('change to ' + $('#actionstablename' + index + 'jqmselect').val())
-                UpdateColumnsData({classes:['actionsvariablename' + index + 'jqmselect'], database:controldatabase,table:$('#actionstablename' + index + 'jqmselect').val()})
+                updateColumnsData({classes:['actionsvariablename' + index + 'jqmselect'], database:controldatabase,table:$('#actionstablename' + index + 'jqmselect').val()})
             })
 
             // attach action to tablename change event
@@ -241,8 +247,8 @@ logUserAuths(sessiondata)
         //// Control Algorithms
         //Just run this once so we don't overwrite edited values
         UpdateActionsTable({jqmpage:true});
-        setTimeout(function(){UpdateTableNamesData({database:controldatabase})},2000);
-        setTimeout(function(){UpdateColumnsData({database:controldatabase,table:'channels'})},5000);
+        setTimeout(function(){updateTableNamesData({database:controldatabase})},2000);
+        setTimeout(function(){updateColumnsData({database:controldatabase,table:'channels'})},5000);
         setTimeout(function(){ UpdateActionsData({'jqmpage':true,timeout:updateinterval})},5000)
         UpdateChannelIndicesData({'jqmpage':true,'timeout':updateinterval})
 
@@ -321,7 +327,7 @@ logUserAuths(sessiondata)
                     </li>
                     <li data-role="fieldcontain">
                         <span class="justalamp">
-                        <label for="actionstatustoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">
+                        <label for="actionactivetoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">
                         Active
                         </label>
                         <select id="actionactivetoggle" class="actionactivetoggle justalamp" data-role="slider">
@@ -335,10 +341,10 @@ logUserAuths(sessiondata)
                             <h4>Edit</h4>
                             <ul data-role="listview" data-inset="false">
                                 <li data-role="fieldcontain">
-                                    <label for="actionstatustoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">
+                                    <label for="actionenabledselecttoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">
                                     Enabled
                                     </label>
-                                    <select id="actionstatustoggle" class="actionstatustoggle justalamp" data-role="slider">
+                                    <select id="actionenabledselecttoggle" class="actionenabledoggle" data-role="slider">
                                     <option value="Off">Off</option>
                                     <option value="On">On</option>
                                     </select>
@@ -350,21 +356,21 @@ logUserAuths(sessiondata)
                                     </select>
                                 </li>
                                 <li>
-                                    <label for="criteriontypejqmselect"><h3>Table</h3></label>
-                                    <select id="criteriontypejqmselect" class="actiontypeselect">
+                                    <label for="tablejqmselect"><h3>Table</h3></label>
+                                    <select id="tablejqmselect" class="tablejqmselect">
                                         <option value="channels">channels</option>
                                     </select>
                                 </li>
                                  <li>
-                                    <label for="criteriontypejqmselect"><h3>Valuename</h3></label>
-                                    <select id="criteriontypejqmselect" class="actiontypeselect">
+                                    <label for="valuenamejqmselect"><h3>Valuename</h3></label>
+                                    <select id="valuenamejqmselect" class="valuejqmselect">
                                         <option value="controlvalue">Control Value</option>
                                         <option value="action">Action</option>
                                     </select>
                                 </li>
                                 <li>
-                                    <label for="criteriontypejqmselect"><h3>Operator</h3></label>
-                                    <select id="criteriontypejqmselect" class="actiontypeselect">
+                                    <label for="operatorjqmselect"><h3>Operator</h3></label>
+                                    <select id="operatorjqmselect" class="operatorjqmselect">
                                         <option value="=">= (Equal to)</option>
                                         <option value=">">< (Less than)</option>
                                         <option value="<">> (Greater than)</option>

@@ -1,16 +1,16 @@
 // JavaScript Document
 
 // Set static variables for controlstatus query
-			
-var controldatabase='/var/www/data/controldata.db';
-var recipedatabase='/var/www/data/recipedata.db';
-var logdatabase='/var/www/data/logdata.db';
-var infodatabase='/var/www/data/deviceinfo.db';
-var systemdatabase='/var/www/data/systemdata.db';
-var authdatabase='/var/www/data/authlog.db';
-var safedatabase='/var/wwwsafe/safedata.db'
-var usersdatabase='/var/wwwsafe/users.db'
-var motesdatabase='/var/www/data/motes.db'
+// These are aliases to be interpreted on the server.
+var controldatabase='controldb';
+var recipedatabase='recipedatadb';
+var logdatabase='logdatadb';
+var infodatabase='deviceinfodb';
+var systemdatabase='systemdatadb';
+var authdatabase='authlogdb';
+var safedatabase='safedatadb'
+var usersdatabase='usersdb'
+var motesdatabase='motesdb'
 
 // Define all the globals.
 // We define these globally so that when we render tables that need them
@@ -194,7 +194,7 @@ function UpdateVersionsData(options) {
 }
 
 //// Control Algorithms
-function UpdateControlAlgorithmsData(options) {
+function updateControlAlgorithmsData(options) {
     options = options || {};
     options.database = controldatabase;
     options.tablename = 'controlalgorithms';
@@ -212,7 +212,7 @@ function UpdateControlAlgorithmTypesData(options) {
 }
 
 //// Channels Data
-function UpdateChannelsData(options) {
+function updateChannelsData(options) {
     options = options || {};
     options.database = controldatabase;
     options.tablename = 'channels';
@@ -220,7 +220,7 @@ function UpdateChannelsData(options) {
     getAndRenderTableData(options)
 }
 
-function UpdateChannelIndicesData(options) {
+function updateChannelIndicesData(options) {
     options = options || {};
     options.database = controldatabase;
     options.tablename = 'channels';
@@ -230,7 +230,7 @@ function UpdateChannelIndicesData(options) {
 }
 
 //// Outputs
-function UpdateOutputsData(options) {
+function updateOutputsData(options) {
     options = options || {}
     options.database = controldatabase;
     options.tablename = 'outputs';
@@ -241,7 +241,7 @@ function UpdateOutputsData(options) {
 }
 
 //// Inputs
-function UpdateInputsData(options) {
+function updateInputsData(options) {
     options = options || {}
     options.database = controldatabase;
     options.tablename = 'inputs';
@@ -252,7 +252,7 @@ function UpdateInputsData(options) {
 }
 
 //// Interfaces
-function UpdateInterfacesData(options) {
+function updateInterfacesData(options) {
     options = options || {}
     options.database = controldatabase;
     options.tablename = 'interfaces';
@@ -263,7 +263,7 @@ function UpdateInterfacesData(options) {
 }
 
 //// motes
-function UpdateMotesData(options) {
+function updateMotesData(options) {
     options = options || {}
     options.database = controldatabase;
     options.tablename = 'remotes';
@@ -274,7 +274,7 @@ function UpdateMotesData(options) {
 }
 
 //// MBTCP
-function UpdateMBTCPData(options) {
+function updateMBTCPData(options) {
     options = options || {}
     options.database = controldatabase;
     options.tablename = 'modbustcp';
@@ -285,7 +285,7 @@ function UpdateMBTCPData(options) {
 }
 
 //// Indicators
-function UpdateIndicatorsData(options) {
+function updateIndicatorsData(options) {
     options = options || {};
     options.database = controldatabase;
     options.tablename = 'indicators';
@@ -295,7 +295,7 @@ function UpdateIndicatorsData(options) {
 }
 
 //// Actions
-function UpdateActionsData(options) {
+function updateActionsData(options) {
     options = options || {};
     options.database = controldatabase;
     options.tablename = 'actions';
@@ -306,7 +306,7 @@ function UpdateActionsData(options) {
 
 /// Single table row
 // System Status
-function UpdateSystemStatusData(options) {
+function updateSystemStatusData(options) {
     options = options || {};
     options.database = controldatabase;
     options.tablename = 'systemstatus';
@@ -315,7 +315,7 @@ function UpdateSystemStatusData(options) {
 }
 
 //// Network Status
-function UpdateNetStatusData(options) {
+function updateNetStatusData(options) {
     options = options || {};
     options.database = systemdatabase;
     options.tablename = 'netstatus';
@@ -324,7 +324,7 @@ function UpdateNetStatusData(options) {
 }
 
 //// Netauths Data
-function UpdateNetAuthsData(options) {
+function updateNetAuthsData(options) {
     options = options || {};
     options.database = safedatabase;
     options.tablename = 'wireless';
@@ -335,7 +335,7 @@ function UpdateNetAuthsData(options) {
 }
 
 //// Netauths Data
-function UpdateUsersData(options) {
+function updateUsersData(options) {
     options = options || {};
     options.database = usersdatabase;
     options.tablename = 'users';
@@ -343,7 +343,7 @@ function UpdateUsersData(options) {
 }
 
 //// Netconfig Status
-function UpdateNetConfigData(options) {
+function updateNetConfigData(options) {
     options = options || {};
     options.database = systemdatabase;
     options.tablename = 'netconfig';
@@ -352,7 +352,7 @@ function UpdateNetConfigData(options) {
 }
 
 // Metadata
-function UpdateMetadata(options) {
+function updateMetadata(options) {
     options = options || {};
     options.database = systemdatabase;
     options.tablename = 'metadata';
@@ -390,7 +390,7 @@ function renderPlotMetadata(metadataresponse,options, xhr) {
 	}
 	for (var i=0;i<metadata.length;i++){
         //$('.' + metadata[i].name.replace(' ','_') + 'points').html(88);
-		$('.' + metadata[i].name + 'points').html(metadata[i].numpoints);
+		$('.' + metadata[i].name.replace(/ /g,'_') + 'points').html(metadata[i].numpoints);
         //console.log('rendering ' + '.' + metadata[i].name + 'points')
         //console.log(metadata[i].numpoints)
 	    //alert('.' + metadata[i].name.replace(' ','_') + 'points')
@@ -398,12 +398,12 @@ function renderPlotMetadata(metadataresponse,options, xhr) {
 }
 
 //// Control Recipes - uses table names
-function UpdateControlRecipeData(options) {
-	 options.callback=RenderControlRecipeData;
+function updateControlRecipeData(options) {
+	 options.callback=renderControlRecipeData;
       options.database=recipedatabase;
 	  wsgiGetTableNames(options)
 }
-function RenderControlRecipeData(reciperesponse,options) {
+function renderControlRecipeData(reciperesponse,options) {
     reciperesponse = reciperesponse || {};
 
     options = options || {};
@@ -421,7 +421,7 @@ function RenderControlRecipeData(reciperesponse,options) {
 
 //    console.log(controlrecipenames)
 	if (options.timeout>0) {
-		setTimeout(function(){UpdateControlRecipeData(options)},options.timeout)
+		setTimeout(function(){updateControlRecipeData(options)},options.timeout)
 	}
 
     // condition for 304
@@ -432,7 +432,7 @@ function RenderControlRecipeData(reciperesponse,options) {
         controlrecipenames.push(recipenames);
         $('.controlrecipeselect').each(function () {
             if ($('#' + this.id).length > 0) {
-                UpdateSelect(this.id, controlrecipenames)
+                updateSelect(this.id, controlrecipenames)
             }
         });
     }
@@ -450,14 +450,14 @@ function RenderControlRecipeData(reciperesponse,options) {
 
 
 //// Control Inputs - also do ROM display table at same time
-function UpdateInputsTable(options) {
+function updateInputsTable(options) {
     options=options || {};
-	options.callback=RenderInputsTable;
+	options.callback=renderInputsTable;
     options.tablename='inputs';
     options.database=controldatabase;
 	wsgiCallbackTableData(options)
 }
-function RenderInputsTable (datatable,options) {
+function renderInputsTable (datatable,options) {
     var tableid = options.tableid || 'inputstable'
     var tablerowstart = options.tablerowstart || 1;
     var dbrowstart = options.dbrowstart || 0;
@@ -470,7 +470,7 @@ function RenderInputsTable (datatable,options) {
 	}
 	$('.inputselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, inputnames);
+	    	updateSelect(this.id, inputnames);
 		}
 	});
 
@@ -530,21 +530,20 @@ function RenderOutputsTable (datatable,options) {
 	}
 	$('.outputselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, outputnames);
+	    	updateSelect(this.id, outputnames);
 		}
 	});
 
     // Set interval function. We either pass a class to retrieve it from,
     // a static value, or nothing
+    var timeout=0;
     if (options.hasOwnProperty('timeoutclass')) {
         timeout=$('.' + options.timeoutclass).val()*1000;
     }
     else if (options.hasOwnProperty('timeout')) {
         timeout=options.timeout;
     }
-    else {
-        timeout=0;
-    }
+
 	if (timeout>0) {
 		setTimeout(function(){UpdateOutputsTable(options)},timeout);
 	}
@@ -649,7 +648,7 @@ function RenderChannelsTable (datatable,options) {
 	}
 	$('.channelselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, channelnames);
+	    	updateSelect(this.id, channelnames);
 		}
 	});
 
@@ -734,7 +733,7 @@ function RenderControlAlgorithmsTable (datatable,options) {
 	}
 	$('.controlalgorithmselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, controlalgorithmnames);
+	    	updateSelect(this.id, controlalgorithmnames);
 		}
 	});
 
@@ -1006,6 +1005,7 @@ function renderMultLogsData(returnedlogdataresponse,options, xhr){
     options=options || {};
     returnedlogdataresponse = returnedlogdataresponse || {};
     var returnedlogdata = returnedlogdataresponse.data || [];
+    console.log(options.serieslabels)
 
     //[datatable, datatable, datatable]
 
@@ -1017,11 +1017,7 @@ function renderMultLogsData(returnedlogdataresponse,options, xhr){
     // to render to, as properties of the options argument
     // We then use these to parse the passed datatable
 
-    // We have l tables that we are getting data from
-    // We get i series from each table
-    // Each series is j points long.
-    // We then render to k plotids
-
+    // logdata[series][points][name of series element]
 
     // if we want to render labels, options.serieslabels, value specified by
     // options.labelincludevalue, options.labelvalueprecision
@@ -1045,38 +1041,54 @@ function renderMultLogsData(returnedlogdataresponse,options, xhr){
         }
 	}
     // If no data (could be 304 not modified), do absolutely nothing with plots
+    //console.log(returnedlogdata)
     if (returnedlogdata.length > 0) {
         options.renderplotids = options.renderplotids || [];
         for (i=0;i<options.renderplotids.length;i++) {
             $('#' + options.renderplotids[i]).html('');
         }
         var plotseriesarray=[];
-        // For each log table
-        var totalseriescount=0;
-        // there are l tables, each containing i series
-        for (var l=0;l<returnedlogdata.length;l++) {
-            // For the i-th series in the l-th table
-            for (var i = 0; i < options.serieslabels[l].length; i++) {
+
+        // there are l tables, each containing i points
+        // The returned data is flattened, so we use a total series count to get through it
+        // The series names are nested
+        //     k is a series group
+        //     l is a series within a group
+        var totalseriescount = 0;
+        for (var k=0;k<options.serieslabels.length;k++) {
+            console.log('length: ' + returnedlogdata.length)
+            // For the s-th series in the l-th dataset
+
+            console.log(options.serieslabels[k].length)
+
+            for (var l = 0; l < options.serieslabels[k].length; l++) {
                 var currentseries = [];
-                var seriesname = options.seriesnames[l][i];
-                //alert(seriesname)
-                var serieslabel = options.serieslabels[l][i];
-                var seriesaxis = options.seriesaxes[l][i] || 'yaxis';
-                var serieslength = returnedlogdata[l].length;
+                var seriesname = options.seriesnames[k][l];
+                console.log(seriesname)
+
+                var serieslabel = options.serieslabels[k][l];
+                var seriesaxis = options.seriesaxes[k][l] || 'yaxis';
+                var numpoints = returnedlogdata[totalseriescount].length;
+
                 if (options.labelincludevalue) {
                     //                get last point, and round with set precision
+                    //console.log(returnedlogdata[totalseriescount])
+                    console.log(options.includelabelvalueprecision)
                     serieslabel += ': ' + Math.round(returnedlogdata[l][0][seriesname] * Math.pow(10, options.includelabelvalueprecision)) / Math.pow(10, options.includelabelvalueprecision)
                     //                serieslabel += ': ' + Math.round(returnedlogdata[l][serieslength-1][seriesname])
                 }
                 // squirt in the data
-                for (var j=0;j<returnedlogdata[l].length;j++) {
-                    currentseries.push([returnedlogdata[l][j].time, returnedlogdata[l][j][seriesname]]);
+                console.log(numpoints)
+                for (var p=0;p<numpoints;p++) {
+                    currentseries.push([returnedlogdata[totalseriescount][p].time, returnedlogdata[totalseriescount][p][seriesname]]);
                 }
-                for (var k = 0; k < options.renderplotids.length; k++) {
+                console.log(returnedlogdata[totalseriescount])
+                console.log(currentseries)
+                for (var m = 0; m < options.renderplotids.length; m++) {
                     // For now the options reside in the html. Probably most flexible this way.
                     //                    options.renderplotoptions[k].series[totalseriescount].label=options.serieslabels[l][i];
-                    options.renderplotoptions[k].series[totalseriescount].label = serieslabel;
-                    options.renderplotoptions[k].series[totalseriescount].yaxis = seriesaxis;
+                    options.renderplotoptions[m].series[totalseriescount].label = serieslabel;
+                    options.renderplotoptions[m].series[totalseriescount].yaxis = seriesaxis;
                     //console.log('assigning ' + seriesaxis + ' to ' + serieslabel)
                 }
                 plotseriesarray.push(currentseries);
@@ -1090,7 +1102,7 @@ function renderMultLogsData(returnedlogdataresponse,options, xhr){
         }
     }
     else {
-        console.log('No data returned, so no plot modification. Status: ' + xhr.status)
+        //console.log('No data returned, so no plot modification. Status: ' + xhr.status)
     }
 }
 

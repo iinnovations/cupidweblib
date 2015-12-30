@@ -128,7 +128,7 @@ logUserAuths(sessiondata)
 
         $('#mbtcpset').collapsibleset('refresh')
         $('#mbtcplistview').listview('refresh')
-        UpdateMBTCPData()
+        updateMBTCPData()
     }
 
     // Dialog renderers
@@ -142,7 +142,7 @@ logUserAuths(sessiondata)
                 values.push(data[i].id)
             }
         }
-        UpdateSelect('modbusinterfacejqmselect',choices, values)
+        updateSelect('modbusinterfacejqmselect',choices, values)
     }
 
     $(document).ready(function(){
@@ -153,7 +153,7 @@ logUserAuths(sessiondata)
         UpdateMBTCPTable({'jqmpage':true})
 
         setTimeout(function(){
-            UpdateMBTCPData({'jqmpage':true})
+            updateMBTCPData({'jqmpage':true})
         },1000);
         $('#datarefresh').click(function(event){
             UpdateMBTCPTable({'jqmpage':true})

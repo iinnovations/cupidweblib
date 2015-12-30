@@ -89,116 +89,116 @@ function RenderChannels(channelstableresponse,actionobj) {
 	$("#channelset").html('');
 	for (var i=0; i<channelsdata.length; i++){
 		index=i+1;
-		divhtmlitemstring = '\
-		   <div data-role="collapsible" data-collapsed="true" data-count-theme="b" ><!--control item --> \
-              <h3> '  + channelsdata[i].name + '</h3>\
-              <li data-role="fieldcontain">\
-                <fieldset class="ui-grid-a">\
-                  <div class="ui-block-a ui-biglabel inset-header" id="controlvalue">Control Value</div>\
-                  <div class="ui-block-b ui-biggerlabel inset-header channelscontrolvalue' + index + '">63</div>\
-                </fieldset>\
-              </li>\
-			  <li data-role="fieldcontain">\
-                <fieldset class="ui-grid-a">\
-                  <div class="ui-block-a ui-biglabel inset-header">Setpoint Value\
-                  </div>\
-                  <div class="ui-block-b ui-biggerlabel inset-header channelssetpointvalue' + index + '">63</div>\
-                </fieldset>\
-              </li>  \
-			  <li data-role="fieldcontain">\
-                <fieldset class="ui-grid-a">\
-                  <div class="ui-block-a ui-biglabel inset-header">Action (%)\
-                  </div>\
-                  <div class="ui-block-b ui-biggerlabel inset-header channelsaction' + index + '">1</div>	   \
-                </fieldset>\
-              </li> \
-              <li data-role="fieldcontain">\
-                <fieldset class="ui-grid-a">\
-                  <div class="ui-block-a ui-biglabel inset-header" >Status Msg\
-                  </div>\
-                  <div class="ui-block-b inset-header channelsstatusmessage' + index + '" style="padding-top:10px">1</div>	   \
-                </fieldset>\
-              </li> \
-              <li data-role="collapsible-set" data-content-theme="c" data-theme="d" data-inset="true">\
-                <div data-role="collapsible" data-collapsed="true" >\
-                  <h4>Edit</h4>\
-                  <ul data-role="listview" data-inset="false" class="controllist">\
-                    <li >\
-                      <label for="channelssetpointvalue' + index + 'slider" class="ui-biglabel" style="width:100%; padding-right:10px">Setpoint</label>\
-                      <input type="range" class="channelssetpointvalue' + index + 'slider reqauth3" id="channelssetpointvalue' + index + 'slider"  value="60" min="0" max="400" />\
-                    </li>\
-                    <li data-role="fieldcontain" >\
-                        <label for="channelsenabled' + index +  'toggle"  style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>\
-                        <select id="channelsenabled' + index +  'toggle" class="channelsenabled' + index +  'toggle reqauth3" data-role="slider">\
-                        <option value="Off">Off</option>\
-                        <option value="On">On</option>\
-                        </select> \
-                    </li>\
-					<li data-role="fieldcontain" >\
-                        <label for="channelsmode' + index +  'automantoggle" style="display:inline-block; width:45%;"><h3>Mode:</h3></label>\
-                        <select id="channelsmode' + index +  'automantoggle" class="channelsmode' + index +  'automantoggle reqauth3" data-role="slider">\
-                        <option value="auto">auto</option>\
-                        <option value="manual">man</option>\
-                        </select> \
-                    </li>\
-                    <li data-role="fieldcontain">\
-                        <label for="channelsoutputsenabled' + index + 'toggle" style="width:45%; display:inline-block">\
-                        <h3>Outputs:</h3></label>\
-                        <select id="channelsoutputsenabled' + index + 'toggle" class="channelsoutputsenabled' + index + 'toggle reqauth3" data-role="slider">\
-                        <option value="Off">Off</option>\
-                        <option value="On">On</option>\
-                        </select> \
-                    </li>\
-					<li >\
-					  <label for="channelscontrolinput' + index + 'jqmselect" ><h3>Control Input</h3></label>\
-					  <select id="channelscontrolinput' + index + 'jqmselect" class="inputselect channelscontrolinput' + index + 'jqmselect reqauth3" >\
-						  <option value="standard">Output 1</option>\
-						  <option value="rush">Output</option>\
-						  <option value="express">Output 3</option>\
-						  <option value="overnight">Output 4</option>\
-					  </select>\
-                    </li><!-- list option set -->\
-                    <li>\
-					  <label for="channelspositiveoutput' + index + 'jqmselect" class="ui-biglabel"><h3>Positive Output</h3></label>\
-					  <select id="channelspositiveoutput' + index + 'jqmselect" class="outputselect channelspositiveoutput' + index + 'jqmselect reqauth3">\
-						  <option value="standard">Output 1</option>\
-						  <option value="rush">Output</option>\
-						  <option value="express">Output 3</option>\
-						  <option value="overnight">Output 4</option>\
-					  </select>\
-					  <label for="channelsnegativeoutput' + index + 'jqmselect" class="ui-biglabel">Negative Output</label>\
-					  <select id="channelsnegativeoutput' + index + 'jqmselect" class="outputselect channelsnegativeoutput' + index + 'jqmselect reqauth3" >\
-						  <option value="standard">Output 1</option>\
-						  <option value="rush">Output 2</option>\
-						  <option value="express">Output 3</option>\
-						  <option value="overnight">Output 4</option>\
-					  </select>\
-                    </li><!-- list option set -->\
-                    <li data-role="field-contain">\
-					  <label for="channelscontrolalgorithm' + index + 'jqmselect" class="ui-biglabel">Control Algorithm</label>\
-					  <select id="channelscontrolalgorithm' + index + 'jqmselect" class="controlalgorithmselect channelscontrolalgorithm' + index + 'jqmselect reqauth3" >\
-						  <option value="standard">on/off two degree deadband</option>\
-						  <option value="rush">on/off three degree deadband</option>\
-						  <option value="express">on/off two degree deadband</option>\
-						  <option value="value4">two degree deadband</option>\
-					  </select>\
-					  <label for="channelscontrolrecipe' + index + 'jqmselect"  class="ui-biglabel">Control Recipe</label>\
-					  <select id="channelscontrolrecipe' + index + 'jqmselect" class="controlrecipeselect channelscontrolrecipe' + index + 'jqmselect reqauth3" >\
-						  <option value="standard">stdreflow</option>\
-						  <option value="rush">Four-day 65F ale</option>\
-						  <option value="express">Six-day 65F ale</option>\
-						  <option value="overnight">Twelve-day 65F ale</option>\
-					  </select>\
-                    </li><!-- list option set -->\
-                  </ul><!-- Edit set-->\
-                </div><!-- Edit collapsible -->\
-                <div data-role="collapsible" data-collapsed="true" class="smallplotcollapsible" id="smallplotcollapsible' + index + '">\
-              		<h4><span style="float:left;">Quick Plot</span>\
-                    <span class="channel_' + channelsdata[i].name.replace(/ /g,'_') + '_logpoints ui-btn-up-c  ui-btn-corner-all cnt" style="float:right; font-size:12px; padding-left:7px; padding-right:7px">0</span></h4>\
-              		<div class="smallplot" id="smallplot' + index + '">Loading ...</div>\
-            	</div><!-- plot collapsible -->\
-              </li><!-- Edit Collapsible set -->\
-            </div><!--collapsible control item --> ' 
+		divhtmlitemstring =
+		   '<div data-role="collapsible" data-collapsed="true" data-count-theme="b" ><!--control item --> ' +
+              '<h3> '  + channelsdata[i].name + '</h3>' +
+              '<li data-role="fieldcontain">' +
+                '<fieldset class="ui-grid-a">' +
+                  '<div class="ui-block-a ui-biglabel inset-header" id="controlvalue">Control Value</div>' +
+                  '<div class="ui-block-b ui-biggerlabel inset-header channelscontrolvalue' + index + '">63</div>' +
+                '</fieldset>' +
+              '</li>' +
+			  '<li data-role="fieldcontain">' +
+                '<fieldset class="ui-grid-a">' +
+                  '<div class="ui-block-a ui-biglabel inset-header">Setpoint Value' +
+                  '</div>' +
+                  '<div class="ui-block-b ui-biggerlabel inset-header channelssetpointvalue' + index + '">63</div>' +
+                '</fieldset>' +
+              '</li>  ' +
+			  '<li data-role="fieldcontain">' +
+                '<fieldset class="ui-grid-a">' +
+                  '<div class="ui-block-a ui-biglabel inset-header">Action (%)' +
+                  '</div>' +
+                  '<div class="ui-block-b ui-biggerlabel inset-header channelsaction' + index + '">1</div>	   ' +
+                '</fieldset>' +
+              '</li> ' +
+              '<li data-role="fieldcontain">' +
+                '<fieldset class="ui-grid-a">' +
+                  '<div class="ui-block-a ui-biglabel inset-header" >Status Msg' +
+                  '</div>' +
+                  '<div class="ui-block-b inset-header channelsstatusmessage' + index + '" style="padding-top:10px">1</div>	   ' +
+                '</fieldset>' +
+              '</li> ' +
+              '<li data-role="collapsible-set" data-content-theme="c" data-theme="d" data-inset="true">' +
+                '<div data-role="collapsible" data-collapsed="true" >' +
+                  '<h4>Edit</h4>' +
+                  '<ul data-role="listview" data-inset="false" class="controllist">' +
+                    '<li >' +
+                      '<label for="channelssetpointvalue' + index + 'slider" class="ui-biglabel" style="width:100%; padding-right:10px">Setpoint</label>' +
+                      '<input type="range" class="channelssetpointvalue' + index + 'slider reqauth3" id="channelssetpointvalue' + index + 'slider"  value="60" min="0" max="400" />' +
+                    '</li>' +
+                    '<li data-role="fieldcontain" >' +
+                        '<label for="channelsenabled' + index +  'toggle"  style="display:inline-block; width:45%;"><h3>Enabled:</h3></label>' +
+                        '<select id="channelsenabled' + index +  'toggle" class="channelsenabled' + index +  'toggle reqauth3" data-role="slider">' +
+                        '<option value="Off">Off</option>' +
+                        '<option value="On">On</option>' +
+                        '</select> ' +
+                    '</li>' +
+					'<li data-role="fieldcontain" >' +
+                        '<label for="channelsmode' + index +  'automantoggle" style="display:inline-block; width:45%;"><h3>Mode:</h3></label>' +
+                        '<select id="channelsmode' + index +  'automantoggle" class="channelsmode' + index +  'automantoggle reqauth3" data-role="slider">' +
+                        '<option value="auto">auto</option>' +
+                        '<option value="manual">man</option>' +
+                        '</select> ' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<label for="channelsoutputsenabled' + index + 'toggle" style="width:45%; display:inline-block">' +
+                        '<h3>Outputs:</h3></label>' +
+                        '<select id="channelsoutputsenabled' + index + 'toggle" class="channelsoutputsenabled' + index + 'toggle reqauth3" data-role="slider">' +
+                        '<option value="Off">Off</option>' +
+                        '<option value="On">On</option>' +
+                        '</select> ' +
+                    '</li>' +
+					'<li >' +
+					  '<label for="channelscontrolinput' + index + 'jqmselect" ><h3>Control Input</h3></label>' +
+					  '<select id="channelscontrolinput' + index + 'jqmselect" class="inputselect channelscontrolinput' + index + 'jqmselect reqauth3" >' +
+						  '<option value="standard">Output 1</option>' +
+						  '<option value="rush">Output</option>' +
+						  '<option value="express">Output 3</option>' +
+						  '<option value="overnight">Output 4</option>' +
+					  '</select>' +
+                    '</li><!-- list option set -->' +
+                    '<li>' +
+					  '<label for="channelspositiveoutput' + index + 'jqmselect" class="ui-biglabel"><h3>Positive Output</h3></label>' +
+					  '<select id="channelspositiveoutput' + index + 'jqmselect" class="outputselect channelspositiveoutput' + index + 'jqmselect reqauth3">' +
+						  '<option value="standard">Output 1</option>' +
+						  '<option value="rush">Output</option>' +
+						  '<option value="express">Output 3</option>' +
+						  '<option value="overnight">Output 4</option>' +
+					  '</select>' +
+					  '<label for="channelsnegativeoutput' + index + 'jqmselect" class="ui-biglabel">Negative Output</label>' +
+					  '<select id="channelsnegativeoutput' + index + 'jqmselect" class="outputselect channelsnegativeoutput' + index + 'jqmselect reqauth3" >' +
+						  '<option value="standard">Output 1</option>' +
+						  '<option value="rush">Output 2</option>' +
+						  '<option value="express">Output 3</option>' +
+						  '<option value="overnight">Output 4</option>' +
+					  '</select>' +
+                    '</li><!-- list option set -->' +
+                    '<li data-role="field-contain">' +
+					  '<label for="channelscontrolalgorithm' + index + 'jqmselect" class="ui-biglabel">Control Algorithm</label>' +
+					  '<select id="channelscontrolalgorithm' + index + 'jqmselect" class="controlalgorithmselect channelscontrolalgorithm' + index + 'jqmselect reqauth3" >' +
+						  '<option value="standard">on/off two degree deadband</option>' +
+						  '<option value="rush">on/off three degree deadband</option>' +
+						  '<option value="express">on/off two degree deadband</option>' +
+						  '<option value="value4">two degree deadband</option>' +
+					  '</select>' +
+					  '<label for="channelscontrolrecipe' + index + 'jqmselect"  class="ui-biglabel">Control Recipe</label>' +
+					  '<select id="channelscontrolrecipe' + index + 'jqmselect" class="controlrecipeselect channelscontrolrecipe' + index + 'jqmselect reqauth3" >' +
+						  '<option value="standard">stdreflow</option>' +
+						  '<option value="rush">Four-day 65F ale</option>' +
+						  '<option value="express">Six-day 65F ale</option>' +
+						  '<option value="overnight">Twelve-day 65F ale</option>' +
+					  '</select>' +
+                    '</li><!-- list option set -->' +
+                  '</ul><!-- Edit set-->' +
+                '</div><!-- Edit collapsible -->' +
+                '<div data-role="collapsible" data-collapsed="true" class="smallplotcollapsible" id="smallplotcollapsible' + index + '">' +
+              		'<h4><span style="float:left;">Quick Plot</span>' +
+                    '<span class="channel_' + channelsdata[i].name.replace(/ /g,'_') + '_logpoints ui-btn-up-c  ui-btn-corner-all cnt" style="float:right; font-size:12px; padding-left:7px; padding-right:7px">0</span></h4>' +
+              		'<div class="smallplot" id="smallplot' + index + '">Loading ...</div>' +
+            	'</div><!-- plot collapsible -->' +
+              '</li><!-- Edit Collapsible set -->' +
+            '</div><!--collapsible control item --> '
 			
         $(divhtmlitemstring).appendTo("#channelset").trigger( "create" );
 
@@ -208,9 +208,9 @@ function RenderChannels(channelstableresponse,actionobj) {
             //GetAndRenderPlotData([channelsdata[data.index].name],["smallplot" + data.index])
             var channelindex=data.index-1;
             var logtablename='channel_' + channelsdata[channelindex].name + "_log";
-            GetAndRenderLogData({'tablename':logtablename, serieslabels:['label','label'], renderplotids:['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue'],renderplotoptions:[channelOptionsObj]})
-//            GetAndRenderLogData({'tablename':logtablename, serieslabels:['label','label'], renderplotids:['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue']})
-//            GetAndRenderLogData({tablename:'blurg', database:'blurg'})
+            getAndRenderLogData({'tablename':logtablename, serieslabels:['label','label'], renderplotids:['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue'],renderplotoptions:[channelOptionsObj]})
+//            getAndRenderLogData({'tablename':logtablename, serieslabels:['label','label'], renderplotids:['smallplot' + data.index],seriesnames: ['controlvalue','setpointvalue']})
+//            getAndRenderLogData({tablename:'blurg', database:'blurg'})
         })
 	}
 
@@ -218,7 +218,7 @@ function RenderChannels(channelstableresponse,actionobj) {
     $('#channelset').trigger('create');
     $('#channellistview').listview('refresh');
 
-	UpdateChannelsData({'jqmpage':true})
+	updateChannelsData({'jqmpage':true})
 }
 
 
@@ -227,17 +227,17 @@ $(document).ready(function(){
 	//// Control Algorithms
 	UpdateChannelsTable();
 	setTimeout(function(){
-        UpdateInputsData({'timeout':updateinterval,'jqmpage':true});
-        UpdateOutputsData({'timeout':updateinterval,'jqmpage':true});
-        UpdateSystemStatusData({'timeout':updateinterval,'jqmpage':true});
+        updateInputsData({'timeout':updateinterval,'jqmpage':true});
+        updateOutputsData({'timeout':updateinterval,'jqmpage':true});
+        updateSystemStatusData({'timeout':updateinterval,'jqmpage':true});
 	},1000);
     setTimeout(function(){
-        UpdateControlRecipeData({'timeout':updateinterval,'jqmpage':true});
-        UpdateControlAlgorithmsData({'timeout':updateinterval,'jqmpage':true});
-        UpdatePlotMetadata({'timeout':updateinterval,'jqmpage':true});
+        updateControlRecipeData({'timeout':updateinterval,'jqmpage':true});
+        updateControlAlgorithmsData({'timeout':updateinterval,'jqmpage':true});
+        updatePlotMetadata({'timeout':updateinterval,'jqmpage':true});
 	},2000);
     setTimeout(function(){
-        UpdateChannelsData({'timeout':updateinterval,'jqmpage':true});
+        updateChannelsData({'timeout':updateinterval,'jqmpage':true});
 	},5000);
 //    $('#picontrolenabledtoggle').on('click',function(){
 //
@@ -420,7 +420,7 @@ $(document).ready(function(){
             </li>
             <li class="sm-inset-header">
 			<label for="systemstatusupdateiofreqslider" style="width:100%; padding-right:40px">Input Poll Freq:</label>
-			<input type="range" id="systemstatusupdateiofreqslider" class="systemstatusupdateiofreqslider reqauth3" value="60" min="0" max="100" />
+			<input type="range" id="systemstatusupdateiofreqslider" class="systemstatusupdateiofreqslider reqauth3" value="60" min="0" max="300" />
             </li>
         </div>
         <li data-role="fieldcontain">

@@ -141,7 +141,7 @@ logUserAuths(sessiondata)
 
         $('#outputset').collapsibleset('refresh')
         $('#outputslistview').listview('refresh')
-        UpdateOutputsData()
+        updateOutputsData()
     }
 
     //// Inputs
@@ -214,7 +214,7 @@ logUserAuths(sessiondata)
 
         $('#inputset').collapsibleset('refresh')
         $('#inputslistview').listview('refresh')
-        UpdateInputsData({'jqmpage':true})
+        updateInputsData({'jqmpage':true})
     }
 
     $(document).ready(function(){
@@ -225,7 +225,7 @@ logUserAuths(sessiondata)
         UpdateInputsTable({'jqmpage':true})
 
         setTimeout(function(){
-            UpdateInputsData({'jqmpage':true})
+            updateInputsData({'jqmpage':true})
         },1000);
         $('#datarefresh').click(function(event){
             UpdateInputsTable({'jqmpage':true})
@@ -234,7 +234,7 @@ logUserAuths(sessiondata)
         UpdateOutputsTable({'jqmpage':true})
 
         setTimeout(function(){
-            UpdateOutputsData({'jqmpage':true})
+            updateOutputsData({'jqmpage':true})
         },1000);
         $('#datarefresh').click(function(event){
             UpdateOutputsTable({'jqmpage':true})

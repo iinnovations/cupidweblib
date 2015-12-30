@@ -150,7 +150,7 @@ function RenderChannels(channelstableresponse) {
     $('#channelset').trigger('create');
     $('#channellistview').listview('refresh');
 
-    UpdateChannelsData({'jqmpage':true})
+    updateChannelsData({'jqmpage':true})
 }
 
 $(document).ready(function(){
@@ -160,7 +160,7 @@ $(document).ready(function(){
     UpdateChannelsTable()
     //UpdateChannelsTable({'timeout':updateinterval})
     setTimeout(function(){
-        UpdateChannelsData({'jqmpage':true})
+        updateChannelsData({'jqmpage':true})
     },1000);
     $('#datarefresh').click(function(event){
         UpdateChannelsTable()

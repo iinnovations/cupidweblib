@@ -76,8 +76,8 @@ $(document).ready(function(){
     //// Control Algorithms
 //    UpdateVersionsData({'timeout':updateinterval})
 
-    UpdateUniqueKeyData({uniquekeyname:'item',database:systemdatabase,tablename:'versions',timeout:5000})
-    UpdateMetadata({'timeout':updateinterval})
+    getAndRenderUniqueKeyData({uniquekeyname:'item',database:systemdatabase,tablename:'versions',timeout:5000})
+    updateMetadata({'timeout':updateinterval})
 })
 </script>
 	<div data-role="content">

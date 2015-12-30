@@ -165,7 +165,7 @@ function RenderUsersTable(datatableresponse) {
     }
     $('#userslistview').trigger('create');
     $('#userslistview').listview('refresh');
-    UpdateUsersData({jqmpage:true})
+    updateUsersData({jqmpage:true})
 }
 
 
@@ -183,7 +183,7 @@ $(document).ready(function(){
 
     togglestolamps()
     UpdateUsersTable()
-    UpdateUsersData({timeout:updateinterval, jqmpage:true})
+    updateUsersData({timeout:updateinterval, jqmpage:true})
 
 })
 </script>

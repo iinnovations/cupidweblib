@@ -110,7 +110,7 @@ logUserAuths(sessiondata)
 
         $('#motesset').collapsibleset('refresh')
         $('#moteslistview').listview('refresh')
-        UpdateMotesData({'jqmpage':true})
+        updateMotesData({'jqmpage':true})
     }
 
     $(document).ready(function(){
@@ -121,7 +121,7 @@ logUserAuths(sessiondata)
         UpdateMotesTable({'jqmpage':true})
 
         setTimeout(function(){
-            UpdateMotesData({'jqmpage':true})
+            updateMotesData({'jqmpage':true})
         },1000);
         $('#datarefresh').click(function(event){
             UpdateMotesTable({'jqmpage':true})

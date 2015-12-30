@@ -47,18 +47,18 @@ function setprecision(num, digits) {
 }
 function zeropad(num, sizebefore, sizeafter) {
     var allfrac = (num%1);
-    console.log(allfrac)
+    //console.log(allfrac)
 	var frac = Math.round((num%1)*Math.pow(10,sizeafter))/Math.pow(10,sizeafter);
-    console.log(frac)
+    //console.log(frac)
 	var whole = num-allfrac;
-    console.log(whole)
+    //console.log(whole)
 	//console.log("whole: " + whole + " frac: " + frac)
 	var after = frac + "";
 	after = after.slice(2);
 	var before = whole+"";
 	while (before.length < sizebefore) before = "0" + before;	
 	while (after.length < sizeafter) after = after + "0";
-    console.log("FINAL ANSWER" + before + "." + after)
+    //console.log("FINAL ANSWER" + before + "." + after)
     return before + "." + after;
 }
 function booleansToIntegerString(boolean) {
@@ -206,7 +206,7 @@ function addInput(object,choices,classname,inputid){
     //document.getElementById(divName).appendChild(newDiv);
 	object.appendChild(newDiv);
 }
-function UpdateSelect(inputid,choices, values){
+function updateSelect(inputid,choices, values){
 	// find current value
     var setvalues = values || choices
 	var options=[];
@@ -365,6 +365,7 @@ function wsgiCallbackTableData (actionobj) {
     var callback = actionobj.callback || logdone;
     // Need to delete method or ajax will execute
     delete actionobj.callback;
+    console.log(actionobj)
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
@@ -1075,7 +1076,7 @@ function renderTableData(dataresponse, options, xhr) {
             //        }
             $('.' + options.selectorclass).each(function () {
                 if ($('#' + this.id).length > 0) {
-                    UpdateSelect(this.id, selectoritems);
+                    updateSelect(this.id, selectoritems);
                 }
             });
         }
@@ -1189,12 +1190,12 @@ function renderTableNamesData(tablenameresponse,options) {
 	var cleandbname = getNameFromPath(options.database)
 	$('.' + cleandbname + 'tableselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, tablenames);
+	    	updateSelect(this.id, tablenames);
 		}
 	});
     $('.' + cleandbname + 'tablejqmselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, tablenames);
+	    	updateSelect(this.id, tablenames);
             $('#' + this.id).selectmenu("refresh");
 		}
 	});
@@ -1245,12 +1246,12 @@ function renderColumnsData(data,options) {
 //    console.log('.' + cleandbname + options.table + 'columnselect')
 	$('.' + cleandbname + options.table + 'columnselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, columnnames);
+	    	updateSelect(this.id, columnnames);
 		}
 	});
     $('.' + cleandbname + options.table + 'columnjqmselect').each(function(){
 		if ($('#' + this.id).length > 0) {
-	    	UpdateSelect(this.id, columnnames);
+	    	updateSelect(this.id, columnnames);
             $('#' + this.id).selectmenu("refresh");
 		}
 	});
@@ -1260,7 +1261,7 @@ function renderColumnsData(data,options) {
         for (var i=0;i<options.classes.length;i++){
             $('.' + options.classes[i]).each(function(){
                 if ($('#' + this.id).length > 0) {
-                    UpdateSelect(this.id, columnnames);
+                    updateSelect(this.id, columnnames);
                     if (jqmpage) {
                         $('#' + this.id).selectmenu("refresh");
                     }

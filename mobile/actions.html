@@ -239,7 +239,7 @@ logUserAuths(sessiondata)
         $('#actionset').trigger('create');
         $('#actionslistview').listview('refresh');
 
-        UpdateActionsData({'jqmpage':true})
+        updateActionsData({'jqmpage':true})
     }
 
     $(document).ready(function(){
@@ -249,8 +249,8 @@ logUserAuths(sessiondata)
         UpdateActionsTable({jqmpage:true});
         setTimeout(function(){updateTableNamesData({database:controldatabase})},2000);
         setTimeout(function(){updateColumnsData({database:controldatabase,table:'channels'})},5000);
-        setTimeout(function(){ UpdateActionsData({'jqmpage':true,timeout:updateinterval})},5000)
-        UpdateChannelIndicesData({'jqmpage':true,'timeout':updateinterval})
+        setTimeout(function(){ updateActionsData({'jqmpage':true,timeout:updateinterval})},5000)
+        updateChannelIndicesData({'jqmpage':true,'timeout':updateinterval})
 
     });
 </script>

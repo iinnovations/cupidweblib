@@ -215,8 +215,8 @@ function renderIOPinSet(dataresponse, options, xhr){
 }
 
 $(document).ready(function(){
-    GetAndRenderTableTimeMessageBlob({database:motesdatabase, tablename:'readmessages', numentries:10, renderid:'#readmessages', timeout:1000})
-    GetAndRenderTableTimeMessageBlob({database:motesdatabase, timeordinate:'senttime', tablename:'sentmessages', numentries:10, renderid:'#sentmessages', timeout:1000})
+    getAndRenderTableTimeMessageBlob({database:motesdatabase, tablename:'readmessages', numentries:10, renderid:'#readmessages', timeout:1000})
+    getAndRenderTableTimeMessageBlob({database:motesdatabase, timeordinate:'senttime', tablename:'sentmessages', numentries:10, renderid:'#sentmessages', timeout:1000})
     $('#terminalsendbutton').on('click',function(){
         var enteredmessage = $('#terminal').val();
         if (enteredmessage != '') {

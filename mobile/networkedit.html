@@ -153,7 +153,7 @@ function RenderWirelessTable(datatableresponse) {
     $('#wirelessset').trigger('create');
     $('#configlistview').listview('refresh');
 
-    UpdateNetAuthsData({'jqmpage':true})
+    updateNetAuthsData({'jqmpage':true})
 }
 
 function addNetwork(newnetworkname) {
@@ -174,17 +174,17 @@ $(document).ready(function(){
         $('#rebootpopup').popup('close')
     })
     $('#reloadnetconfigbutton').on('click',function(){
-        UpdateNetConfigData({jqmpage:true})
+        updateNetConfigData({jqmpage:true})
     })
 
   togglestolamps()
   //// Control Algorithms
   UpdateWirelessTable({jqmpage:true})
-  UpdateNetStatusData({timeout:updateinterval, jqmpage:true})
-  UpdateNetAuthsData({timeout:updateinterval, jqmpage:true})
+  updateNetStatusData({timeout:updateinterval, jqmpage:true})
+  updateNetAuthsData({timeout:updateinterval, jqmpage:true})
 
   // Don't do netconfig on interval, since user will be editing
-  setTimeout(function(){UpdateNetConfigData({jqmpage:true})},1500)
+  setTimeout(function(){updateNetConfigData({jqmpage:true})},1500)
 })
 </script>
 <div data-role="content">

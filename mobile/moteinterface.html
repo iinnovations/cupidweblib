@@ -56,8 +56,8 @@ var updateinterval=3000;
 
 
 $(document).ready(function(){
-    GetAndRenderTableTimeMessageBlob({database:motesdatabase, tablename:'readmessages', numentriesid:'readmessageentries', renderid:'#readmessages', timeout:2000})
-    GetAndRenderTableTimeMessageBlob({database:motesdatabase, timeordinate:'senttime', tablename:'sentmessages', numentriesid:'sentmessageentries', renderid:'#sentmessages', timeout:2000})
+    getAndRenderTableTimeMessageBlob({database:motesdatabase, tablename:'readmessages', numentriesid:'readmessageentries', renderid:'#readmessages', timeout:2000})
+    getAndRenderTableTimeMessageBlob({database:motesdatabase, timeordinate:'senttime', tablename:'sentmessages', numentriesid:'sentmessageentries', renderid:'#sentmessages', timeout:2000})
     $('#terminalsendbutton').on('click',function(){
         var enteredmessage = $('#terminal').val();
         if (enteredmessage != '') {

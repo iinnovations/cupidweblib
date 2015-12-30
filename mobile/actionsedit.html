@@ -146,7 +146,7 @@ function RenderActionsTable(actionstableresponse) {
     }
 //    $('#actionset').trigger('create');
     $('#actionlistview').listview('refresh');
-//    UpdateActionsData({'jqmpage':true})
+//    updateActionsData({'jqmpage':true})
 }
 
 $(document).ready(function(){
@@ -156,18 +156,18 @@ $(document).ready(function(){
     UpdateActionsTable();
 //    UpdateActionsTable({'timeout':updateinterval})
     setTimeout(function(){
-        UpdateActionsData({'jqmpage':true})
+        updateActionsData({'jqmpage':true})
     },1000);
     $('#datarefresh').click(function(event){
         UpdateActionsTable();
         setTimeout(function(){
-            UpdateActionsData({'jqmpage':true})
+            updateActionsData({'jqmpage':true})
         },1000);
     });
     $('#addaction').click(function(event){
         addAction('newaction')
         setTimeout(function(){
-            UpdateActionsData({'jqmpage':true})
+            updateActionsData({'jqmpage':true})
         },1000);
     })
 });

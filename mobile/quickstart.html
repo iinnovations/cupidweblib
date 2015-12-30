@@ -54,8 +54,8 @@ logUserAuths(sessiondata)
 $(document).ready(function() {
     noclicky()
 	togglestolamps()
-    UpdateMetadata({'timeout':updateinterval})
-    UpdateUniqueKeyData({uniquekeyname:'item',database:systemdatabase,tablename:'versions',timeout:5000})
+    updateMetadata({'timeout':updateinterval})
+    getAndRenderUniqueKeyData({uniquekeyname:'item',database:systemdatabase,tablename:'versions',timeout:5000})
 });
 </script>
 <div data-role="page" class="type-home" id="main">

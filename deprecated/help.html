@@ -1,0 +1,149 @@
+<?php require_once('auth/user.php'); ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><!-- InstanceBegin template="Templates/main.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<!-- Get me some jquery-->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="/js/iijslib.js" type="text/javascript"></script> 
+
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {}
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+</script>
+
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>CuPID Home</title>
+<!-- InstanceEndEditable -->
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+<style media="all" type="text/css">
+@import "../css/all.css";
+</style>
+<!-- InstanceBeginEditable name="head" -->
+<script type="text/javascript">
+
+	a='a'
+	b='b'
+	c='c'
+	function myspecialalert (a,b,c) {
+		alert(a + b + c )	
+	}
+	//checkauth(accesslevel,1,partial(myspecialalert,a,b,c))
+</script>
+<!-- InstanceEndEditable -->
+</head>
+<body>
+<div id="main">
+<!-- InstanceBeginEditable name="NavBar" -->
+  <div id="header"> <a href="http://www.interfaceinnovations.org" class="logo"><img src="../images/cmstemplate/logo.png"alt="" /></a>
+    <ul id="top-navigation">
+      <li><span><span><a href="help.html">Home</a></span></span></li>
+      <li><span><span><a href="controlpanel.html">Panel</a></span></span></li>
+      <li><span><span><a href="smallpanel.html">SmPanel</a></span></span></li>
+      <li><span><span><a href="inputs.html">Sensors</a></span></span></li>
+      <li><span><span><a href="datalogs.html">Datalogs</a></span></span></li>
+      <li><span><span><a href="settings.html">Settings</a></span></span></li>
+      <li><span><span><a href="admin.html">Admin</a></span></span></li>
+      <li class="active"><span><span>Help</span></span></li>
+    </ul>
+  	<div id="login"><?php 
+    	if($user->logged_in()): 
+		?> 
+        	<p>You are logged in as <?php echo $_SESSION['user']['name']; ?>. <a href="auth/logout">Log out</a></p> 
+        	<?php 
+		endif; 
+    	if(!$user->logged_in()): 
+		?> 
+        	<p>You are not logged in. <a href="auth/login">Log in</a> 
+		<?php 
+    		endif; 
+		?> 
+  	</div><!-- login -->
+  </div><!-- header -->
+  <!-- InstanceEndEditable -->
+  <!-- InstanceBeginEditable name="MainBody" -->
+  
+<div id="middle">
+    <div id="center-column">
+      <div class="top-bar"> 
+        <h1>The Fermostat/CuPID Control Help/Quick Start</h1>
+        <div class="breadcrumbs"><a href="http://www.free-css.com/">You help page. Much duplicated from front page in anticipation of your customization</a></div>
+      </div> <!-- top-bar -->
+      <br />
+      
+      <br />
+      <br />
+      <div class="content">
+      	<h2>Networking to your Pi</h2>
+        <p>You could be seeing this screen on the front panel of your CuPID Control, on a monitor plugged into the unit, or on your LAN or WAN. We will skip the first two and go right to the LAN/WAN config:</p>
+        <h3>LAN:</h3>
+        <h4>Basic configuration</h4>
+        <p>Your CuPID Control will come configured as DHCP (it will automatically attempt to obtain whatever IP the network gateway feels like assigning it). If you have a password on your network, you'll first need to tell your CuPID what that is to gain access to the network. To add your password and connect to the network of your choice, simply click the Wireless configuration icon on the desktop and add the information to the network configuration. Select connect and you should be good to go. The connection status will display your IP, which you can use to connect to your Pi on your LAN, e.g. with http://192.168.1.56, or whatever IP you receive. </p>
+        <h4>Configuring a static IP</h4>
+        <p>If you wish to configure a static IP, you have two basic choices: configure your CuPID or configure your router. To configure the CuPID, open up the text file /etc/network/interfaces and uncomment the manual configuration lines and comment out the automatic configuration. Instructions in the file should make this clear, and with any luck we'll throw this configuration into our interface in the very near future. Alternatively, if you don't want to mess with this little text file and are comfortable editing your router's configuration, you can create an IP reservation in your router/gateway and you'll get the same IP every time. Same result.</p>
+        <h3>WAN:</h3>
+        <p><strong>WARNING</strong>: Following the steps below puts your CuPID on the interwebs. The internet is a dangerous place full of trolls and sprites that would love to grab control of your temperature controller and cook whatever is attached to it. Create strong passwords, and preferably employ a firewall that will block brute force attempts. The authentication scripts are protected from SQL injection and a number of other exploits, but it is always better to assume nothing on the internet is sacred. </p>
+        <p>Disclaimer out of the way, create a static IP as descibed above, and then configure your router to forward all traffic on port 80 to your static CuPID IP. Not all ISPs allow traffic through on 80 (or specifically forbid web servers), so this may or may not work for you. You can switch over to 88 if you wish, but google can help you understand why you may or may not want to do this. After forwarding your ports, direct a browser from anywhere at your public IP and you should see your CuPID.</p>
+        <h2>Users and Authentication</h2>
+        <p>Users and access control are controlled by a nice little piece of php and a sqlite database. Out of the box, there are three levels of access (technically four, if you include guest access): <strong>Viewer</strong>, <strong>Controller</strong>, and <strong>Administrator</strong>. Viewer is capable of monitoring process variables. Controller is able to change process variables and many settings. Administrator has full control, including modification of recipes and profiles. To change the passwords, you'll need to log in as administrator to user management pages. It's all pretty simple.</p>
+        <h2>Accessing your data</h2>
+        <p>Your data lives in a <a href="http://www.sqlite.org/">Sqlite</a> database on an SDCard on your Fermostat/CuPID Control. Sqlite is a very popular, lightweight binary database program that stores your data in neat little files and is easy on your system resources. It responds to pretty ordinary SQL syntax. If you've ever used phpmyadmin for MySQL, than the phpliteadmin interface set up at <a href="http://thefermostat.com//data/phpliteadmin.php">/data/phpliteadmin.php</a> should be completely familiar to you. Dump it, sync it, whatever. give a data export a try over on the datalogs tab.. </p>
+        <h2>Hacking your pi</h2>
+        <p>We'll get to this. We'll publish all the scripts, all the explanations, and you can do whatever you like. To start, it's done in python and javascript primarily, using some jquery/ajax, wsgi/apache, and a dash of php.</p>
+        <h2>Navigating these pages:</h2>
+        <div class="multibox"><h3>Home</h3>
+<p>You are here. You can do whatever you want with this page. Advertise your site, a service. List instructions for use for visitors. Add a list of links. It's your canvas.</p>
+</div>
+<div class="multibox"><h3>Panel</h3>
+
+<p>This is the main control panel, where you can monitor and control your Fermostat. Enable and disable outputs, channels, and view control and sensor read statuses and connectivity. View your channels on an attractive plot over the selected timeframe.</p>
+</div>
+<div class="multibox"><h3>SmPanel</h3>
+
+<p>A specially formatted verion of your Control Panel designed for view on small screens with low resolution, such as the one on the front panel of a Cupid Control Fermostat. Or, you might just like the look of it. This is the screen you want when you mount your Fermostat to the wall above your fermenters so you can view it at a glance from afar.</p>
+</div>
+<div class="multibox"><h3>Sensors</h3>
+
+<p>Here you view the sensors attached to your RPi, their measured temperatures, type, name alias, and control assignment. Sensor names are adjustable, so that your plots show you your sensors in a language that you understand. Connect your sensors, give them names. As many as you like. Thank you, 1wire network!</p>
+</div>
+<div class="multibox">
+<h3>Datalogs</h3>
+
+<p>This page will give you a complete picture of what logs are still stored in the control database. This includes channels (control variables, setpoints, controller action, and more), as well as sensor data logs. You can get a dump of any log you like into a csv data file, whenever you like..</p>
+</div>
+
+<div class="multibox"><h3>Settings</h3>
+<p>Here you can control every aspect of your Cupid Control. Everything to what you call your outputs and what GPIO they're controlling to what control recipes are in the programs and what they are. Set PID parameters, deadband, and duty cycle parameters. Set system status and sensor poll times, and set output enable at system, channel, and output levels, just to be sure. In the future, set custom alarms and updates for your channels, sensors and other parameters (like when the system goes offline, which of course never happens)</p>
+</div>
+
+         <div class="multibox"><h3>Admin</h3>
+<p>Control more complex settings here. All the nitty gritty. Add email addresses for notifications, customize user interface features, base control and operations of the pi itself. All sorts of things to divorce you from any need for - gasp - using a typical user interface, or - groan - a command line.</p>
+        </div><!--multibox -->
+	  </div> <!-- content -->
+    </div> <!-- center column -->
+    <div id="right-column"> 
+      <h3>Useful Links</h3>
+      <ul class="nav">
+        <li><a href="http://www.interfaceinnovations.org/support">Online Help</a></li>
+        <li><a href="http://www.interfaceinnovations.org/cupidcontrols.html">Cupid Controls</a></li>
+        <li><a href="http://www.interfaceinnovations.org/">II Home Page</a></li>
+        <li><a href="http://www.interfaceinnovations.org/forums.interfaceinnovations.org">Cupid Controls Forum</a></li>
+        <li class="last"><a href="http://www.interfaceinnovations.org/cupidcontrolsproducts.html">Controls Accessories</a></li>
+      </ul>
+      <br />
+    <strong class="h">INFO</strong>
+      <div class="box">See the <a href="help.html">Help</a> page to get up and running! It has basic connectivity and configuration information to get you started quickly.</div>
+    </div><!--right column-->
+</div><!--  middle -->
+<!-- InstanceEndEditable -->
+  <div id="footer"></div>
+</div>
+</body>
+<!-- InstanceEnd --></html>

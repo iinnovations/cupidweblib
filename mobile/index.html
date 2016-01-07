@@ -18,8 +18,8 @@
     <script src="/js/jquery-migrate-1.2.1.min.js"></script>
 
     <link rel="stylesheet" href="css/jquery.mobile-1.2.1.css" />
-    <link rel="stylesheet" href="css/jqm-docs.css" />
-    <link rel="stylesheet" href="css/CuPID.css" />
+    <link rel="stylesheet" href="css/custom.css" />
+    <link rel="stylesheet" href="jqm/themes/CuPIDthemes.css" />
 
     <script src="js/jqm-docs.js"></script>
     <script src="js/jquery.mobile-1.2.1.js"></script>
@@ -58,7 +58,7 @@ logUserAuths(sessiondata)
 				<p>CuPID Controls bring your devices to you.</p>
 			</div>
 			<p class="intro"><strong>Welcome. </strong>Everything you need to control and monitor from home or cloud is here. </p>
-            <ul data-role="listview" data-inset="true" data-theme="c" data-dividertheme="c">
+            <ul data-role="listview" data-inset="true" data-theme="b">
 				<li data-role="list-divider">Introduction and Reference</li>
 
 				<li><a href="quickstart.html"  data-ajax="false">Intro to your CuPID Control</a></li>
@@ -70,14 +70,14 @@ logUserAuths(sessiondata)
 		</div><!--/content-secondary-->
 		<div class="content-primary">
 			<nav>
-				<ul data-role="listview" data-inset="true" data-theme="a" data-dividertheme="a">
+				<ul data-role="listview" data-inset="true" data-dividertheme="c">
 					<li data-role="list-divider">Control and Monitoring</li>
 					<li><a href="controlpanel.html" data-ajax="false">Main Control Panel</a></li>
 					<li><a href="dataviewer.html" data-ajax="false">Datalog Viewer</a></li>
 					<li><a href="controlrecipes.html" data-ajax="false">Control Recipes</a></li>
 					<li><a href="setpointrecipes.html" data-ajax="false">Temperature Profile Recipes</a></li>
 
-					<li data-role="list-divider">CuPID Settings and Configuration</li>
+					<li data-role="list-divider" data-theme="c">CuPID Settings and Configuration</li>
                     <li><a href="io.html"  data-ajax="false">Inputs/Outputs</a></li>
                     <li><a href="actions.html" data-ajax="false">Indicators/Notifications</a></li>
 					<li><a href="network.html" data-ajax="false">Network</a></li>
@@ -87,8 +87,8 @@ logUserAuths(sessiondata)
 			</nav>
 		</div>
 	</div><!-- content -->
-	<div data-role="footer" data-id='fixednav' data-position="fixed" >
-        <div data-role="navbar" data-iconpos="left">
+	<div data-role="footer" data-id='fixednav' data-position="fixed" data-theme="c" >
+        <div data-role="navbar" data-iconpos="left" >
             <ul>
                 <li ><a href="/mobile/index.html" data-icon="home" >Home</a></li>
                 <?php

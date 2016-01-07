@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>Brewery Panel Home</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
 	<link rel="stylesheet" href="jqm/themes/base.css" />
 
     <link rel="stylesheet" href="jqm/themes/jquery.mobile.icons.min.css" />
@@ -25,7 +25,10 @@
     <script>
         $(document).ready(function(){
             setTimeout(
-                function(){updateBrewIndexPanelData({likecriterion:'dataclasses', likecriterionvalue: 'index', timeout: 5000})},1000
+                function(){updateBrewPanelIndexData({likecriterion:'dataclasses', likecriterionvalue: 'brewpanelindex', timeout: 5000})},1000
+            );
+            setTimeout(
+                function(){updateTanksIndexData({likecriterion:'dataclasses', likecriterionvalue: 'tankspanelindex', timeout: 5000})},1000
             );
             setInterval(function(){
                 $('.currenttime').html(getStringTime({UTC:true}))
@@ -43,7 +46,7 @@
                 <img src="img/tiles/brewtile.png" class="ui-li-thumb">
                 <h2>Brew Panel</h2>
                 <p class="subheadtext">Brewdeck Controls and Conditions</p>
-                <p class="ui-li-aside">Kettle/MLT/HLT:<span class="kettletempvalue">?</span>/<span class="mashtempvalue">?</span>/<span class="hlttempvalue">?</span></p>
+                <p class="ui-li-aside" id="brewpanelindexaside">&nbsp;&nbsp;&nbsp;</p>
                 </a>
             </li>
             <li>
@@ -51,7 +54,7 @@
                 <img src="img/tiles/tankstile.png" class="ui-li-thumb">
                 <h2>Tanks</h2>
                 <p class="subheadtext">Vessel Temperatures and Activity</p>
-                <p class="ui-li-aside"><span class="AC_Vessel_Loadvalue">?</span>blurg</p>
+                <p class="ui-li-aside" id="tanksindexaside">&nbsp;&nbsp;&nbsp;</p>
                 </a>
             </li>
             <li>
@@ -82,7 +85,7 @@
 	</div><!-- /content -->
 
 	<div data-role="footer" data-theme="d">
-		<div class="footertext">Copyright 2014 Hyak Electroworks.</div>
+		<div class="footertext">Copyright 2015 Interface Innovations</div>
 	</div><!-- /footer -->
 </div><!-- /page -->
 

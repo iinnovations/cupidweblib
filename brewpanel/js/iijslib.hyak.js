@@ -745,12 +745,12 @@ function setWidgetActions(options) {
 // This are the generic rendering algorithms. These are used for the more specific table
 // renderers. There are three types of tables dealt with here and several types of widgets
 //
-// Flat table - use RenderWidgets
+// Flat table - use renderWidgets
 // Columns are item names, values are values. One table row
 // classnames : tablename + columnname + widget type (optional)
 // example : systemstatuslastpicontrolfreqslider
 
-// Array table - use RenderWidgetsFromArray
+// Array table - use renderWidgetsFromArray
 // Columns are item names, values are values, multiple tablerows
 // classnames : tablename + columname + index (1 indexed)
 // example : channelssetpointvalue1 (first row channelsetpointvalue)

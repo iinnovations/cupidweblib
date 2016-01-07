@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Brewery Panel Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+	<link rel="stylesheet" href="jqm/themes/base.css" />
+
+    <link rel="stylesheet" href="jqm/themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="jqm/jquery.mobile.custom.structure.min.css" />
+    <link rel="stylesheet" href="css/brewpanel.css" />
+
+    <!--jQuery Mobile is 1.4.5-->
+	<script src="js/jquery-1.11.1.js"></script>
+	<script src="jqm/jquery.mobile.custom.js"></script>
+
+	<script src="/js/iijslib.js"></script>
+    <script src="/js/cupidjslib.js"></script>
+    <script src="js/brewjs.js"></script>
+    <script type="text/javascript" src="/js/SegmentDisplay/segment-display.js"></script>
+
+    <style type="text/css">
+        .pvtext {
+            font-size:26px!important;
+            padding-right:0.1em!important;
+        }
+    </style>
+</head>
+
+<body>
+	<div data-role="page" id="demo-page" class="my-page" data-theme="d">
+
+    <script>
+        var tanksdata = []
+        $(document).ready(function(){
+            setTimeout(
+                function(){updateBrewPanelData({timeout: 5000})},1000
+            );
+            setInterval(function(){
+                $('.currenttime').html(getStringTime({UTC:true}))
+            },2000);
+            updateBrewPanel();
+        })
+    </script>
+	<div data-role="header" data-theme="d">
+		<h1>Brewery Control Panel</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+		<ul data-role="listview" data-inset="true" id="brewlist">
+            <li>
+                <a href="tankone.html" data-ajax="false" >
+                <img src="img/tiles/brewtank.png" class="ui-li-thumb">
+                <h2>Kettle</h2>
+                    <div align="right">
+                    <p style="line-height:1em; margin:0;">
+                        <span class="subheadtext pvtext" style="align:right">PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas></span>
+                        <span class="subheadtext pvtext" style="align:right">PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas></span>
+                        <span class="subheadjusttext" >PV: <span class="MLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="MLTsvjusttext">?</span></span>
+                    </p>
+                    </div>
+                <p class="ui-li-aside Kettlerunmodecontainer">Mode:<span class="Kettlerunmode">?</span></p>
+                </a>
+            </li>
+            <li>
+                <a href="tanktwo.html" data-ajax="false">
+                <img src="img/tiles/brewtank.png" class="ui-li-thumb">
+                <h2>MLT</h2>
+                <div align="right">
+                    <p style="line-height:1em; margin:0">
+                        <span class="subheadtext pvtext" >PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="MLTsvdisplay" width="120" height="30"></canvas></span>
+                        <span class="subheadjusttext" >PV: <span class="MLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="MLTsvjusttext">?</span></span>
+                    </p>
+                </div>
+                <p class="ui-li-aside MLTrunmodecontainer">Mode:<span class="MLTrunmode">?</span></p>
+                </a>
+            </li>
+            <li>
+                <a href="HLT.html" data-ajax="false">
+                <img src="img/tiles/brewtank.png" class="ui-li-thumb">
+                <h2>HLT</h2>
+                <div align="right">
+                    <p style="line-height:1em; margin:0">
+                        <span class="subheadtext pvtext" >PV: <canvas id="HLTpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="HLTsvdisplay" width="120" height="30"></canvas></span>
+                        <span class="subheadjusttext" >PV: <span class="HLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="HLTsvjusttext">?</span></span>
+                    </p>
+                </div>
+                <p class="ui-li-aside HLTrunmodecontainer">Mode:<span class="HLTrunmode">?</span></p>
+                </a>
+            </li>
+
+		</ul>
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="d">
+		<div class="footertext">Copyright 2015 Interface Innovations</div>
+	</div><!-- /footer -->
+</div><!-- /page -->
+
+</body>
+</html>

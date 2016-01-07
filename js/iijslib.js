@@ -974,39 +974,40 @@ function renderWidgetsFromArrayByUniqueKey(dataresponse, options, xhr) {
     if ( options.hasOwnProperty('includekeyname')) {
         includekeyname = options.includekeyname;
     }
-    //var includekeyname = options.includekeyname // || true;
-    //console.log(includekeyname)
-    //console.log('DATA!');
-    //console.log(uniquekeyname)
-    //console.log(data.length);
 
+    if (xhr.status == 200) {
 
-    for (var i=0; i<data.length;i++){
-        // Set each possibility
-        var uniquekey = data[i][uniquekeyname];
-        $.each(data[i],function(key,value){
-            var baseclass = '.';
-            if (includekeyname) {
-                baseclass += options.tablename + uniquekeyname + uniquekey + key;
-            }
-            else {
-                // uisettings + showgpiologs + value
-                baseclass += options.tablename + uniquekey + key;
-            }
-            //console.log('rendering ' + baseclass + ' with value ' + value);
-            setWidgetValues(baseclass, value, options);
-            options.baseclass = baseclass;
-            options.key = key;
-            options.condition = '"' + uniquekeyname + '"=\''+uniquekey + "'"
-            setWidgetActions(options);
-        })
-    }
-    togglestolamps();
-    if (options.hasOwnProperty('auxcallback')) {
+        for (var i = 0; i < data.length; i++) {
+            // Set each possibility
+            var uniquekey = data[i][uniquekeyname];
+            console.log("UNIQUE KEY : " + uniquekey)
+            $.each(data[i], function (key, value) {
+                var baseclass = '.';
+                if (includekeyname) {
+                    baseclass += options.tablename + uniquekeyname + uniquekey + key;
+                }
+                else {
+                    // uisettings + showgpiologs + value
+                    baseclass += options.tablename + uniquekey + key;
+                }
+                console.log('rendering ' + baseclass + ' with value ' + value);
+                setWidgetValues(baseclass, value, options);
+                options.baseclass = baseclass;
+                options.key = key;
+                options.condition = '"' + uniquekeyname + '"=\'' + uniquekey + "'"
+                setWidgetActions(options);
+            })
+        }
+        togglestolamps();
+        if (options.hasOwnProperty('auxcallback')) {
             options.auxcallback(dataresponse, options, xhr)
-    }
-    if (options.hasOwnProperty('rendertoDOM')) {
+        }
+        if (options.hasOwnProperty('rendertoDOM')) {
             renderToDOM(dataresponse, options, xhr)
+        }
+    }
+    else {
+        console.log('STATUS: ' + xhr.status)
     }
 }
 

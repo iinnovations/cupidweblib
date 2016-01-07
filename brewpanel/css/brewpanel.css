@@ -65,13 +65,28 @@
 .ui-listview .subheadtext {
     display:none;
 }
+.ui-listview .subheadjusttext {
+    font-size: 16px;
+    color:#000;
+}
 .ui-listview .ui-li-aside {
     top:0.7em;
+    padding:.1em 1em;
+    -webkit-border-top-right-radius: .6em;
+    border-top-right-radius: .6em;
+    -webkit-border-top-left-radius: .6em;
+    border-top-left-radius: .6em;
+    -webkit-border-bottom-left-radius: .6em;
+    border-bottom-left-radius: .6em;
+    -webkit-border-bottom-right-radius: .6em;
+    border-bottom-right-radius: .6em;
+
 }
 .ui-listview .stddatatext {
     font-size: 16px;
     line-height: 3em;
     margin: 0.5em 0.5em;
+    padding-right:1.5em;
 }
 .ui-collapsible-set .ui-collapsible, .ui-collapsible-set {
     margin: 0px;
@@ -104,7 +119,10 @@
     .breakstack .ui-block-b {
         padding-left:0;
     }
-
+    .tiletitle {
+        margin:.9em 0px 0.45em;
+        line-height:1.0em;
+    }
 }
 
 /* First breakpoint is 48em (768px). 3 column layout. Tiles 250x250 pixels incl. margin at the breakpoint. */
@@ -113,11 +131,24 @@
         padding: .5625em; /* 9px */
     }
     .ui-listview .subheadtext {
-        margin: 0.4em 0px;
+        margin: 0.0em 0px;
+        line-height:1.2em;
         display:block;
+    }
+    .subheadjusttext {
+        display:none!important;
     }
     .ui-listview .ui-li-aside {
         top:1em;
+        margin:0.0em 0.0em;
+        -webkit-border-top-right-radius: 0em;
+        border-top-right-radius: 0em;
+        -webkit-border-top-left-radius: 0em;
+        border-top-left-radius: 0em;
+        -webkit-border-bottom-left-radius: .6em;
+        border-bottom-left-radius: .6em;
+        -webkit-border-bottom-right-radius: .6em;
+        border-bottom-right-radius: .6em;
     }
     .my-page .ui-listview h2, h5 {
         margin: 0.75em 0px 0.45em 0px;
@@ -164,7 +195,7 @@
     .my-page .ui-listview h2 {
         font-size: 1.25em;
         margin: 0;
-        padding: .2em 1em;
+        padding: .5em 1em;
         bottom: 50%;
     }
     .my-page .ui-listview p {
@@ -225,6 +256,7 @@
         -ms-transition: all 500ms ease;
         transition: all 500ms ease;
     }
+
 }
 /* Second breakpoint is 63.75em (1020px). 4 column layout. Tiles will be 250x250 pixels incl. margin again at the breakpoint. */
 @media ( min-width: 63.75em ) {

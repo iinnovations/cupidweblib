@@ -23,7 +23,7 @@ logdatabase = dataroot + boatname + 'datalog.db';
 function UpdateChannelsData(options) {
     options.database = datamapdatabase
     options.tablename = 'datamap'
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 /// General Panel Update Function
@@ -86,8 +86,8 @@ function renderDatamapPanelData(response, options, xhr){
         for (var i = 0; i < datanames.length; i++) {
                             //console.log(datanames[i] + ' : ' + datavalues[i])
                     //console.log('.' + datanames[i] + 'value')
-            //        RenderWidgets('', datanames[i],datavalues[i])
-            //        RenderWidgets('', datanames[i] + 'readtime',datareadtimes[i])
+            //        renderWidgets('', datanames[i],datavalues[i])
+            //        renderWidgets('', datanames[i] + 'readtime',datareadtimes[i])
             setWidgetValues('.' + datanames[i] + 'value', datavalues[i], {jqmpage: true})
             setWidgetValues('.' + datanames[i] + 'readtime', datareadtimes[i], {jqmpage: true})
         }
@@ -131,7 +131,7 @@ function renderFlatTableData(datatable, options){
 // Add a simple wrapper for system data
 function updateSystemPanelData(options) {
 
-    GetAndRenderTableData({database:controldatabase, tablename:'system', index:1, jqmpage:true})
+    getAndRenderTableData({database:controldatabase, tablename:'system', index:1, jqmpage:true})
 }
 
 //// Actions
@@ -140,7 +140,7 @@ function updateActionsData(options) {
     options.database = controldatabase;
     options.tablename = 'actions';
     options.selectorclass = 'actionselect';
-    GetAndRenderTableData(options)
+    getAndRenderTableData(options)
 }
 
 /// Database manipulation

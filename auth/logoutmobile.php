@@ -11,10 +11,11 @@
 <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
 <meta http-equiv="pragma" content="no-cache" />
 
-<title>Login</title>
-<link rel="stylesheet" href="/mobile/css/jquery.mobile-1.2.1.css" />
-<link rel="stylesheet" href="/mobile/css/jqm-docs.css" />
-<link rel="stylesheet" href="/mobile/css/CuPID.css" />
+<title>Logout</title>
+<link rel="stylesheet" href="/mobile/jqm/jquery.mobile-1.4.5.css" />
+<link rel="stylesheet" href="/mobile/jqm/themes/CuPIDthemes.css" />
+<link rel="stylesheet" href="/mobile/css/custom.css" />
+
 <script src="/js/jquery-1.11.0.min.js"></script>
 <script src="/js/jquery-migrate-1.2.1.min.js"></script>
 

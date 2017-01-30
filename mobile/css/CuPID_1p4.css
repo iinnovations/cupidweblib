@@ -38,6 +38,9 @@ div.ui-controlgroup-label {
 	font-weight: normal;
 	font-size: 16px;
 }
+.ui-biglabel {
+	line-height: 0.6em;
+}
 /* Separators
 -----------------------------------------------------------------------------------------------------------*/
 /* Field contain separator (< 28em) */

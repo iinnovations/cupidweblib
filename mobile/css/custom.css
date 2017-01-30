@@ -4,6 +4,14 @@ Beware: lots of last-minute CSS going on in here
 cobblers, shoes, 
 */
 
+.lilast {
+	height:10px;
+}
+
+p, li p, .ui-listview li p {
+	white-space: normal;
+}
+
 body { background: #e5e5e5; background-color: #e5e5e5; padding:13px; }
 .ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper,
 .ui-overlay-b, .ui-page-theme-b, .ui-page-theme-b .ui-panel-wrapper,
@@ -65,13 +73,13 @@ body, input, textarea, select, button { font-family: Helvetica, Arial, san-serif
 	font-weight: bold;
 }
 /* This is for everything, before media queries */
-.type-index .content-secondary {
+.type-index .content-secondary, .type-index .content-secondary-narrow {
     padding: 0;
 }
-.content-secondary .ui-collapsible {
+.content-secondary .ui-collapsible, .content-secondary-narrow .ui-collapsible {
 	/*padding: 10px 15px;*/
 }
-.content-secondary .ui-collapsible-inset {
+.content-secondary .ui-collapsible-inset, .content-secondary-narrow .ui-collapsible-inset {
 	margin: 0;
 }
 .ui-collapsible-content {
@@ -79,13 +87,16 @@ body, input, textarea, select, button { font-family: Helvetica, Arial, san-serif
 }
 .ui-collapsible-content {
 	padding: 0.5em 1.5em;
-
+    margin: 0 0;
 }
-.content-secondary .ui-collapsible {
+.ui-collapsible-heading {
+    margin: 0 0;
+}
+.content-secondary .ui-collapsible, .content-secondary-narrow .ui-collapsible {
     margin: 0;
     padding: 0;
 }
-.content-secondary .ui-listview {
+.content-secondary .ui-listview, .content-secondary-narrow .ui-listview {
 	margin: 0;
     background-color:#FEFEFE;
 }
@@ -95,7 +106,7 @@ body, input, textarea, select, button { font-family: Helvetica, Arial, san-serif
 .ui-collapsible-set .ui-collapsible, .ui-collapsible-inset, .ui-collapsible-set {
     margin:0 0;
 }
-.type-index .content-secondary .ui-listview {
+.type-index .content-secondary .ui-listview, .type-index .content-secondary-narrow .ui-listview {
     margin: 0;
 }
 
@@ -327,13 +338,16 @@ dd h4 { margin:15px 0 0 0; }
 		width: 45%;
 	}
 	.content-secondary,
-	.type-interior .content-secondary {
+	.content-secondary-narrow,
+	.type-interior .content-secondary,
+	.type-interior .content-secondary-narrow {
 		margin: 10px 0 20px 2%;
 		padding: 20px 4% 0 0;
 		/*background: none;*/
 		border-top: none;
 		position: relative;
 	}
+	.type-interior .content-secondary-narrow::after,
 	.type-interior .content-secondary::after {
 		content: "";
 		display: inline-block;
@@ -364,6 +378,7 @@ dd h4 { margin:15px 0 0 0; }
 	.content-primary .ui-collapsible-content ul:first-child {
 		margin-top: -10px;
 	}
+	.content-secondary-narrow h2,
 	.content-secondary h2 {
 		position: absolute;
 		left: -9999px;
@@ -438,12 +453,22 @@ dd h4 { margin:15px 0 0 0; }
 		padding-right:6%;
 		margin: 10px 0 20px 5%;
 	}
-	.type-interior .content-secondary {
+	.content-secondary-narrow {
+		width: 25%;
+		padding-right:2%;
+		margin: 10px 0 20px 5%;
+	}
+	.type-interior .content-secondary .content-secondary-narrow {
 		margin: 0;
 		padding: 0;
 	}
 	.content-primary {
 		width: 45%;
+		margin-right: 5%;
+		padding-right: 3%;
+	}
+	.content-primary-narrow {
+		width: 55%;
 		margin-right: 5%;
 		padding-right: 3%;
 	}
@@ -517,4 +542,18 @@ button,
 
 a {
     color:#333;
+}
+
+.ui-biglabel {
+	font-size:1.1em!important;
+}
+.ui-dataviewerlabel {
+	font-size:1.2em!important;
+}
+.coll-head-text {
+	float:left;
+	padding-top:2px;
+}
+.listtoggle {
+	padding-top:0.2em;
 }

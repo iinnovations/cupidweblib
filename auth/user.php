@@ -261,7 +261,7 @@ class user {
 		// Determine which home to return to
 		$redirect = $_SESSION['redirect'];
 
-        if (strpos($redirect,'mobile') !== false) {
+        if (strpos($redirect,'mobile') !== false || strpos($redirect,'synth') !== false) {
             header('Location: /mobile/');
         }
         else {
@@ -549,7 +549,7 @@ class user {
 	public function loginmobile_form(){ // prints the login form
 	    $redirect=(isset($_SESSION['redirect'])?$_SESSION['redirect']:'/');
 		echo "".
-		"<ul data-role='listview' data-inset='true' data-theme='a' data-dividertheme='a'>".
+		"<ul data-role='listview' data-inset='true' data-theme='b' data-dividertheme='b'>".
 		"<li data-role='list-divider'>Login</li>".
 		"<div style='padding:15px; background:#EEE'>".
             '<form method="post" action="/'.$this->config['pages']['login'].'" data-ajax="false">'.
@@ -565,7 +565,7 @@ class user {
         '</div>'.
         "<li><a href='#' data-icon='gear'>User admin</a></li>".
 		'</ul><br />'.
-		"<ul data-role='listview' data-inset='true' data-theme='a' data-dividertheme='a'>".
+		"<ul data-role='listview' data-inset='true' data-theme='b' data-dividertheme='b'>".
 		"<li data-role='list-divider'>Recovery</li>".
 		'<li><a href="/'.$this->config['pages']['reset'].'">Reset</a></li>'.
 		'<li><a href="/'.$this->config['pages']['change'].'">Change Password</a></li>'.
@@ -574,7 +574,7 @@ class user {
 
     public function logoutmobile_form(){
         echo "".
-        "<ul data-role='listview' data-inset='true' data-theme='a' data-dividertheme='a'>".
+        "<ul data-role='listview' data-inset='true' data-theme='b' data-dividertheme='b'>".
 		"<li data-role='list-divider'>Login</li>".
 		"<div style='padding:15px; background:#EEE'>".
             '<form method="get" action="/'.$this->config['pages']['login'].'" data-ajax="false">'.

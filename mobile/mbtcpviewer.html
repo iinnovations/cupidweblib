@@ -74,7 +74,7 @@ var actauthlevel=2;
 function rendermbdata(somedata, actionobj) {
     console.log(somedata)
     $('#data').html('')
-    statuscode = somedata.response.statuscode
+    var statuscode = somedata.response.statuscode;
     if (statuscode == 0) {
         for (var i=0; i< somedata.response.values.length; i++) {
                 $('#data').append(parseInt(parseInt(actionobj.register) + i) + ' : ' + somedata.response.values[i] + '<br />')
@@ -83,19 +83,26 @@ function rendermbdata(somedata, actionobj) {
             $('#data').append('<br />')
             for (var i=0; i< somedata.response.values.length; i=i+2) {
                 // First we split our words into bytes
-                var byte2 = somedata.response.values[i] % 256
-                var byte1 = (somedata.response.values[i] - byte2)/256
-                var byte4 = somedata.response.values[i+1] % 256
-                var byte3 = (somedata.response.values[i+1] - byte4)/256
-                var bytes = [byte1, byte2, byte3, byte4]
+                var byte2 = somedata.response.values[i] % 256;
+                var byte1 = (somedata.response.values[i] - byte2)/256;
+                var byte4 = somedata.response.values[i+1] % 256;
+                var byte3 = (somedata.response.values[i+1] - byte4)/256;
+                var bytes = [byte1, byte2, byte3, byte4];
 
                 $('#data').append('Bytes : <br/>' + somedata.response.values[i] + ': ' + byte1 + ', ' + byte2 + '; ' + somedata.response.values[i+1] +': ' + byte3 + ', ' + byte4 + '<br />')
                 var value = decodeFloat(bytes ,1, 8, 23, -126, 127, false);
                 var precision = $('#precisionslider').val()
 
-                var finalvalue = Math.round(value * Math.pow(10,precision)) / Math.pow(10,precision)
+                var finalvalue = Math.round(value * Math.pow(10,precision)) / Math.pow(10,precision);
                 $('#data').append('<br/>Value : <h3>' + finalvalue + '</h3>')
             }
+        }
+        else {
+//            console.log('processing stuff. ')
+//            $('#data').append('<br />')
+//            for (var i=0; i< somedata.response.values.length; i=i+1) {
+//                $('#data').append('Byte : <br/>' + somedata.response.values[i] + '<br />')
+//            }
         }
     }
     else {
@@ -115,14 +122,14 @@ $(document).ready(function(){
     $('#datarefresh').click(function(event){
 
         // send mb request to wsgi script
-        var clientIP = $('#modbusclientIP').val()
-        var register = $('#modbusregister').val()
-        var length = $('#modbusreadlengthslider').val()
-        var callback = rendermbdata
+        var clientIP = $('#modbusclientIP').val();
+        var register = $('#modbusregister').val();
+        var length = $('#modbusreadlengthslider').val();
+        var callback = rendermbdata;
         //alert(clientIP + '  '  + register + '  ' + length)
 
-        var actionobj = {action:'getmbtcpdata', clientIP: clientIP, register: register, length:length}
-        runwsgiActions(actionobj, callback)
+        var actionobj = {action:'getmbtcpdata', clientIP: clientIP, register: register, length:length, callback:callback}
+        runwsgiActions(actionobj)
     });
 
 

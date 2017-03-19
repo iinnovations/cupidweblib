@@ -12,25 +12,27 @@
 <meta http-equiv="pragma" content="no-cache" />
 
 <title>Logout</title>
-<link rel="stylesheet" href="/mobile/jqm/jquery.mobile-1.4.5.css" />
-<link rel="stylesheet" href="/mobile/jqm/themes/CuPIDthemes.css" />
+<link rel="stylesheet" href="/mobile/jqm/themes/jquery.mobile.icons.min.css" />
+<link rel="stylesheet" href="/mobile/jqm/jquery.mobile.custom.structure.min.css" />
 <link rel="stylesheet" href="/mobile/css/custom.css" />
+<link rel="stylesheet" href="/mobile/jqm/themes/CuPIDthemes.css" />
 
 <script src="/js/jquery-1.11.0.min.js"></script>
 <script src="/js/jquery-migrate-1.2.1.min.js"></script>
 
 <script src="/mobile/js/jqm-docs.js"></script>
-<script src="/mobile/js/jquery.mobile-1.2.1.js"></script>
+<script src="/mobile/jqm/jquery.mobile.custom.js"></script>
 
 <script src="/js/iijslib.js" type="text/javascript"></script>
 <script src="/js/cupidjslib.js" type="text/javascript"></script>
+
 
 </head>
 
 <body>
     <div data-role="page" class="type-home">
         <div data-role="content">
-            <div class="content-secondary">
+            <div class="content-secondary" style="margin-left:10px;width:90%;max-width:400px">
                 <?php $user->logoutmobile_form(); ?>
             </div>
         </div>

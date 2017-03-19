@@ -1,49 +1,184 @@
+<?php require_once('../auth/user.php'); ?>
+<?php $user->require_login(); ?>
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Brewery Panel Home</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
-	<link rel="stylesheet" href="jqm/themes/base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
 
-    <link rel="stylesheet" href="jqm/themes/jquery.mobile.icons.min.css" />
-    <link rel="stylesheet" href="jqm/jquery.mobile.custom.structure.min.css" />
-    <link rel="stylesheet" href="css/brewpanel.css" />
+	<title>Brewery Panel Home</title>
+    <script src="/js/jquery-1.11.0.min.js"></script>
+    <script src="/js/jquery-migrate-1.2.1.min.js"></script>
+
+
+    <script src="/js/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+    <script src="/js/jquery.ui.touch-punch.min.js"></script>
+
+
+    <link rel="stylesheet" href="/mobile/jqm/themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="/mobile/jqm/jquery.mobile.custom.structure.min.css" />
+
+    <link rel="stylesheet" href="/brewpanel/jqm/themes/base.css" />
+    <link rel="stylesheet" href="/brewpanel/css/brewpanel.css" />
 
     <!--jQuery Mobile is 1.4.5-->
-	<script src="js/jquery-1.11.1.js"></script>
-	<script src="jqm/jquery.mobile.custom.js"></script>
+	<script src="/mobile/jqm/jquery.mobile.custom.js"></script>
 
 	<script src="/js/iijslib.js"></script>
     <script src="/js/cupidjslib.js"></script>
-    <script src="js/brewjs.js"></script>
+    <script src="/brewpanel/js/brewjs.js"></script>
 
 </head>
-
 <body>
-	<div data-role="page" id="demo-page" class="my-page" data-theme="d">
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {};
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
+sessiondata.hpass =  "<?php if (!empty($_SESSION['user']['hpass'])) {echo $_SESSION['user']['hpass'];} ?>";
+sessiondata.accesskeywords =  "<?php if (!empty($_SESSION['user']['accesskeywords'])) {echo $_SESSION['user']['accesskeywords'];} ?>";
+var currenturl = getCurrentURL();
+sessiondata.metastring = "<?php if (!empty($_SESSION['user']['metadata'])) {echo $_SESSION['user']['metadata'];} ?>";
+sessiondata.usermeta = stringJSONparse(sessiondata.metastring);
 
-    <script>
-        $(document).ready(function(){
-            setTimeout(
-                function(){updateBrewPanelIndexData({likecriterion:'dataclasses', likecriterionvalue: 'brewpanelindex', timeout: 5000})},1000
-            );
-            setTimeout(
-                function(){updateTanksIndexData({likecriterion:'dataclasses', likecriterionvalue: 'tankspanelindex', timeout: 5000})},1000
-            );
-            setInterval(function(){
-                $('.currenttime').html(getStringTime({UTC:true}))
-            },2000);
-        })
-    </script>
-	<div data-role="header" data-theme="d">
-		<h1>Brewery Control Panel</h1>
-	</div><!-- /header -->
+// <!--Log access-->
+logUserAuths(sessiondata)
+
+
+function updateBrewPanelIndexData(options) {
+    //console.log('i am updating brewdata')
+    $('.statusmessage').html('Updating..')
+    options = options || {}
+    options.database = controldatabase;
+    options.tablename = 'channels';
+
+    // THis is all stuff we don't use here.
+    // This searches fields for values. So in this case we may search 'dataclasses' for 'index'
+    // This way we can add the value 'index' to dataclasses and it will render values.
+
+    if (options.hasOwnProperty('likecriterion') && options.hasOwnProperty('likecriterionvalue')) {
+        options.condition = '\"' + options.likecriterion + '\" like \'%' + options.likecriterionvalue + '%\''
+    }
+    if (options.hasOwnProperty('criterion') && options.hasOwnProperty('criterionvalue')) {
+        options.condition = '\"' + options.criterion + '\"=\'' + options.criterionvalue + '\''
+    }
+    options.callback = renderBrewPanelIndexData;
+    addUserMeta(options);
+    wsgiCallbackTableData(options)
+}
+
+function renderBrewPanelIndexData(response, options, xhr) {
+    console.log(response);
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        var timeout = $('.' + options.timeoutclass).val() * 1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        setTimeout(function () {
+            updateBrewPanelIndexData(options)
+        }, options.timeout);
+    }
+    // if (response.hasOwnProperty('data')) {
+    //     var data = response.data;
+    //     var string = ''
+    //     for (var i = 0; i < data.length; i++) {
+    //         string += data[i].name + ':' + data[i].controlvalue;
+    //         if (i < data.length -1 ) {
+    //             string += ',';
+    //         }
+    //     }
+    //     console.log(string);
+    //     $('#brewpanelindexaside').html(string);
+    // }
+    if (response.hasOwnProperty('data')) {
+        var data = response.data;
+        var string = data.length + ' Tanks Online'
+
+        $('#brewpanelindexaside').html(string);
+    }
+}
+
+function updateTanksIndexData(options) {
+    //console.log('i am updating brewdata')
+    $('.statusmessage').html('Updating..')
+    options = options || {}
+    options.database = controldatabase;
+    options.tablename = 'channels';
+
+    // THis is all stuff we don't use here.
+    // This searches fields for values. So in this case we may search 'dataclasses' for 'index'
+    // This way we can add the value 'index' to dataclasses and it will render values.
+
+    if (options.hasOwnProperty('likecriterion') && options.hasOwnProperty('likecriterionvalue')) {
+        options.condition = '\"' + options.likecriterion + '\" like \'%' + options.likecriterionvalue + '%\''
+    }
+    if (options.hasOwnProperty('criterion') && options.hasOwnProperty('criterionvalue')) {
+        options.condition = '\"' + options.criterion + '\"=\'' + options.criterionvalue + '\''
+    }
+    options.callback = renderTanksIndexData;
+    addUserMeta(options);
+    wsgiCallbackTableData(options)
+}
+
+function renderTanksIndexData(response, options, xhr) {
+    console.log(response);
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        var timeout = $('.' + options.timeoutclass).val() * 1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        setTimeout(function () {
+            updateTanksIndexData(options)
+        }, options.timeout);
+    }
+    if (response.hasOwnProperty('data')) {
+        var data = response.data;
+        var string = data.length + ' Tanks Online'
+
+        $('#tanksindexaside').html(string);
+    }
+}
+
+
+</script>
+
+<div data-role="page" id="demo-page" class="my-page" data-theme="d">
+<!-- /header -->
+
+<script>
+    $(document).ready(function(){
+        renderTemplate({sessiondata: sessiondata, 'currentpage': currenturl, title:'Home'});
+        setTimeout(
+            function(){updateBrewPanelIndexData({likecriterion:'dataclasses', likecriterionvalue: 'brewpanelindex', timeout: 5000})},1000
+        );
+        setTimeout(
+            function(){updateTanksIndexData({likecriterion:'dataclasses', likecriterionvalue: 'tankspanelindex', timeout: 5000})},1000
+        );
+        setInterval(function(){
+            $('.currenttime').html(getStringTime({UTC:true}))
+        },2000);
+    })
+</script>
+
+<div data-role="header" id="header" data-theme="d">
+    <h1><span id="headertext"></span></h1>
+    <a href="#nav-panel" data-icon="bars" data-theme="d" data-iconpos="notext">Menu</a>
+    <a href="#settingspanel" data-icon="gear" data-theme="d" data-iconpos="notext">Add</a>
+</div>
+<!-- /header -->
+	<!--<div data-role="header" data-theme="d">-->
+		<!--<h1>Brewery Control Panel</h1>-->
+	<!--</div>&lt;!&ndash; /header &ndash;&gt;-->
 
 	<div role="main" class="ui-content">
-		<ul data-role="listview" data-inset="true">
+		<ul data-role="listview" class="tileview" data-inset="true">
             <li>
                 <a href="brew.html" data-ajax="false">
-                <img src="img/tiles/brewtile.png" class="ui-li-thumb">
+                <img src="/brewpanel/img/tiles/brewtile.png" class="ui-li-thumb">
                 <h2>Brew Panel</h2>
                 <p class="subheadtext">Brewdeck Controls and Conditions</p>
                 <p class="ui-li-aside" id="brewpanelindexaside">&nbsp;&nbsp;&nbsp;</p>
@@ -51,15 +186,15 @@
             </li>
             <li>
                 <a href="tanks.html" data-ajax="false">
-                <img src="img/tiles/tankstile.png" class="ui-li-thumb">
+                <img src="/brewpanel/img/tiles/tankstile.png" class="ui-li-thumb">
                 <h2>Tanks</h2>
                 <p class="subheadtext">Vessel Temperatures and Activity</p>
                 <p class="ui-li-aside" id="tanksindexaside">&nbsp;&nbsp;&nbsp;</p>
                 </a>
             </li>
             <li>
-                <a href="actions.html" data-ajax="false">
-                <img src="img/tiles/actions_tile.png" class="ui-li-thumb">
+                <a href="breweryactions.html" data-ajax="false">
+                <img src="/brewpanel/img/tiles/actions_tile.png" class="ui-li-thumb">
                 <h2>Actions</h2>
                 <p class="subheadtext">Email, SMS alerts and acknowledgement</p>
                 <p class="ui-li-aside">Alerts and Notifications</p>
@@ -67,7 +202,7 @@
             </li>
             <li>
                 <a href="dataexport.html" data-ajax="false">
-                <img src="img/tiles/dataexport_tile.png" class="ui-li-thumb">
+                <img src="/brewpanel/img/tiles/dataexport_tile.png" class="ui-li-thumb">
                 <h2>Data Import/export</h2>
                 <p class="subheadtext">Handle your data.</p>
                 <p class="ui-li-aside">&nbsp;</p>
@@ -75,7 +210,7 @@
             </li>
             <li>
                 <a href="settings.html" data-ajax="false">
-                <img src="img/tiles/settings_tile.png" class="ui-li-thumb">
+                <img src="/brewpanel/img/tiles/settings_tile.png" class="ui-li-thumb">
                 <h2>Panel Settings</h2>
                 <p class="subheadtext">Details, details</p>
                 <p class="ui-li-aside">3 Updates Available.</p>
@@ -84,9 +219,26 @@
 		</ul>
 	</div><!-- /content -->
 
-	<div data-role="footer" data-theme="d">
-		<div class="footertext">Copyright 2015 Interface Innovations</div>
-	</div><!-- /footer -->
+	<!-- Panels -->
+
+<div data-role="panel" data-position="left" data-position-fixed="false" data-display="reveal" id="nav-panel" data-theme="a">
+    <ul data-role="listview" data-theme="a" data-divider-theme="a" style="margin-top:-16px;" class="nav-search">
+        <!-- populated by template renderer -->
+    </ul>
+    <!-- panel content goes here -->
+</div><!-- /panel -->
+
+<div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="settingspanel" data-theme="b">
+    <!-- filled by rendertemplate -->
+</div><!-- /panel -->
+
+<!-- /Panels -->
+
+<!--<div data-role="footer" data-theme="d" class="footer" style="border-width: 0;background:#e5e5e5">-->
+<div data-role="footer" data-theme="c" id="footer">
+    <div class="footertext">Copyright 2016 Interface Innovations</div>
+</div><!-- /footer -->
+
 </div><!-- /page -->
 
 </body>

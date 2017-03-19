@@ -1,0 +1,569 @@
+<?php require_once('../auth/user.php'); ?>
+<?php $user->require_login(); ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" >
+
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
+
+    <title>Actions</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+	<link rel="stylesheet" href="jqm/themes/base.css" />
+
+    <link rel="stylesheet" href="jqm/themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="jqm/jquery.mobile.custom.structure.min.css" />
+    <link rel="stylesheet" href="css/brewpanel.css" />
+
+    <!--jQuery Mobile is 1.4.5-->
+	<script src="js/jquery-1.11.1.js"></script>
+	<script src="jqm/jquery.mobile.custom.js"></script>
+
+	<script src="/js/iijslib.js"></script>
+    <script src="/js/cupidjslib.js"></script>
+    <script src="js/brewjs.js"></script>
+</head>
+<body>
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {};
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
+sessiondata.hpass =  "<?php if (!empty($_SESSION['user']['hpass'])) {echo $_SESSION['user']['hpass'];} ?>";
+sessiondata.accesskeywords =  "<?php if (!empty($_SESSION['user']['accesskeywords'])) {echo $_SESSION['user']['accesskeywords'];} ?>";
+var currenturl = getCurrentURL();
+sessiondata.metastring = "<?php if (!empty($_SESSION['user']['metadata'])) {echo $_SESSION['user']['metadata'];} ?>";
+sessiondata.usermeta = stringJSONparse(sessiondata.metastring);
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+</script>
+
+<div data-role="page" class="type-home" id="main">
+<script>
+
+    // define some globals
+    var jqmpage=true;
+    var updatetimeout=100;
+    var updateinterval=5000;
+    var actauthlevel=2;
+
+function updateChannelActionsData(options) {
+    options = options || {};
+    options.database = controldatabase;
+    options.tablename = 'actions';
+    options.selectorclass = 'actionselect';
+    options.selectortableitem = 'name';
+    addUserMeta(options);
+    getAndRenderTableData(options)
+}
+
+    function updateChannelActionsTable() {
+        var options = {database:controldatabase,tablename:'actions',callback:renderChannelActionsTable};
+        options.likecriterion='conditiontype';
+        options.likecriterionvalue='channel';
+        options.condition = '\"' + options.likecriterion + '\" like \'%' + options.likecriterionvalue + '%\''
+        addUserMeta(actionobj);
+        wsgiCallbackTableData(actionobj);
+    }
+    function testdbvntext(text) {
+        var options = {}
+        options.action = 'testdbvn';
+        options.dbvn = text;
+        options.callback = renderdbvnresult;
+        runwsgiActions(options);
+    }
+    function testlogicaltext(text) {
+        var options = {};
+        options.action = 'testlogical';
+        options.logical = text;
+        options.callback = renderlogicalresult;
+        runwsgiActions(options);
+    }
+    function renderdbvnresult(response) {
+        $('#dbvntestresult').html(response.data)
+    }
+    function renderlogicalresult(response) {
+//        alert(response.data)
+        $('#logicaltestresult').html(String(response.data))
+    }
+    function renderChannelActionsTable(datatableresponse) {
+        // Here we render html for each element retrieved
+        // set top of indicator ul
+        $("#actionset").html('');
+        var datatable = datatableresponse.data || [];
+        for (var i=0; i<datatable.length; i++){
+            var index=i+1;
+            var divhtmlitemstring =
+                '<div data-role="collapsible" data-collapsed="true"  data-theme="d" data-content-theme="d"> <!--control item -->' +
+                    '<h3><span class="actionsname' + index + '"></span></h3>' +
+                    '<li data-role="fieldcontain">' +
+                        '<fieldset class="ui-grid-a">' +
+                          '<div class="ui-block-a ui-biglabel inset-header" style="width:30%">Type</div>' +
+                          '<div class="ui-block-b ui-biglabel inset-header actionsactiontype' + index + '">Email</div>' +
+                        '</fieldset>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<fieldset class="ui-grid-a">' +
+                          '<div class="ui-block-a ui-biglabel inset-header" style="width:30%">Detail</div>' +
+                          '<div class="ui-block-b ui-biglabel inset-header actionsactiondetail' + index + '"></div>' +
+                        '</fieldset>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<fieldset class="ui-grid-a">' +
+                          '<div class="ui-block-a ui-biglabel inset-header" style="width:30%">Condition Type</div>' +
+                          '<div class="ui-block-b ui-biglabel inset-header actionsconditiontype' + index + '"></div>' +
+                        '</fieldset>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<fieldset class="ui-grid-a">' +
+                          '<div class="ui-block-a ui-biglabel inset-header" style="width:30%">Condition Data</div>' +
+                          '<div class="ui-block-b ui-biglabel inset-header actionsactiondata' + index + '" style="whitespace:normal"></div>' +
+                        '</fieldset>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<fieldset class="ui-grid-a">' +
+                          '<div class="ui-block-a ui-biglabel inset-header" style="width:30%">Condition Value</div>' +
+                          '<div class="ui-block-b ui-biglabel inset-header actionsvalue' + index + '"></div>' +
+                        '</fieldset>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain" data-theme="d">' +
+                        '<span class="justalamp" >' +
+                        '<label for="actionenabledtoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">' +
+                        'Enabled' +
+                        '</label>' +
+                        '<select  id="actionsenabled' + index + 'toggle" class="actionsenabled' + index + 'toggle justalamp" data-role="slider">' +
+                            '<option value="Off">Off</option>' +
+                            '<option value="On">On</option>' +
+                        '</select>' +
+                        '</span>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<span class="justalamp">' +
+                        '<label for="actionsstatus' + index + 'toggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">' +
+                        'Status' +
+                        '</label>' +
+                        '<select id="actionsstatus' + index + 'toggle" class="actionsstatus' + index + 'toggle justalamp" data-role="slider">' +
+                            '<option value="Off">Off</option>' +
+                            '<option value="On">On</option>' +
+                        '</select>' +
+                        '</span>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<span class="justalamp">' +
+                        '<label for="actionsactivetoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">' +
+                        'Active' +
+                        '</label>' +
+                        '<select id="actionsactive' + index + 'toggle" class="actionsactive' + index + 'toggle justalamp" data-role="slider">' +
+                            '<option value="Off">Off</option>' +
+                            '<option value="On">On</option>' +
+                        '</select>' +
+                        '</span>' +
+                    '</li>' +
+                    '<li data-role="fieldcontain">' +
+                        '<fieldset class="ui-grid-a">' +
+                          '<div class="ui-block-a ui-biglabel inset-header" style="width:30%">Status</div>' +
+                          '<div class="ui-block-b inset-header actionsstatusmsg' + index + '">The status</div>' +
+                        '</fieldset>' +
+                    '</li>' +
+                    '<li data-role="collapsible-set" data-theme="d" data-inset="true">' +
+                        '<div data-role="collapsible" data-collapsed="true" >' +
+                            '<h4>Edit</h4>' +
+                            '<ul data-role="listview" data-inset="false" >' +
+                                '<li data-role="fieldcontain" style="background:transparent">' +
+                                    '<label for="actionstatustoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">' +
+                                    'Enabled' +
+                                    '</label>' +
+                                    '<select id="actionsenabled' + index + 'toggle" class="actionsenabled' + index + 'toggle reqauth4" data-role="slider">' +
+                                    '<option value="Off">Off</option>' +
+                                    '<option value="On">On</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<label for="actionscriteriontype' + index + 'jqmselect" class="ui-biglabel">Condition Type</label>' +
+                                    '<select id="actionscriteriontype' + index + 'jqmselect" class="actionsconditiontype' + index + 'jqmselect reqatuth4">' +
+                                        '<option value="none">none</option>' +
+                                        '<option value="logical">logical</option>' +
+                                        '<option value="value">value</option>' +
+                                    '</select>' +
+                                '</li>' +
+//                                '<li>' +
+//                                    '<label for="actionstablename' + index + 'jqmselect"><h3>Table</h3></label>' +
+//                                    '<select id="actionstablename' + index + 'jqmselect" class="actionstablename' + index + 'jqmselect controldatatableselect">' +
+//                                        '<option value="channels">channels</option>' +
+//                                    '</select>' +
+//                                '</li>' +
+//                                '<li>' +
+//                                    '<label for="actionschannelindex' + index + 'jqmselect"><h3>Channel Index</h3></label>' +
+//                                    '<select id="actionsvaluerowid' + index + 'jqmselect" class="actionsvaluerowid' + index + 'jqmselect channelindexselect">' +
+//                                        '<option value="channels">99</option>' +
+//                                    '</select>' +
+//                                '</li>' +
+//                                '<li>' +
+//                                    '<label for="actionsvariablename' + index + 'jqmselect"><h3>Valuename</h3></label>' +
+//                                    '<select id="actionsvariablename' + index + 'jqmselect" class="actionsvariablename' + index + 'jqmselect controldatachannelscolumnjqmselect">' +
+//                                        '<option value="controlvalue">Control Value</option>' +
+//                                        '<option value="action">Action</option>' +
+//                                    '</select>' +
+//                                '</li>' +
+//                                '<li>' +
+//                                    '<label for="actionsoperator' + index + 'jqmselect"><h3>Operator?</h3></label>' +
+//                                    '<select id="actionsoperator' + index + 'jqmselect" class="actionsoperator' + index + 'jqmselect actionsoperator' + index + 'jqmselect actionsoperatorselect">' +
+//                                        '<option value="equal"> = (Equal to)</option>' +
+//                                        '<option value="less">&lt; (Less than)</option>' +
+//                                        '<option value="greater">&gt; (Greater than)</option>' +
+//                                    '</select>' +
+//                                '</li>' +
+//                                '<li>' +
+//                                    '<h3>Criterion Value</h3>' +
+//                                    '<div class="ui-grid-a">' +
+//                                        '<div class="ui-block-a"><input type="text" class="actionscriterion' + index + 'text"  value="detail"  ></div>' +
+//                                        '<div class="ui-block-b actionscriterion' + index + 'textupdate" id="actionscriterion' + index + 'textupdate" ><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Update</a></div>' +
+//                                    '</div>' +
+//                                '</li>' +
+                                '<li>' +
+                                    '<label for="actionsactiontype' + index + 'jqmselect"><h3>Action Type</h3></label>' +
+                                    '<select id="actionsactiontype' + index + 'jqmselect" class="actiontypeselect">' +
+                                        '<option value="email">Email</option>' +
+                                        '<option value="indicator">Indicator</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<h3>Detail</h3>' +
+                                    '<div class="ui-grid-a">' +
+                                        '<div class="ui-block-a "><input type="text" class="actionsactiondata' + index + 'text"  value="detail" ></div>' +
+                                        '<div class="ui-block-b actionactiondata' + index + 'textupdate" id="actionsactiondata' + index + 'textupdate" ><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Update</a></div>' +
+                                    '</div>' +
+                                '</li>' +
+                                '<li>' +
+                                    '<h3>Detail</h3>' +
+                                    '<div class="ui-grid-a">' +
+                                        '<div class="ui-block-a "><input type="text" class="actionsactiondetail' + index + 'text"  value="detail" ></div>' +
+                                        '<div class="ui-block-b actionsactiondetail' + index + 'textupdate" id="actionsactiondetail' + index + 'textupdate" ><a data-theme="d" data-role="button" data-icon="check" data-mini="true">Update</a></div>' +
+                                    '</div>' +
+                                '</li>' +
+                                '<li data-role="fieldcontain">' +
+                                    '<label for="actionsactivereset' + index + 'toggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">' +
+                                    'Active Reset' +
+                                    '</label>' +
+                                    '<select id="actionsactivereset' + index + 'toggle" class="actionsactivereset' + index + 'toggle justalamp" data-role="slider">' +
+                                    '<option value="Off">Off</option>' +
+                                    '<option value="On">On</option>' +
+                                    '</select>' +
+                                '</li>' +
+                                '<li data-role="fieldcontain">' +
+                                  '<label for="actionsondelay' + index + 'slider" class="ui-biglabel">On Delay</label>' +
+                                  '<input type="range" class="actionsondelay' + index + 'slider" id="actionsondelay' + index + 'slider" value="60" min="0" max="100" />' +
+                                '</li>' +
+                                '<li data-role="fieldcontain">' +
+                                  '<label for="actionsoffdelay' + index + 'slider" class="ui-biglabel">Off Delay</label>' +
+                                  '<input type="range" class="actionsoffdelay' + index + 'slider" id="actionsoffdelay' + index + 'slider" value="60" min="0" max="100" />' +
+                                '</li>' +
+                                '<li data-role="fieldcontain">' +
+                                  '<label for="actionsactionfrequency' + index + 'slider" class="ui-biglabel">Action Frequency</label>' +
+                                  '<input type="range" class="actionsactionfrequency' + index + 'slider" id="actionsactionfrequency' + index + 'slider" value="60" min="0" max="100" />' +
+                                '</li>' +
+                            '</ul><!-- Edit set-->' +
+                        '</div><!-- Edit collapsible -->' +
+                    '</li><!-- Edit Collapsible set -->' +
+                '</div> <!-- Control Item -->'
+
+            $('#actionset').append(divhtmlitemstring).trigger( "create" );
+
+            // render tablenames based on database
+            // this is currently done automatically, hardcoded because we are locked into
+            // control database. One step at a time.
+
+            // render columnnames based on table
+            // action of tablename change is render of known id select to column names of new value
+            // e.g. actionstable1jqmselect valuechange will render actionscolumn1jqmselect with new value
+
+            $('#actionstablename' + index + 'jqmselect').on('change.options',function(){
+
+//                alert('change to ' + $('#actionstablename' + index + 'jqmselect').val())
+                updateColumnsData({classes:['actionsvariablename' + index + 'jqmselect'], database:controldatabase,table:$('#actionstablename' + index + 'jqmselect').val()})
+            })
+
+            // attach action to tablename change event
+        }
+
+        $('#actionset').trigger('create');
+        $('#actionslistview').trigger('create');
+        $('#actionslistview').listview('refresh');
+
+        updateChannelActionsData({'jqmpage':true})
+    }
+
+    $(document).ready(function(){
+        renderTemplate({sessiondata:sessiondata, 'currentpage' : currenturl});
+
+        togglestolamps();
+        //// Control Algorithms
+        //Just run this once so we don't overwrite edited values
+        updateChannelActionsTable({jqmpage:true});
+
+//        setTimeout(function(){updateTableNamesData({database:controldatabase})},2000);
+//        setTimeout(function(){updateColumnsData({database:controldatabase,table:'channels'})},5000);
+        setTimeout(function(){ updateActionsData({'jqmpage':true,timeout:updateinterval})},5000)
+        updateChannelIndicesData({'jqmpage':true,'timeout':updateinterval})
+
+
+    });
+</script>
+
+<div data-role="header" data-theme="c">
+    <h1>Home<span id="header_pathalias"></span> </h1>
+    <a href="#nav-panel" data-icon="bars" data-theme="e" data-iconpos="notext">Menu</a>
+    <a href="#settingspanel" data-icon="gear" data-theme="e" data-iconpos="notext">Add</a>
+</div>
+<!-- /header -->
+
+<div data-role="content">
+    <div class="content-one">
+        <ul data-role="listview" data-inset="true" data-theme="b">
+            <li data-role="list-divider"><h4>Actions documentation</h4></li>
+            <li data-role="fieldcontain" >
+                <p>This page details the actions that your CuPID will take on conditions you set. </p>
+                <p>Currently supported actions are email and indicators alerts. Expand the Details below for explanations
+                    of the conditions/types and parameters.</p>
+            </li>
+            <div data-role="collapsible-set" data-inset="false" data-content-theme="b">
+                <div data-role="collapsible" data-collapsed="true"  > <!--control item -->
+                  <h3>Condition Types</h3>
+                    <p><strong>Value</strong></p>
+                    <p>Compares a database value to supplied value with a chosen operator.</p>
+                    <p>Example: type: value, actiondata: dbvn:[controldb:inputs:value:id='MOTE1_voltage',operator:<, criterion:5</p>
+
+                    <p><strong>Logical</strong></p>
+                    <p>Evaluates a logical condition. Uses same dbvn as Value, but can use compound logic</p>
+                    <p>Example: condition:[controldb:inputs:value:id='MOTE1_voltage']<5</p>
+                </div>
+            </div>
+            <div data-role="collapsible-set" data-inset="false" data-content-theme="b">
+                <div data-role="collapsible" data-collapsed="true"  > <!--control item -->
+                  <h3>Parameters</h3>
+                    <p><strong>Type:</strong>  Action to take on active alert. Email and Indicator alerts are currently supported.</p>
+                    <p><strong>Action Detail:</strong>  Additional action information. For type email, this is the email field. For indicator, this is the name of the indicator.</p>
+                    <p><strong>On/Off Delay:</strong>  These values determine how long the alert status must be met or returned to normal before the action is set to active or inactive.</p>
+                    <p><strong>Action Frequency:</strong>  Determines how often the action will be attempted. For an email, this determines how often it will be set.</p>
+                    <p><strong>On/Offtime:</strong>  The last status change from off to on (ontime) and on to off (offtime).</p>
+                    <p><strong>Lastactiontime:</strong>  Last time the action was carried out, e.g. the last email time.</p>
+                    <p><strong>Lastactiontime:</strong>  Last time the action was carried out, e.g. the last email time.</p>
+                    <p><strong>Database:</strong>  Database for alert criterion values.</p>
+                    <p><strong>Tablename:</strong>  Tablename for database criterion values.</p>
+                    <p><strong>Variablename:</strong>  Variable for database criterion values.</p>
+                </div>
+            </div>
+             <div data-role="collapsible" data-collapsed="true"  >
+                  <h3>Test dbvn</h3>
+                 <!--<div class="ui-grid-a">-->
+                    <div ><input type="text" id="testdbvntext"></div>
+                 <!--</div>-->
+                 <div class="ui-grid-b">
+                      <div class="ui-block-a"><a data-theme="d" data-role="button" data-icon="check" data-mini="true" id="testdbvnsubmit">Test</a></div>
+                     <div class="ui-block-b" style="padding:0.75em 1em">Test Result:</div>
+                    <div class="ui-block-c" style="padding:0.75em 1em" id="dbvntestresult">&nbsp;</div>
+                 </div>
+             </div>
+            <div data-role="collapsible" data-collapsed="true"  >
+                  <h3>Test logical</h3>
+                 <!--<div class="ui-grid-a">-->
+                    <div ><input type="text" id="testlogicaltext"></div>
+                 <!--</div>-->
+                 <div class="ui-grid-b">
+                      <div class="ui-block-a"><a data-theme="d" data-role="button" data-icon="check" data-mini="true" id="testlogicalsubmit">Test</a></div>
+                     <div class="ui-block-b" style="padding:0.75em 1em">Test Result:</div>
+                    <div class="ui-block-c" style="padding:0.75em 1em" id="logicaltestresult">&nbsp;</div>
+                 </div>
+             </div>
+
+            <li >
+                <a href="testindicators.html" data-ajax="false">Test Indicators</a>
+            </li>
+        </ul>
+    </div><!--/content-one-->
+    <div class="content-two" >
+        <ul data-role="listview" data-inset="true" data-theme="d" id="actionslistview">
+            <li data-role="list-divider" data-theme="b">
+                <h4>Actions</h4>
+            </li>
+            <div data-role="collapsible-set" data-inset="false" data-content-theme="b" id="actionset">
+                <div data-role="collapsible" data-collapsed="true"  > <!--control item -->
+                    <h3>Actions loading ...</h3>
+                    <li data-role="fieldcontain">
+                        <fieldset class="ui-grid-a">
+                          <div class="ui-block-a ui-biglabel inset-header" style="width:30%">Type</div>
+                          <div class="ui-block-b ui-biglabel inset-header">Email</div>
+                        </fieldset>
+                    </li>
+                    <li data-role="fieldcontain">
+                        <fieldset class="ui-grid-a">
+                          <div class="ui-block-a ui-biglabel inset-header" style="width:30%">Detail</div>
+                          <div class="ui-block-b ui-biglabel inset-header">test@interfaceinnovations.org</div>
+                        </fieldset>
+                    </li>
+                    <li data-role="fieldcontain">
+                        <span class="justalamp">
+                        <label for="actionenabledtoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">
+                        Enabled
+                        </label>
+                        <select id="actionenabledtoggle" class="actionenabledtoggle justalamp" data-role="slider">
+                            <option value="Off">Off</option>
+                            <option value="On">On</option>
+                        </select>
+                        </span>
+                    </li>
+                    <li data-role="fieldcontain">
+                        <span class="justalamp">
+                        <label for="actionstatustoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">
+                        Status
+                        </label>
+                        <select id="actionstatustoggle" class="actionstatustoggle justalamp" data-role="slider">
+                            <option value="Off">Off</option>
+                            <option value="On">On</option>
+                        </select>
+                        </span>
+                    </li>
+                    <li data-role="fieldcontain">
+                        <span class="justalamp">
+                        <label for="actionactivetoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">
+                        Active
+                        </label>
+                        <select id="actionactivetoggle" class="actionactivetoggle justalamp" data-role="slider">
+                            <option value="Off">Off</option>
+                            <option value="On">On</option>
+                        </select>
+                        </span>
+                    </li>
+                    <li data-role="collapsible-set" data-content-theme="c" data-theme="d" data-inset="true">
+                        <div data-role="collapsible" data-collapsed="false" >
+                            <h4>Edit</h4>
+                            <ul data-role="listview" data-inset="false">
+                                <li data-role="fieldcontain">
+                                    <label for="actionenabledselecttoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">
+                                    Enabled
+                                    </label>
+                                    <select id="actionenabledselecttoggle" class="actionenabledoggle" data-role="slider">
+                                    <option value="Off">Off</option>
+                                    <option value="On">On</option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <label for="criteriontypejqmselect"><h3>Criteron Type</h3></label>
+                                    <select id="criteriontypejqmselect" class="actiontypeselect">
+                                        <option value="dbvalue">dbvalue</option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <label for="tablejqmselect"><h3>Table</h3></label>
+                                    <select id="tablejqmselect" class="tablejqmselect">
+                                        <option value="channels">channels</option>
+                                    </select>
+                                </li>
+                                 <li>
+                                    <label for="valuenamejqmselect"><h3>Valuename</h3></label>
+                                    <select id="valuenamejqmselect" class="valuejqmselect">
+                                        <option value="controlvalue">Control Value</option>
+                                        <option value="action">Action</option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <label for="operatorjqmselect"><h3>Operator</h3></label>
+                                    <select id="operatorjqmselect" class="operatorjqmselect">
+                                        <option value="=">= (Equal to)</option>
+                                        <option value=">">< (Less than)</option>
+                                        <option value="<">> (Greater than)</option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <h3>Criterion Value</h3>
+                                    <div class="ui-grid-a">
+                                        <div class="ui-block-a ui-buttontextpartner" "><input type="text" class="actionsname' + index + 'text"  value="detail" style="margin-top:0px" ></div>
+                                        <div class="ui-block-b channelsname' + index + 'textupdate" id="channelsnametextupdate" ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="actionsactiontypejqmselect"><h3>Action Type</h3></label>
+                                    <select id="actionsactiontypejqmselect" class="actiontypeselect">
+                                        <option value="email">Email</option>
+                                        <option value="indicator">Indicator</option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <h3>Detail</h3>
+                                    <div class="ui-grid-a">
+                                        <div class="ui-block-a ui-buttontextpartner" "><input type="text" class="actionsname' + index + 'text"  value="detail"style="margin-top:0px" ></div>
+                                        <div class="ui-block-b channelsname' + index + 'textupdate" id="channelsname' + index + 'textupdate" ><a data-theme="d" data-role="button" data-icon="check">Update</a></div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="selectpositiveoutput"><h3>Action Type</h3></label>
+                                    <select id="actionsactiontypejqmselect" class="actiontypeselect">
+                                      <option value="standard">Email</option>
+                                      <option value="rush">Indicator</option>
+                                    </select>
+                                </li>
+                                <li data-role="fieldcontain">
+                                    <label for="actionstatustoggle"  style="display:inline-block; width:50%;" class="ui-biglabel inset-header">
+                                    Active Reset
+                                    </label>
+                                    <select id="actionstatustoggle" class="actionstatustoggle justalamp" data-role="slider">
+                                    <option value="Off">Off</option>
+                                    <option value="On">On</option>
+                                    </select>
+                                </li>
+                                <li data-role="fieldcontain">
+                                  <label for="slider-1" class="ui-biglabel">On Delay</label>
+                                  <input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
+                                </li>
+                                <li data-role="fieldcontain">
+                                  <label for="slider-1" class="ui-biglabel">Off Delay</label>
+                                  <input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
+                                </li>
+                                <li data-role="fieldcontain">
+                                  <label for="slider-1" class="ui-biglabel">Alert Frequency</label>
+                                  <input type="range" name="slider-1" id="slider-1" value="60" min="0" max="100" />
+                                </li>
+                            </ul><!-- Edit set-->
+                        </div><!-- Edit collapsible -->
+                    </li><!-- Edit Collapsible set -->
+                </div> <!-- Control Item -->
+            </div><!--collapsible control item ACTION SET -->
+
+            <li data-role="fieldcontain">
+		        <a href="actionsedit.html" data-ajax="false">Add/Delete/Rename</a>
+		    </li>
+        </ul>
+    </div><!--content-two-->
+</div><!--content-->
+<!-- Panels -->
+
+<div data-role="panel" data-position="left" data-position-fixed="false" data-display="reveal" id="nav-panel" data-theme="a">
+    <ul data-role="listview" data-theme="a" data-divider-theme="a" style="margin-top:-16px;" class="nav-search">
+        <!-- populated by template renderer -->
+    </ul>
+    <!-- panel content goes here -->
+</div><!-- /panel -->
+
+<div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="settingspanel" data-theme="b">
+    <!-- filled by rendertemplate -->
+</div><!-- /panel -->
+
+<!-- /Panels -->
+
+<!--<div data-role="footer" data-theme="d" class="footer" style="border-width: 0;background:#e5e5e5">-->
+<div data-role="footer" data-theme="c" id="footer">
+    <div class="footertext">Copyright 2016 Interface Innovations</div>
+</div><!-- /footer -->
+</div><!-- page -->
+</body>
+</html>

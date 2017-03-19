@@ -471,7 +471,7 @@ class user {
                 $this->fail('You must log in to access this page.','/'.$this->config['pages']['loginmobile']);
             }
             else {
-                $this->fail('You must log in to access this page!!','/'.$this->config['pages']['login']);
+                $this->fail('You must log in to access this page!!','/'.$this->config['pages']['loginmobile']);
             }
 		}
 	}

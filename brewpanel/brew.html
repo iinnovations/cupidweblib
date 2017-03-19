@@ -1,3 +1,5 @@
+<?php require_once('../auth/user.php'); ?>
+<?php $user->require_login(); ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,74 +29,301 @@
 </head>
 
 <body>
-	<div data-role="page" id="demo-page" class="my-page" data-theme="d">
 
-    <script>
-        var tanksdata = []
-        $(document).ready(function(){
-            setTimeout(
-                function(){updateBrewPanelData({timeout: 5000})},1000
-            );
-            setInterval(function(){
-                $('.currenttime').html(getStringTime({UTC:true}))
-            },2000);
-            updateBrewPanel();
-        })
-    </script>
-	<div data-role="header" data-theme="d">
-		<h1>Brewery Control Panel</h1>
-	</div><!-- /header -->
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {};
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
+sessiondata.hpass =  "<?php if (!empty($_SESSION['user']['hpass'])) {echo $_SESSION['user']['hpass'];} ?>";
+sessiondata.accesskeywords =  "<?php if (!empty($_SESSION['user']['accesskeywords'])) {echo $_SESSION['user']['accesskeywords'];} ?>";
+var currenturl = getCurrentURL();
+sessiondata.metastring = "<?php if (!empty($_SESSION['user']['metadata'])) {echo $_SESSION['user']['metadata'];} ?>";
+sessiondata.usermeta = stringJSONparse(sessiondata.metastring);
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+
+function updateBrewPanel(options){
+    options = options || {};
+    options.renderid = options.renderid || "brewlist";
+    options.doLCDDisplays = true;
+    options.database = controldatabase;
+    options.tablename = 'channels';
+    options.likecriterion = 'dataclasses';
+    options.likecriterionvalue = 'brewpanel';
+
+    options = addConditionsFromCriterion(options);
+    options.callback = renderBrewPanel;
+    addUserMeta(options);
+    wsgiCallbackTableData(options)
+}
+
+function renderBrewPanel(response, options, xhr) {
+    options = options || {};
+    var selector = $('#' + options.renderid);
+    //$('#' + options.renderid).html('');
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        var timeout = $('.' + options.timeoutclass).val() * 1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        setTimeout(function () {
+            updateBrewPanel(options)
+        }, options.timeout);
+    }
+
+    if (response.hasOwnProperty('data')) {
+        var data = response.data;
+        selector.html('');
+        for (var i = 0; i < data.length; i++) {
+            var channelname = data[i].name.replace(/ /g,'_');
+            var htmlstring = '';
+            htmlstring += '<li>' +
+                '<a style="line-height:1.2em" data-rel="popup" href="#' + channelname + 'svpopup">' +
+                '<img src="img/tiles/brewtank.png" class="ui-li-thumb" >' +
+                '<h2 class="tiletitle">' + channelname + '</h2>' +
+                '<div align="right">' +
+                    '<p style="line-height:1.2em; margin:0">' +
+                    '<span class="subheadtext pvtext">PV: <canvas id="' + channelname + 'pvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="' + channelname + 'svdisplay" width="120" height="30"></canvas></span>' +
+                    '<span class="subheadjusttext" >PV: <span class="' + channelname + 'pvjusttext" >?</span>&nbsp;  SV: <span class="' + channelname + 'svjusttext">?</span></span>' +
+                    '</p>' +
+                '</div>' +
+                '<p class="ui-li-aside ' + channelname + 'runmodecontainer">Mode:<span class="' + channelname + 'runmode">?</span></p>' +
+                '</a>' +
+            '</li>' +
+            '<div data-role="popup" id="' + channelname + 'svpopup" data-overlay-theme="a" data-theme="a" data-dismissible="true" style="max-width:400px;" class="ui-corner-all">' +
+                '<div data-role="header" data-theme="a" class="ui-corner-top ui-dialog-header">' +
+                    '<h3>Setpoint for  ' + channelname + ' </h3>' +
+                '</div>' +
+                '<div data-role="content" data-theme="a" class="ui-corner-bottom ui-dialog-content" style="padding:15px">' +
+                    '<h3 class="ui-title">Set new value for ' + channelname + '</h3>' +
+                    '<input type="range" name="' + channelname + 'setpointvalueslider" id="' + channelname + 'setpointvalueslider" value="' + data[i].setpointvalue + '" min="32" max="212" />' +
+                    '<a style="margin-top:25px" data-role="button" data-icon="check" data-theme="f" id="set' + channelname + 'setpointvalueconfirm">Set</a>' +
+                '</div>' +
+            '</div>'
+            selector.append(htmlstring);
+            $('#set' + channelname + 'setpointvalueconfirm').on('click',{i:i, channelname:channelname},function(event){
+                var channelname = event.data.channelname;
+                var setpointvalue = $('#' + channelname + 'setpointvalueslider').val();
+                //alert("You chose to set the value for channel " + channelname + ", with value " + setpointvalue)
+                runwsgiActions({action:'setvalue',database:controldatabase, table:'channels', valuename:'setpointvalue', value:setpointvalue, condition:'name=\"' + channelname.replace(/ /g,'_') + '\"'})
+                $('#' + channelname + 'svpopup').popup('close');
+            });
+            if (options.doLCDDisplays) {
+                doLCD({displayid:channelname + 'pvdisplay', value: data[i].controlvalue});
+                doLCD({displayid:channelname + 'svdisplay', value: data[i].setpointvalue});
+
+
+                $('.'+ channelname +'pvjusttext').text(zeropad(data[i].controlvalue,2,1)  + '    ');
+                //console.log(data[i].controlvalue)
+                //console.log(zeropad(data[i].controlvalue,2,1))
+                $('.'+ channelname +'svjusttext').text(zeropad(data[i].setpointvalue,2,1));
+                //console.log(channelname + 'pvdisplay')
+            }
+            if (data[i].data != '') {
+                //console.log('there is json data')
+                var parseddata = jsonstringparser(data[i].data);
+                if (parseddata.run == '0') {
+                    //console.log('stop mode  for .' + channelname + 'runmode')
+                    $('.' + channelname + 'runmode').text('Stop');
+                    $('.' + channelname + 'runmodecontainer').css('background-color', 'red');
+                }
+                else if (parseddata.run == '1') {
+                    //console.log('run mode  for .' + channelname + 'runmode')
+                    $('.' + channelname + 'runmode').text('Run');
+                    $('.' + channelname + 'runmodecontainer').css('background-color', 'green');
+                }
+            }
+        }
+        selector.trigger('create');
+        selector.listview('refresh');
+
+    }
+    else {
+        console.log('no new data.')
+    }
+}
+
+function updateBrewPanelData(options) {
+    console.log('I update the brewpanel data')
+    options = options || {};
+    options.database = controldatabase;
+    options.tablename = 'channels';
+    options.callback = renderBrewPanelData;
+    options.likecriterion = 'dataclasses';
+    options.likecriterionvalue = 'brewpanel';
+    options.doLCDDisplays = true;
+    options = addConditionsFromCriterion(options);
+    addUserMeta(options);
+
+    wsgiCallbackTableData(options)
+}
+
+function renderBrewPanelData(response, options, xhr) {
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        var timeout = $('.' + options.timeoutclass).val() * 1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        setTimeout(function () {
+            updateBrewPanelData(options)
+        }, options.timeout);
+    }
+    if (response.hasOwnProperty('data')) {
+        var data = response.data;
+        var doLCDDisplays = options.doLCDDisplays || false;
+        var channelnames = [];
+        for (var i = 0; i < data.length; i++) {
+            var channelname = cleanDirtyText(data[i].name);
+            channelnames.push(channelname);
+            setWidgetValues(channelname + 'pv', data[i].controlvalue, {jqmpage: true});
+            setWidgetValues(channelname + 'sv', data[i].setpointvalue, {jqmpage: true});
+            if (doLCDDisplays) {
+                doLCD({displayid:channelname + 'pvdisplay', value: data[i].controlvalue})
+                doLCD({displayid:channelname + 'svdisplay', value: data[i].setpointvalue})
+
+                $('.'+ channelname +'pvjusttext').text(zeropad(data[i].controlvalue,2,1)  + '    ')
+                //console.log(data[i].controlvalue)
+                //console.log(zeropad(data[i].controlvalue,2,1))
+                $('.'+ channelname +'svjusttext').text(zeropad(data[i].setpointvalue,2,1))
+                //console.log(channelname + 'pvdisplay')
+            }
+            if (data[i].enabled == '0') {
+                //console.log('stop mode  for .' + channelname + 'runmode')
+                $('.' + channelname + 'runmode').text('Stop');
+                $('.' + channelname + 'runmodecontainer').css('background-color', 'red');
+            }
+            else if (data[i].enabled == '1') {
+                //console.log('run mode  for .' + channelname + 'runmode')
+                $('.' + channelname + 'runmode').text('Run');
+                $('.' + channelname + 'runmodecontainer').css('background-color', 'green');
+            }
+
+            // if (data[i].data != '') {
+            //     //console.log('there is json data')
+            //     var parseddata = jsonstringparser(data[i].data)
+            //     if (parseddata.run == '0') {
+            //         //console.log('stop mode  for .' + channelname + 'runmode')
+            //         $('.' + channelname + 'runmode').text('Stop');
+            //         $('.' + channelname + 'runmodecontainer').css('background-color', 'red');
+            //     }
+            //     else if (parseddata.run == '1') {
+            //         //console.log('run mode  for .' + channelname + 'runmode')
+            //         $('.' + channelname + 'runmode').text('Run');
+            //         $('.' + channelname + 'runmodecontainer').css('background-color', 'green');
+            //     }
+            // }
+            // else {
+            //     // console.log('no json data')
+            // }
+        }
+
+    }
+    else {
+        console.log('no new data')
+    }
+    // a catchall in global data. probably (hopefully) unneeded
+    brewdata = data;
+}
+
+
+</script>
+
+<div data-role="page" id="demo-page" class="my-page" data-theme="d">
+
+<script>
+    var tanksdata = [];
+    $(document).ready(function(){
+         renderBrewTemplate({sessiondata: sessiondata, 'currentpage': currenturl, title:'Brew'});
+        setTimeout(
+            function(){updateBrewPanelData({timeout: 5000})},1000
+        );
+        setInterval(function(){
+            $('.currenttime').html(getStringTime({UTC:true}))
+        },2000);
+        updateBrewPanel();
+    })
+</script>
+<div data-role="header" id="header" data-theme="d">
+    <h1><span id="headertext"></span></h1>
+    <a href="#nav-panel" data-icon="bars" data-theme="d" data-iconpos="notext">Menu</a>
+    <a href="#settingspanel" data-icon="gear" data-theme="d" data-iconpos="notext">Add</a>
+</div>
+<!-- /header -->
 
 	<div role="main" class="ui-content">
-		<ul data-role="listview" data-inset="true" id="brewlist">
-            <li>
-                <a href="tankone.html" data-ajax="false" >
-                <img src="img/tiles/brewtank.png" class="ui-li-thumb">
-                <h2>Kettle</h2>
-                    <div align="right">
-                    <p style="line-height:1em; margin:0;">
-                        <span class="subheadtext pvtext" style="align:right">PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas></span>
-                        <span class="subheadtext pvtext" style="align:right">PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas></span>
-                        <span class="subheadjusttext" >PV: <span class="MLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="MLTsvjusttext">?</span></span>
-                    </p>
-                    </div>
-                <p class="ui-li-aside Kettlerunmodecontainer">Mode:<span class="Kettlerunmode">?</span></p>
-                </a>
-            </li>
-            <li>
-                <a href="tanktwo.html" data-ajax="false">
-                <img src="img/tiles/brewtank.png" class="ui-li-thumb">
-                <h2>MLT</h2>
-                <div align="right">
-                    <p style="line-height:1em; margin:0">
-                        <span class="subheadtext pvtext" >PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="MLTsvdisplay" width="120" height="30"></canvas></span>
-                        <span class="subheadjusttext" >PV: <span class="MLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="MLTsvjusttext">?</span></span>
-                    </p>
-                </div>
-                <p class="ui-li-aside MLTrunmodecontainer">Mode:<span class="MLTrunmode">?</span></p>
-                </a>
-            </li>
-            <li>
-                <a href="HLT.html" data-ajax="false">
-                <img src="img/tiles/brewtank.png" class="ui-li-thumb">
-                <h2>HLT</h2>
-                <div align="right">
-                    <p style="line-height:1em; margin:0">
-                        <span class="subheadtext pvtext" >PV: <canvas id="HLTpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="HLTsvdisplay" width="120" height="30"></canvas></span>
-                        <span class="subheadjusttext" >PV: <span class="HLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="HLTsvjusttext">?</span></span>
-                    </p>
-                </div>
-                <p class="ui-li-aside HLTrunmodecontainer">Mode:<span class="HLTrunmode">?</span></p>
-                </a>
-            </li>
+		<ul data-role="listview" class="tileview" data-inset="true" id="brewlist">
+            <li>Loading ....</li>
+            <!--<li>-->
+                <!--<a href="tankone.html" data-ajax="false" >-->
+                <!--<img src="img/tiles/brewtank.png" class="ui-li-thumb">-->
+                <!--<h2>Kettle</h2>-->
+                    <!--<div align="right">-->
+                    <!--<p style="line-height:1em; margin:0;">-->
+                        <!--<span class="subheadtext pvtext" style="align:right">PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadtext pvtext" style="align:right">PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadjusttext" >PV: <span class="MLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="MLTsvjusttext">?</span></span>-->
+                    <!--</p>-->
+                    <!--</div>-->
+                <!--<p class="ui-li-aside Kettlerunmodecontainer">Mode:<span class="Kettlerunmode">?</span></p>-->
+                <!--</a>-->
+            <!--</li>-->
+            <!--<li>-->
+                <!--<a href="tanktwo.html" data-ajax="false">-->
+                <!--<img src="img/tiles/brewtank.png" class="ui-li-thumb">-->
+                <!--<h2>MLT</h2>-->
+                <!--<div align="right">-->
+                    <!--<p style="line-height:1em; margin:0">-->
+                        <!--<span class="subheadtext pvtext" >PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="MLTsvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadjusttext" >PV: <span class="MLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="MLTsvjusttext">?</span></span>-->
+                    <!--</p>-->
+                <!--</div>-->
+                <!--<p class="ui-li-aside MLTrunmodecontainer">Mode:<span class="MLTrunmode">?</span></p>-->
+                <!--</a>-->
+            <!--</li>-->
+            <!--<li>-->
+                <!--<a href="HLT.html" data-ajax="false">-->
+                <!--<img src="img/tiles/brewtank.png" class="ui-li-thumb">-->
+                <!--<h2>HLT</h2>-->
+                <!--<div align="right">-->
+                    <!--<p style="line-height:1em; margin:0">-->
+                        <!--<span class="subheadtext pvtext" >PV: <canvas id="HLTpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="HLTsvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadjusttext" >PV: <span class="HLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="HLTsvjusttext">?</span></span>-->
+                    <!--</p>-->
+                <!--</div>-->
+                <!--<p class="ui-li-aside HLTrunmodecontainer">Mode:<span class="HLTrunmode">?</span></p>-->
+                <!--</a>-->
+            <!--</li>-->
 
 		</ul>
 	</div><!-- /content -->
 
-	<div data-role="footer" data-theme="d">
-		<div class="footertext">Copyright 2015 Interface Innovations</div>
-	</div><!-- /footer -->
-</div><!-- /page -->
+	<!-- Panels -->
+
+<div data-role="panel" data-position="left" data-position-fixed="false" data-display="reveal" id="nav-panel" data-theme="a">
+    <ul data-role="listview" data-theme="a" data-divider-theme="a" style="margin-top:-16px;" class="nav-search">
+        <!-- populated by template renderer -->
+    </ul>
+    <!-- panel content goes here -->
+</div><!-- /panel -->
+
+<div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="settingspanel" data-theme="b">
+    <!-- filled by rendertemplate -->
+</div><!-- /panel -->
+
+<!-- /Panels -->
+
+<!--<div data-role="footer" data-theme="d" class="footer" style="border-width: 0;background:#e5e5e5">-->
+<div data-role="footer" data-theme="c" id="footer">
+    <div class="footertext">Copyright 2016 Interface Innovations</div>
+</div><!-- /footer -->
 
 </body>
 </html>

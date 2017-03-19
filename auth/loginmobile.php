@@ -12,15 +12,16 @@
 <meta http-equiv="pragma" content="no-cache" />
 
 <title>Login</title>
-<link rel="stylesheet" href="/mobile/jqm/jquery.mobile-1.4.5.css" />
-<link rel="stylesheet" href="/mobile/jqm/themes/CuPIDthemes.css" />
+<link rel="stylesheet" href="/mobile/jqm/themes/jquery.mobile.icons.min.css" />
+<link rel="stylesheet" href="/mobile/jqm/jquery.mobile.custom.structure.min.css" />
 <link rel="stylesheet" href="/mobile/css/custom.css" />
+<link rel="stylesheet" href="/mobile/jqm/themes/CuPIDthemes.css" />
 
 <script src="/js/jquery-1.11.0.min.js"></script>
 <script src="/js/jquery-migrate-1.2.1.min.js"></script>
 
 <script src="/mobile/js/jqm-docs.js"></script>
-<script src="/mobile/jqm/jquery.mobile-1.4.5.js"></script>
+<script src="/mobile/jqm/jquery.mobile.custom.js"></script>
 
 <script src="/js/iijslib.js" type="text/javascript"></script>
 <script src="/js/cupidjslib.js" type="text/javascript"></script>
@@ -28,7 +29,7 @@
 
 <body>
     <div data-role="content" class="ui-content-main" style="min-height:600px">
-            <div role="main" class="ui-content content-secondary" style="margin-left:10px" id="content-one" data-theme="b">
+            <div role="main" class="ui-content content-secondary" style="margin-left:10px;width:90%;max-width:400px" id="content-one" data-theme="b">
                 <?php $user->loginmobile_form(); ?>
             </div>
     </div>

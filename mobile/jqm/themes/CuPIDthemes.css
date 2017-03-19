@@ -227,7 +227,7 @@ html body .ui-group-theme-a .ui-bar-inherit {
 	background-color: #ed1c24 /*{a-bar-background-color}*/;
 	border-color: #820f13 /*{a-bar-border}*/;
 	color: #ffffff /*{a-bar-color}*/;
-	text-shadow: 0 /*{a-bar-shadow-x}*/ 1px /*{a-bar-shadow-y}*/ 0 /*{a-bar-shadow-radius}*/ #444444 /*{a-bar-shadow-color}*/;
+	text-shadow: none;
 	font-weight: bold;
 }
 .ui-bar-a {
@@ -241,7 +241,7 @@ html body .ui-group-theme-a .ui-bar-inherit {
 	background-color: #e5e5e5 /*{a-page-background-color}*/;
 	border-color: #cccccc /*{a-page-border}*/;
 	color: #000000 /*{a-page-color}*/;
-	text-shadow: 0 /*{a-page-shadow-x}*/ 1px /*{a-page-shadow-y}*/ 0 /*{a-page-shadow-radius}*/ #eeeeee /*{a-page-shadow-color}*/;
+	text-shadow: none;
 }
 /* Body: Read-only lists, text inputs, collapsible content */
 .ui-body-a,
@@ -253,7 +253,7 @@ html .ui-panel-page-container-a {
 	background-color: #ffffff /*{a-body-background-color}*/;
 	border-color: #cccccc /*{a-body-border}*/;
 	color: #000000 /*{a-body-color}*/;
-	text-shadow: 0 /*{a-body-shadow-x}*/ 1px /*{a-body-shadow-y}*/ 0 /*{a-body-shadow-radius}*/ #eeeeee /*{a-body-shadow-color}*/;
+	text-shadow: none;
 }
 .ui-body-a {
 	border-width: 1px;
@@ -300,7 +300,7 @@ html head + body .ui-btn.ui-btn-a:visited {
 	background-color: #F5F5F5 /*{a-bup-background-color}*/;
 	border-color: #cccccc /*{a-bup-border}*/;
 	color: #000000 /*{a-bup-color}*/;
-	text-shadow: 0 /*{a-bup-shadow-x}*/ 1px /*{a-bup-shadow-y}*/ 0 /*{a-bup-shadow-radius}*/ #eeeeee /*{a-bup-shadow-color}*/;
+	text-shadow: none;
 }
 /* Button hover */
 .ui-page-theme-a .ui-btn:hover,
@@ -311,7 +311,7 @@ html head + body .ui-btn.ui-btn-a:hover {
 	background-color: #FFFFFF /*{a-bhover-background-color}*/;
 	border-color: #8c8c8c /*{a-bhover-border}*/;
 	color: #000000 /*{a-bhover-color}*/;
-	text-shadow: 0 /*{a-bhover-shadow-x}*/ 1px /*{a-bhover-shadow-y}*/ 0 /*{a-bhover-shadow-radius}*/ #eeeeee /*{a-bhover-shadow-color}*/;
+	text-shadow: none;
 }
 /* Button down */
 .ui-page-theme-a .ui-btn:active,
@@ -322,7 +322,7 @@ html head + body .ui-btn.ui-btn-a:active {
 	background-color: #FFFFFF /*{a-bdown-background-color}*/;
 	border-color: #8c8c8c /*{a-bdown-border}*/;
 	color: #000000 /*{a-bdown-color}*/;
-	text-shadow: 0 /*{a-bdown-shadow-x}*/ 1px /*{a-bdown-shadow-y}*/ 0 /*{a-bdown-shadow-radius}*/ #eeeeee /*{a-bdown-shadow-color}*/;
+	text-shadow: none;
 }
 /* Active button */
 .ui-page-theme-a .ui-btn.ui-btn-active,
@@ -351,7 +351,7 @@ html body div.ui-slider-track.ui-body-a .ui-btn-active {
 	background-color: #0071bc /*{a-active-background-color}*/;
 	border-color: #003e67 /*{a-active-border}*/;
 	color: #ffffff /*{a-active-color}*/;
-	text-shadow: 0 /*{a-active-shadow-x}*/ 1px /*{a-active-shadow-y}*/ 0 /*{a-active-shadow-radius}*/ #444444 /*{a-active-shadow-color}*/;
+	text-shadow: none;
 }
 /* Active radio button icon */
 .ui-page-theme-a .ui-radio-on:after,
@@ -389,8 +389,25 @@ html body .ui-group-theme-b .ui-bar-inherit {
 	background-color: #2e3192 /*{b-bar-background-color}*/;
 	border-color: #4044cc /*{b-bar-border}*/;
 	color: #ffffff /*{b-bar-color}*/;
-	text-shadow: 0 /*{b-bar-shadow-x}*/ 1px /*{b-bar-shadow-y}*/ 0 /*{b-bar-shadow-radius}*/ #444444 /*{b-bar-shadow-color}*/;
+	text-shadow: none;
 	font-weight: bold;
+}
+
+/* Inactive flipswitch background */
+.ui-page-theme-b .ui-flipswitch,
+html .ui-bar-b .ui-flipswitch,
+html .ui-body-b .ui-flipswitch,
+html body .ui-group-theme-b .ui-flipswitch,
+html body .ui-flipswitch.ui-bar-b.ui-flipswitch,
+/* Inctive slider track */
+.ui-page-theme-b .ui-slider-track,
+html .ui-bar-b .ui-slider-track,
+html .ui-body-b .ui-slider-track,
+html body .ui-group-theme-b .ui-slider-track,
+html body div.ui-slider-track.ui-body-b {
+    background-color: #8c8c8c /*{b-bar-background-color}*/;
+    border-color: #333333 /*{b-bar-border}*/;
+    color: #FFF /*{b-bar-color}*/;
 }
 .ui-bar-b {
 	border-width: 1px;
@@ -403,7 +420,7 @@ html body .ui-group-theme-b .ui-bar-inherit {
 	background-color: #ffffff /*{b-page-background-color}*/;
 	border-color: #cccccc /*{b-page-border}*/;
 	color: #000000 /*{b-page-color}*/;
-	text-shadow: 0 /*{b-page-shadow-x}*/ 1px /*{b-page-shadow-y}*/ 0 /*{b-page-shadow-radius}*/ #eeeeee /*{b-page-shadow-color}*/;
+	text-shadow: none;
 }
 /* Body: Read-only lists, text inputs, collapsible content */
 .ui-body-b,
@@ -415,7 +432,7 @@ html .ui-panel-page-container-b {
 	background-color: #ffffff /*{b-body-background-color}*/;
 	border-color: #cccccc /*{b-body-border}*/;
 	color: #000000 /*{b-body-color}*/;
-	text-shadow: 0 /*{b-body-shadow-x}*/ 1px /*{b-body-shadow-y}*/ 0 /*{b-body-shadow-radius}*/ #eeeeee /*{b-body-shadow-color}*/;
+	text-shadow: none;
 }
 .ui-body-b {
 	border-width: 1px;
@@ -462,7 +479,7 @@ html head + body .ui-btn.ui-btn-b:visited {
 	background-color: #F5F5F5 /*{b-bup-background-color}*/;
 	border-color: #cccccc /*{b-bup-border}*/;
 	color: #2f3e46 /*{b-bup-color}*/;
-	text-shadow: 0 /*{b-bup-shadow-x}*/ 1px /*{b-bup-shadow-y}*/ 0 /*{b-bup-shadow-radius}*/ #ffffff /*{b-bup-shadow-color}*/;
+	text-shadow: none;
 }
 /* Button hover */
 .ui-page-theme-b .ui-btn:hover,
@@ -473,7 +490,7 @@ html head + body .ui-btn.ui-btn-b:hover {
 	background-color: #dfdfdf /*{b-bhover-background-color}*/;
 	border-color: #bbbbbb /*{b-bhover-border}*/;
 	color: #2f3e46 /*{b-bhover-color}*/;
-	text-shadow: 0 /*{b-bhover-shadow-x}*/ 1px /*{b-bhover-shadow-y}*/ 0 /*{b-bhover-shadow-radius}*/ #ffffff /*{b-bhover-shadow-color}*/;
+	text-shadow: none;
 }
 /* Button down */
 .ui-page-theme-b .ui-btn:active,
@@ -484,7 +501,7 @@ html head + body .ui-btn.ui-btn-b:active {
 	background-color: #d6d6d6 /*{b-bdown-background-color}*/;
 	border-color: #bbbbbb /*{b-bdown-border}*/;
 	color: #2f3e46 /*{b-bdown-color}*/;
-	text-shadow: 0 /*{b-bdown-shadow-x}*/ 1px /*{b-bdown-shadow-y}*/ 0 /*{b-bdown-shadow-radius}*/ #ffffff /*{b-bdown-shadow-color}*/;
+	text-shadow: none;
 }
 /* Active button */
 .ui-page-theme-b .ui-btn.ui-btn-active,
@@ -510,10 +527,10 @@ html .ui-bar-b .ui-slider-track .ui-btn-active,
 html .ui-body-b .ui-slider-track .ui-btn-active,
 html body .ui-group-theme-b .ui-slider-track .ui-btn-active,
 html body div.ui-slider-track.ui-body-b .ui-btn-active {
-	background-color: #0071bc /*{b-active-background-color}*/;
-	border-color: #003e67 /*{b-active-border}*/;
+	background-color: #30d38b /*{b-active-background-color}*/;
+	border-color: #333333 /*{b-active-border}*/;
 	color: #ffffff /*{b-active-color}*/;
-	text-shadow: 0 /*{b-active-shadow-x}*/ 1px /*{b-active-shadow-y}*/ 0 /*{b-active-shadow-radius}*/ #444444 /*{b-active-shadow-color}*/;
+	text-shadow: none;
 }
 /* Active radio button icon */
 .ui-page-theme-b .ui-radio-on:after,
@@ -553,7 +570,7 @@ html body .ui-group-theme-c .ui-bar-inherit {
 	background-color: #566159 /*{c-bar-background-color}*/;
 	border-color: #4f6d52 /*{c-bar-border}*/;
 	color: #ffffff /*{c-bar-color}*/;
-	text-shadow: 0 /*{c-bar-shadow-x}*/ 1px /*{c-bar-shadow-y}*/ 0 /*{c-bar-shadow-radius}*/ #444444 /*{c-bar-shadow-color}*/;
+	text-shadow: none;
 	font-weight: bold;
 }
 .ui-bar-c {
@@ -567,7 +584,7 @@ html body .ui-group-theme-c .ui-bar-inherit {
 	background-color: #ffffff /*{c-page-background-color}*/;
 	border-color: #8c8c8c /*{c-page-border}*/;
 	color: #000000 /*{c-page-color}*/;
-	text-shadow: 0 /*{c-page-shadow-x}*/ 1px /*{c-page-shadow-y}*/ 0 /*{c-page-shadow-radius}*/ #eeeeee /*{c-page-shadow-color}*/;
+	text-shadow: none;
 }
 /* Body: Read-only lists, text inputs, collapsible content */
 .ui-body-c,
@@ -579,7 +596,7 @@ html .ui-panel-page-container-c {
 	background-color: #fff /*{c-body-background-color}*/;
 	border-color: #8c8c8c /*{c-body-border}*/;
 	color: #000000 /*{c-body-color}*/;
-	text-shadow: 0 /*{c-body-shadow-x}*/ 1px /*{c-body-shadow-y}*/ 0 /*{c-body-shadow-radius}*/ #eeeeee /*{c-body-shadow-color}*/;
+	text-shadow: none;
 }
 .ui-body-c {
 	border-width: 1px;
@@ -626,7 +643,7 @@ html head + body .ui-btn.ui-btn-c:visited {
 	background-color: #F5F5F5 /*{c-bup-background-color}*/;
 	border-color: #cccccc /*{c-bup-border}*/;
 	color: #2f3e46 /*{c-bup-color}*/;
-	text-shadow: 0 /*{c-bup-shadow-x}*/ 1px /*{c-bup-shadow-y}*/ 0 /*{c-bup-shadow-radius}*/ #ffffff /*{c-bup-shadow-color}*/;
+	text-shadow: none;
 }
 /* Button hover */
 .ui-page-theme-c .ui-btn:hover,
@@ -637,7 +654,7 @@ html head + body .ui-btn.ui-btn-c:hover {
 	background-color: #dfdfdf /*{c-bhover-background-color}*/;
 	border-color: #bbbbbb /*{c-bhover-border}*/;
 	color: #2f3e46 /*{c-bhover-color}*/;
-	text-shadow: 0 /*{c-bhover-shadow-x}*/ 1px /*{c-bhover-shadow-y}*/ 0 /*{c-bhover-shadow-radius}*/ #ffffff /*{c-bhover-shadow-color}*/;
+	text-shadow: none;
 }
 /* Button down */
 .ui-page-theme-c .ui-btn:active,
@@ -648,7 +665,7 @@ html head + body .ui-btn.ui-btn-c:active {
 	background-color: #d6d6d6 /*{c-bdown-background-color}*/;
 	border-color: #bbbbbb /*{c-bdown-border}*/;
 	color: #2f3e46 /*{c-bdown-color}*/;
-	text-shadow: 0 /*{c-bdown-shadow-x}*/ 1px /*{c-bdown-shadow-y}*/ 0 /*{c-bdown-shadow-radius}*/ #ffffff /*{c-bdown-shadow-color}*/;
+	text-shadow: none;
 }
 /* Active button */
 .ui-page-theme-c .ui-btn.ui-btn-active,
@@ -677,7 +694,7 @@ html body div.ui-slider-track.ui-body-c .ui-btn-active {
 	background-color: #0071bc /*{c-active-background-color}*/;
 	border-color: #003e67 /*{c-active-border}*/;
 	color: #ffffff /*{c-active-color}*/;
-	text-shadow: 0 /*{c-active-shadow-x}*/ 1px /*{c-active-shadow-y}*/ 0 /*{c-active-shadow-radius}*/ #444444 /*{c-active-shadow-color}*/;
+	text-shadow: none;
 }
 /* Active radio button icon */
 .ui-page-theme-c .ui-radio-on:after,
@@ -716,8 +733,8 @@ html .ui-body-d .ui-bar-inherit,
 html body .ui-group-theme-d .ui-bar-inherit {
 	background-color: #eeeeee /*{d-bar-background-color}*/;
 	border-color: #000000 /*{d-bar-border}*/;
-	color: #ffffff /*{d-bar-color}*/;
-	text-shadow: 0 /*{d-bar-shadow-x}*/ 1px /*{d-bar-shadow-y}*/ 0 /*{d-bar-shadow-radius}*/ #444444 /*{d-bar-shadow-color}*/;
+	color: #333 /*{d-bar-color}*/;
+	text-shadow: none;
 	font-weight: bold;
 }
 .ui-bar-d {
@@ -731,7 +748,7 @@ html body .ui-group-theme-d .ui-bar-inherit {
 	background-color: #ffffff /*{d-page-background-color}*/;
 	border-color: #cccccc /*{d-page-border}*/;
 	color: #000000 /*{d-page-color}*/;
-	text-shadow: 0 /*{d-page-shadow-x}*/ 1px /*{d-page-shadow-y}*/ 0 /*{d-page-shadow-radius}*/ #eeeeee /*{d-page-shadow-color}*/;
+	text-shadow: none;
 }
 /* Body: Read-only lists, text inputs, collapsible content */
 .ui-body-d,
@@ -740,10 +757,10 @@ html .ui-bar-d .ui-body-inherit,
 html .ui-body-d .ui-body-inherit,
 html body .ui-group-theme-d .ui-body-inherit,
 html .ui-panel-page-container-d {
-	background-color: transparent /*{d-body-background-color}*/;
+	background-color: #FFF; /*{d-body-background-color}*/;
 	border-color: #cccccc /*{d-body-border}*/;
 	color: #000000 /*{d-body-color}*/;
-	text-shadow: 0 /*{d-body-shadow-x}*/ 1px /*{d-body-shadow-y}*/ 0 /*{d-body-shadow-radius}*/ #eeeeee /*{d-body-shadow-color}*/;
+	text-shadow: none;
 }
 .ui-body-d {
 	border-width: 1px;
@@ -790,7 +807,7 @@ html head + body .ui-btn.ui-btn-d:visited {
 	background-color: #F5F5F5 /*{d-bup-background-color}*/;
 	border-color: #bbbbbb /*{d-bup-border}*/;
 	color: #444444 /*{d-bup-color}*/;
-	text-shadow: 0 /*{d-bup-shadow-x}*/ 0px /*{d-bup-shadow-y}*/ 0 /*{d-bup-shadow-radius}*/ #444444 /*{d-bup-shadow-color}*/;
+	text-shadow: none;
 }
 /* Button hover */
 .ui-page-theme-d .ui-btn:hover,
@@ -801,7 +818,7 @@ html head + body .ui-btn.ui-btn-d:hover {
 	background-color: #dadada /*{d-bhover-background-color}*/;
 	border-color: #820f13 /*{d-bhover-border}*/;
 	color: #444444 /*{d-bhover-color}*/;
-	text-shadow: 0 /*{d-bhover-shadow-x}*/ 1px /*{d-bhover-shadow-y}*/ 0 /*{d-bhover-shadow-radius}*/ #444444 /*{d-bhover-shadow-color}*/;
+	text-shadow: none;
 }
 /* Button down */
 .ui-page-theme-d .ui-btn:active,
@@ -812,7 +829,7 @@ html head + body .ui-btn.ui-btn-d:active {
 	background-color: #ed1c24 /*{d-bdown-background-color}*/;
 	border-color: #820f13 /*{d-bdown-border}*/;
 	color: #ffffff /*{d-bdown-color}*/;
-	text-shadow: 0 /*{d-bdown-shadow-x}*/ 1px /*{d-bdown-shadow-y}*/ 0 /*{d-bdown-shadow-radius}*/ #eeeeee /*{d-bdown-shadow-color}*/;
+	text-shadow: none;
 }
 /* Active button */
 .ui-page-theme-d .ui-btn.ui-btn-active,
@@ -840,8 +857,8 @@ html body .ui-group-theme-d .ui-slider-track .ui-btn-active,
 html body div.ui-slider-track.ui-body-d .ui-btn-active {
 	background-color: #3388cc /*{d-active-background-color}*/;
 	border-color: #1c4a70 /*{d-active-border}*/;
-	color: #7e7e7e /*{d-active-color}*/;
-	text-shadow: 0 /*{d-active-shadow-x}*/ 1px /*{d-active-shadow-y}*/ 0 /*{d-active-shadow-radius}*/ #005599 /*{d-active-shadow-color}*/;
+	color: #fff /*{d-active-color}*/;
+	text-shadow: none;
 }
 /* Active radio button icon */
 .ui-page-theme-d .ui-radio-on:after,

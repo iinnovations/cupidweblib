@@ -1,0 +1,381 @@
+f<?php require_once('../auth/user.php'); ?>
+<?php $user->require_login(); ?>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Brewery Actions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+	<link rel="stylesheet" href="jqm/themes/base.css" />
+
+    <link rel="stylesheet" href="jqm/themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="jqm/jquery.mobile.custom.structure.min.css" />
+    <link rel="stylesheet" href="css/brewpanel.css" />
+
+    <!--jQuery Mobile is 1.4.5-->
+	<script src="js/jquery-1.11.1.js"></script>
+	<script src="jqm/jquery.mobile.custom.js"></script>
+
+	<script src="/js/iijslib.js"></script>
+    <script src="/js/cupidjslib.js"></script>
+    <script src="js/brewjs.js"></script>
+    <script type="text/javascript" src="/js/SegmentDisplay/segment-display.js"></script>
+
+    <style type="text/css">
+        .pvtext {
+            font-size:22px!important;
+            padding-right:0.1em!important;
+        }
+    </style>
+</head>
+
+<body>
+
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {};
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
+sessiondata.hpass =  "<?php if (!empty($_SESSION['user']['hpass'])) {echo $_SESSION['user']['hpass'];} ?>";
+sessiondata.accesskeywords =  "<?php if (!empty($_SESSION['user']['accesskeywords'])) {echo $_SESSION['user']['accesskeywords'];} ?>";
+var currenturl = getCurrentURL();
+sessiondata.metastring = "<?php if (!empty($_SESSION['user']['metadata'])) {echo $_SESSION['user']['metadata'];} ?>";
+sessiondata.usermeta = stringJSONparse(sessiondata.metastring);
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+</script>
+
+<div data-role="page" id="demo-page" class="my-page" data-theme="d">
+
+<script>
+var gd = {};
+function updateBrewActionsList(options) {
+    options = options || {};
+	options.callback = renderBrewTableResponse;
+	getBrewActionsData(options);
+}
+function updateBrewActionsData(options) {
+    options = options || {};
+	options.callback =  renderBrewActionsResponse;
+	getBrewActionsData(options);
+}
+function getBrewActionsData(options) {
+	options = options || {};
+ 	options.database=controldatabase;
+	options.tablename='actions';
+	options.likecriterion='conditiontype';
+	options.likecriterionvalue='channel';
+	options.condition = '\"' + options.likecriterion + '\" like \'%' + options.likecriterionvalue + '%\''
+	addUserMeta(options);
+	wsgiCallbackTableData(options);
+}
+
+
+function renderBrewTableResponse(response, options, xhr) {
+    if (options.hasOwnProperty('timeoutclass')) {
+        var timeout = $('.' + options.timeoutclass).val() * 1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        setTimeout(function () {
+            // will automagically call te correct callback(s)
+            getBrewActionsData(options)
+        }, options.timeout);
+    }
+//	console.log(response);
+	if (response.hasOwnProperty('data')) {
+		gd.brewactionsdata = response.data;
+		renderBrewActionsTableFromDOM()
+	}
+}
+function renderBrewActionsResponse(response, options, xhr) {
+    if (options.hasOwnProperty('timeoutclass')) {
+        var timeout = $('.' + options.timeoutclass).val() * 1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+//        console.log('I HAVE A TIMEOUT')
+        setTimeout(function () {
+            // will automagically call the correct callback(s)
+            getBrewActionsData(options)
+        }, options.timeout);
+    }
+//	console.log(response);
+	if (response.hasOwnProperty('data')) {
+		gd.brewactionsdata = response.data;
+		renderBrewActionsDataFromDOM()
+	}
+}
+function renderBrewActionsDataFromDOM(options) {
+//    console.log('doing the data thing')
+    options = options || {doLCDDisplays:true}
+    data = gd.brewactionsdata;
+    for (var i = 0; i < data.length; i++) {
+        var actionname = data[i].name;
+        var action_obj = jsonstringparser(data[i].actiondata);
+        var cleanactionname = cleanDirtyText(actionname);
+//        console.log(actionname + ', ' + data[i].enabled)
+
+        if (data[i].enabled == '1') {
+//            $('#' + cleanactionname + 'enabledtoggle').val('On').flipswitch('refresh');
+            var alarmtext = 'Enabled';
+            var bg_color = 'green';
+            if (data[i].active == 0) {
+                alarmtext += ' : OK';
+            }
+            else {
+//                console.log(data[i].active)
+                alarmtext += ' : ALARM';
+                bg_color = 'red';
+            }
+
+            $('.' + cleanactionname + 'enabled').text(alarmtext);
+            $('.' + cleanactionname + 'enabledcontainer').css('background-color', bg_color);
+        }
+        else {
+//            $('#' + cleanactionname + 'enabledtoggle').val('Off').flipswitch('refresh');
+            $('.' + cleanactionname + 'enabled').text('Disabled');
+            $('.' + cleanactionname + 'enabledcontainer').css('background-color', '#999');
+        }
+
+        $('.'+ cleanactionname +'pvjusttext').text(zeropad(data[i].value,2,1)  + '    ');
+        $('.'+ cleanactionname +'highlimitjusttext').text(zeropad(action_obj.PV_high,2,1)  + '    ');
+        $('.'+ cleanactionname +'lowlimitjusttext').text(zeropad(action_obj.PV_low,2,1)  + '    ');
+        $('.'+ cleanactionname +'actiondetailtext').text(data[i].actiondetail);
+
+        if (options.doLCDDisplays) {
+            doLCD({displayid: cleanactionname + 'pvdisplay', value: data[i].value});
+            doLCD({displayid: cleanactionname + 'highlimitdisplay', value: action_obj.PV_high});
+            doLCD({displayid: cleanactionname + 'lowlimitdisplay', value: action_obj.PV_low});
+        }
+
+    }
+}
+function renderBrewActionsTableFromDOM(options) {
+	options = options || {doLCDDisplays:true}
+	var selector = $('#brewactionslist');
+	var data = gd.brewactionsdata;
+
+	selector.html('');
+	for (var i = 0; i < data.length; i++) {
+        var actionname = data[i].name;
+        var action_obj = jsonstringparser(data[i].actiondata);
+        var cleanactionname = cleanDirtyText(actionname);
+        var htmlstring = '';
+        htmlstring +=
+        '<li class="lithumb">' +
+            '<a style="line-height:1.2em;height:100%;padding-top:0.1em;padding-bottom:0" data-rel="popup" href="#' + cleanactionname + 'popup">' +
+            '<img src="img/tiles/brewtank.png" class="ui-li-thumb" >' +
+            '<h2 class="talltiletitle">' + actionname + '</h2>' +
+            '<div align="right" style="min-height:50%;top:50%">' +
+                '<p  margin:0" class="talltiletext">' +
+                '<span class="subheadjusttext" >PV: <span class="' + cleanactionname + 'pvjusttext" >?</span></span>' +
+                '<span class="subheadjusttext" >H: <span class="' + cleanactionname + 'highlimitjusttext" >?</span></span>' +
+                '<span class="subheadjusttext" >L: <span class="' + cleanactionname + 'lowlimitjusttext" >?</span></span>' +
+                '<table class="lcd_table">' +
+                '<tr>' +
+                '<td><span class="subheadtext pvtext">PV:</span> </td>' +
+                '<td><span class="subheadtext pvtext"><canvas id="' + cleanactionname + 'pvdisplay" width="120" height="20"></canvas></td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td><span class="subheadtext pvtext">High:</span> </td>' +
+                '<td><span class="subheadtext pvtext"><canvas id="' + cleanactionname + 'highlimitdisplay" width="120" height="20"></canvas></td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td><span class="subheadtext pvtext">Low:</span> </td>' +
+                '<td><span class="subheadtext pvtext"><canvas id="' + cleanactionname + 'lowlimitdisplay" width="120" height="20"></canvas></td>' +
+                '</tr>' +
+                '</table>' +
+                '</p>' +
+//                    '<span class="subheadtext pvtext">PV: <canvas id="' + cleanactionname + 'pvdisplay" width="120" height="30"></canvas><br />High: <canvas id="' + cleanactionname + 'highlimitdisplay" width="120" height="30"></canvas><br />Low: <canvas id="' + cleanactionname + 'Lowlimitdisplay" width="120" height="30"></canvas></span>' +
+//                    '<span class="subheadjusttext" >PV: <span class="' + cleanactionname + 'pvjusttext" >?</span>&nbsp;  High: <span class="' + cleanactionname + 'svjusttext">?</span></span>' +
+//                    '<span class="subheadjusttext" >PV: <span class="' + cleanactionname + 'pvjusttext" >?</span>&nbsp;  Low: <span class="' + cleanactionname + 'svjusttext">?</span></span>' +
+//                    '</p>' +
+            '</div>' +
+            '<p class="ui-li-aside ' + cleanactionname + 'enabledcontainer"><span class="' + cleanactionname + 'enabled">?</span></p>' +
+            '</a>' +
+        '</li>' +
+        '<div data-role="popup" id="' + cleanactionname + 'popup" data-overlay-theme="a" data-theme="a" data-dismissible="true" style="max-width:400px;" class="ui-corner-all">' +
+            '<div data-role="header" data-theme="a" class="ui-corner-top ui-dialog-header">' +
+                '<h3>Modify alarm properties for  ' + actionname + ' </h3>' +
+            '</div>' +
+            '<div data-role="fieldcontain" data-theme="a" class="ui-corner-bottom ui-dialog-content" style="padding:5px 15px;margin:0">' +
+                '<div class="ui-grid-a">' +
+                    '<div class="ui-block-a" style="padding-top:0.9em">Enabled</div>' +
+                    '<div class="ui-block-b" style="width:100px;padding-left:10px">' +
+                            '<select id="' + cleanactionname + 'enabledtoggle" class="enabledtoggle" data-role="flipswitch">' +
+                                '<option value="Off">Off</option>' +
+                                '<option value="On">On</option>' +
+                            '</select>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div data-role="fieldcontain" data-theme="a" class="ui-corner-bottom ui-dialog-content" style="padding:10px 15px;margin:0">' +
+                '<label for="' + cleanactionname + 'highalarmvalueslider">High Alarm</label>' +
+                '<input type="range" name="' + cleanactionname + 'highalarmvalueslider" id="' + cleanactionname + 'highalarmvalueslider" value="' + action_obj.PV_high + '" min="32" max="212" />' +
+                '<button style="margin-top:25px" data-role="button" data-icon="check" data-theme="f" id="set' + cleanactionname + 'sethighalarmconfirm">Set High Value</a>' +
+            '</div>' +
+            '<div data-role="fieldcontain" data-theme="a" class="ui-corner-bottom ui-dialog-content" style="padding:10px 15px;margin:0">' +
+                '<label for="' + cleanactionname + 'lowalarmvalueslider">Low Alarm</label>' +
+                '<input type="range" name="' + cleanactionname + 'lowalarmvalueslider" id="' + cleanactionname + 'lowalarmvalueslider" value="' + action_obj.PV_low + '" min="32" max="212" />' +
+                '<button style="margin-top:25px" data-role="button" data-icon="check" data-theme="f" id="set' + cleanactionname + 'setlowalarmconfirm">Set Low Value</a>' +
+            '</div>' +
+            '<div data-role="fieldcontain" data-theme="a" class="ui-corner-bottom ui-dialog-content" style="padding:10px 15px;margin:0">' +
+                '<label for="' + cleanactionname + 'actiondetailtext">Detail</label>' +
+                '<input type="text" name="' + cleanactionname + 'actiondetailtext" id="' + cleanactionname + 'actiondetailtext" value='+ data[i].actiondetail + ' />' +
+                '<button style="margin-top:25px" data-role="button" data-icon="check" data-theme="f" id="set' + cleanactionname + 'actiondetailtext">Update Email</a>' +
+            '</div>' +
+            '<div data-role="fieldcontain" data-theme="a" class="ui-corner-bottom ui-dialog-content" style="padding:5px 15px;margin:0">' +
+                '<button style="margin-top:25px" data-role="button" data-icon="check" data-theme="f" id="' + cleanactionname + 'actiontest">Test Action</a>' +
+            '</div>' +
+        '</div>';
+        selector.append(htmlstring);
+        var enabled_value = booleanBinaryToOnOff(data[i].enabled)
+        $('#' + cleanactionname + 'enabledtoggle').val(enabled_value);
+
+        $('#' + cleanactionname + 'enabledtoggle').on('change', {actionname:actionname, cleanactionname:cleanactionname}, function(event){
+//              var cleanactionname = event.data.cleanactionname;
+            event.preventDefault
+            var actionname = event.data.actionname;
+            var cleanactionname = event.data.cleanactionname;
+            var setvalue = booleansToIntegerString($('#' + cleanactionname + 'enabledtoggle').val());
+                console.log($('#' + cleanactionname + 'enabledtoggle').val() + ', ' + setvalue)
+            var options = {action:'modifychannelalarm',valuename:'enabled', database:controldatabase, actionname:actionname, value:setvalue};
+            options.callback = updateBrewActionsData;
+            options.auxcallback = notifyActionComplete;
+            runwsgiActions(options);
+        });
+        $('#set' + cleanactionname + 'sethighalarmconfirm').on('click',{i:i, actionname:actionname, cleanactionname:cleanactionname},function(event){
+            var cleanactionname = event.data.cleanactionname;
+            var actionname = event.data.actionname;
+            var setvalue = $('#' + cleanactionname + 'highalarmvalueslider').val();
+//                alert("You chose to set the value for action " + cleanactionname + ", with value " + setvalue)
+            options = {action:'modifychannelalarm',valuename:'PV_high', database:controldatabase, actionname:actionname, value:setvalue};
+            options.callback = updateBrewActionsData;
+            options.auxcallback = notifyActionComplete;
+//            options.auxcallback = 'yhujkk';
+//            console.log(options)
+            runwsgiActions(options);
+
+//                $('#' + cleanactionname + 'svpopup').popup('close');
+        });
+        $('#set' + cleanactionname + 'setlowalarmconfirm').on('click',{i:i, actionname:actionname, cleanactionname:cleanactionname},function(event){
+            var cleanactionname = event.data.cleanactionname;
+            var actionname = event.data.actionname;
+            var setvalue = $('#' + cleanactionname + 'lowalarmvalueslider').val();
+            options = {action:'modifychannelalarm',valuename:'PV_low', database:controldatabase, actionname:actionname, value:setvalue};
+            options.callback = updateBrewActionsData;
+            options.auxcallback = notifyActionComplete;
+            runwsgiActions(options);
+        });
+        $('#set' + cleanactionname + 'actiondetailtext').on('click',{i:i, actionname:actionname, cleanactionname:cleanactionname},function(event){
+            var cleanactionname = event.data.cleanactionname;
+            var actionname = event.data.actionname;
+            var setvalue = $('#' + cleanactionname + 'actiondetailtext').val();
+            options = {action:'modifychannelalarm',valuename:'actiondetail', database:controldatabase, actionname:actionname, value:setvalue};
+            options.callback = updateBrewActionsData;
+            options.auxcallback = notifyActionComplete;
+            runwsgiActions(options);
+
+        });
+        $('#' + cleanactionname + 'actiontest').on('click',{i:i, actionname:actionname, cleanactionname:cleanactionname},function(event){
+            var cleanactionname = event.data.cleanactionname;
+            var actionname = event.data.actionname;
+            options = {action:'test_action', actionname:actionname};
+            options.callback = updateBrewActionsData;
+            runwsgiActions(options);
+        });
+
+    }
+    selector.trigger('create');
+    selector.listview('refresh');
+    renderBrewActionsDataFromDOM()
+}
+	$(document).ready(function(){
+         renderBrewTemplate({sessiondata: sessiondata, 'currentpage': currenturl, title:'Actions'});
+
+		updateBrewActionsList();
+		setTimeout(
+			function(){updateBrewActionsData({timeout: 5000})},1000
+		);
+		setInterval(function(){
+			$('.currenttime').html(getStringTime({UTC:true}))
+		},2000);
+	})
+</script>
+<div data-role="header" id="header" data-theme="d">
+    <h1><span id="headertext"></span></h1>
+    <a href="#nav-panel" data-icon="bars" data-theme="d" data-iconpos="notext">Menu</a>
+    <a href="#settingspanel" data-icon="gear" data-theme="d" data-iconpos="notext">Add</a>
+</div>
+
+	<div role="main" class="ui-content">
+		<ul data-role="listview" class='tileview' data-inset="true" id="brewactionslist">
+            <li style="height:100px">Loading ....</li>
+            <!--<li>-->
+                <!--<a href="tankone.html" data-ajax="false" >-->
+                <!--<img src="img/tiles/brewtank.png" class="ui-li-thumb">-->
+                <!--<h2>Kettle</h2>-->
+                    <!--<div align="right">-->
+                    <!--<p style="line-height:1em; margin:0;">-->
+                        <!--<span class="subheadtext pvtext" style="align:right">PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadtext pvtext" style="align:right">PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadjusttext" >PV: <span class="MLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="MLTsvjusttext">?</span></span>-->
+                    <!--</p>-->
+                    <!--</div>-->
+                <!--<p class="ui-li-aside Kettlerunmodecontainer">Mode:<span class="Kettlerunmode">?</span></p>-->
+                <!--</a>-->
+            <!--</li>-->
+            <!--<li>-->
+                <!--<a href="tanktwo.html" data-ajax="false">-->
+                <!--<img src="img/tiles/brewtank.png" class="ui-li-thumb">-->
+                <!--<h2>MLT</h2>-->
+                <!--<div align="right">-->
+                    <!--<p style="line-height:1em; margin:0">-->
+                        <!--<span class="subheadtext pvtext" >PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="MLTsvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadjusttext" >PV: <span class="MLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="MLTsvjusttext">?</span></span>-->
+                    <!--</p>-->
+                <!--</div>-->
+                <!--<p class="ui-li-aside MLTrunmodecontainer">Mode:<span class="MLTrunmode">?</span></p>-->
+                <!--</a>-->
+            <!--</li>-->
+            <!--<li>-->
+                <!--<a href="HLT.html" data-ajax="false">-->
+                <!--<img src="img/tiles/brewtank.png" class="ui-li-thumb">-->
+                <!--<h2>HLT</h2>-->
+                <!--<div align="right">-->
+                    <!--<p style="line-height:1em; margin:0">-->
+                        <!--<span class="subheadtext pvtext" >PV: <canvas id="HLTpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="HLTsvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadjusttext" >PV: <span class="HLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="HLTsvjusttext">?</span></span>-->
+                    <!--</p>-->
+                <!--</div>-->
+                <!--<p class="ui-li-aside HLTrunmodecontainer">Mode:<span class="HLTrunmode">?</span></p>-->
+                <!--</a>-->
+            <!--</li>-->
+
+		</ul>
+	</div><!-- /content -->
+
+<!-- Panels -->
+<div data-role="panel" data-position="left" data-position-fixed="false" data-display="reveal" id="nav-panel" data-theme="a">
+    <ul data-role="listview" data-theme="a" data-divider-theme="a" style="margin-top:-16px;" class="nav-search">
+        <!-- populated by template renderer -->
+    </ul>
+    <!-- panel content goes here -->
+</div><!-- /panel -->
+
+<div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="settingspanel" data-theme="b">
+    <!-- filled by rendertemplate -->
+</div><!-- /panel -->
+
+<!-- /Panels -->
+
+<!--<div data-role="footer" data-theme="d" class="footer" style="border-width: 0;background:#e5e5e5">-->
+<div data-role="footer" data-theme="c" id="footer">
+    <div class="footertext">Copyright 2016 Interface Innovations</div>
+</div><!-- /footer -->
+</div><!-- /page -->
+
+</body>
+</html>

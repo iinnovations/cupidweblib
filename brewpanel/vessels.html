@@ -1,0 +1,342 @@
+<?php require_once('../auth/user.php'); ?>
+<?php $user->require_login(); ?>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Tanks Panel Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+	<link rel="stylesheet" href="jqm/themes/base.css" />
+
+    <link rel="stylesheet" href="jqm/themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="jqm/jquery.mobile.custom.structure.min.css" />
+    <link rel="stylesheet" href="css/brewpanel.css" />
+
+    <!--jQuery Mobile is 1.4.5-->
+	<script src="js/jquery-1.11.1.js"></script>
+	<script src="jqm/jquery.mobile.custom.js"></script>
+
+	<script src="/js/iijslib.js"></script>
+    <script src="/js/cupidjslib.js"></script>
+    <script src="js/brewjs.js"></script>
+    <script type="text/javascript" src="/js/SegmentDisplay/segment-display.js"></script>
+
+    <style type="text/css">
+        .pvtext {
+            font-size:26px!important;
+            padding-right:0.1em!important;
+        }
+    </style>
+</head>
+
+<body>
+<!--Record auth level-->
+<script type="text/javascript">
+var sessiondata = {};
+sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
+sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
+sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
+sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
+sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
+sessiondata.hpass =  "<?php if (!empty($_SESSION['user']['hpass'])) {echo $_SESSION['user']['hpass'];} ?>";
+sessiondata.accesskeywords =  "<?php if (!empty($_SESSION['user']['accesskeywords'])) {echo $_SESSION['user']['accesskeywords'];} ?>";
+var currenturl = getCurrentURL();
+sessiondata.metastring = "<?php if (!empty($_SESSION['user']['metadata'])) {echo $_SESSION['user']['metadata'];} ?>";
+sessiondata.usermeta = stringJSONparse(sessiondata.metastring);
+
+// <!--Log access-->
+logUserAuths(sessiondata)
+
+function updateTanksPanel(options){
+    options = options || {};
+    options.renderid = options.renderid || "tankslist";
+    options.doLCDDisplays = true;
+    options.database = controldatabase;
+    options.tablename = 'channels';
+    options.likecriterion = 'dataclasses';
+    options.likecriterionvalue = 'tankspanel';
+
+    options = addConditionsFromCriterion(options);
+    options.callback = renderTanksPanel;
+    addUserMeta(options)
+    wsgiCallbackTableData(options)
+}
+
+function renderTanksPanel(response, options, xhr) {
+    options = options || {}
+    var selector = $('#' + options.renderid);
+    //$('#' + options.renderid).html('');
+
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        var timeout = $('.' + options.timeoutclass).val() * 1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        setTimeout(function () {
+            updateTanksPanel(options)
+        }, options.timeout);
+    }
+
+    if (response.hasOwnProperty('data')) {
+        var data = response.data;
+        selector.html('');
+        for (var i = 0; i < data.length; i++) {
+            var channelname = data[i].name;
+            var cleanchannelname = cleanDirtyText(data[i].name);
+            var htmlstring = '';
+            htmlstring +=
+            '<li>' +
+                '<div style="position:relative;width:100%;height:150px;background-color:#4d4d4d">' +
+                  '<div class="numberoverlay" style="min-width:80px;top:5px;left:5px;height:20px">' + cleanchannelname + '</div>' +
+                  '<div class="numberoverlay" class="numberoverlay" style="width:80px;top:30px;left:5px;height:20px">PV: ' + data[i].controlvalue + '</div>' +
+                  '<div class="numberoverlay" style="width:80px;top:55px;left:5px;height:20px">SV: ' + data[i].setpointvalue + '</div>' +
+                  '<div class="numberoverlay ledactive" style="text-align:right; width:80px; top:5px;right:5px;height:20px">Enabled</div>' +
+                  '<div class="numberoverlay" style="text-align:right;width:80px;top:30px;right:5px;height:20px">Output: 99</div>' +
+                '</div>' +
+            '</li>' +
+
+            //Popups
+            '<div data-role="popup" id="' + cleanchannelname + 'popup" data-overlay-theme="a" data-theme="a" data-dismissible="true" style="max-width:400px;" class="ui-corner-all">' +
+            '<div data-role="header" data-theme="a" class="ui-corner-top ui-dialog-header">' +
+                '<h3>Modify channel properties for  ' + channelname + ' </h3>' +
+            '</div>' +
+            '<div data-role="fieldcontain" data-theme="a" class="ui-corner-bottom ui-dialog-content" style="padding:5px 15px;margin:0">' +
+                '<div class="ui-grid-a">' +
+                    '<div class="ui-block-a" style="padding-top:0.9em">Enabled</div>' +
+                    '<div class="ui-block-b" style="width:100px;padding-left:10px">' +
+                            '<select id="' + cleanchannelname + 'enabledtoggle" class="enabledtoggle" data-role="flipswitch">' +
+                                '<option value="Off">Stop</option>' +
+                                '<option value="On">Run</option>' +
+                            '</select>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div data-role="fieldcontain" data-theme="a" class="ui-corner-bottom ui-dialog-content" style="padding:10px 15px;margin:0">' +
+                '<label for="' + cleanchannelname + 'setpointvalueslider">Setpoint</label>' +
+                '<input type="range" name="' + cleanchannelname + 'setpointvalueslider" id="' + cleanchannelname + 'setpointvalueslider" value="' + data[i].setpointvalue + '" min="32" max="212" />' +
+                '<a style="margin-top:25px" data-role="button" data-icon="check" data-theme="f" id="set' + cleanchannelname + 'setpointvalueconfirm">Update Setpoint</a>' +
+            '</div>' +
+            '</div>'
+            selector.append(htmlstring);
+
+            var enabled_value = booleanBinaryToOnOff(data[i].enabled)
+            $('#' + cleanchannelname + 'enabledtoggle').val(enabled_value);
+
+            // Here are the actions for the buttons in the popup. We could probably render this in a more
+            // general fashion
+             $('#' + cleanchannelname + 'enabledtoggle').on('change', {channelname:channelname, cleanchannelname:cleanchannelname}, function(event){
+                var cleanchannelname = event.data.cleanchannelname;
+                var channelname = event.data.channelname;
+                var setvalue = booleansToIntegerString($('#' + cleanchannelname + 'enabledtoggle').val());
+                    console.log($('#' + cleanchannelname + 'enabledtoggle').val() + ', ' + setvalue)
+                var options = {action:'modifychannel',valuename:'enabled', database:controldatabase, channelname, value:setvalue};
+                options.callback = updateTanksPanelData;
+                options.auxcallback = notifyActionComplete;
+                runwsgiActions(options);
+            });
+            $('#set' + cleanchannelname + 'setpointvalueconfirm').on('click',{i:i, channelname:channelname, cleanchannelname:cleanchannelname},function(event){
+                var cleanchannelname = event.data.cleanchannelname;
+                var channelname = event.data.channelname;
+                var setpointvalue = $('#' + cleanchannelname + 'setpointvalueslider').val();
+                //alert("You chose to set the value for channel " + channelname + ", with value " + setpointvalue)
+                var options = {action:'modifychannel',database:controldatabase, valuename:'setpointvalue', value:setpointvalue, channelname:channelname}
+                options.callback = updateTanksPanelData;
+                options.auxcallback = notifyActionComplete;
+                runwsgiActions(options)
+                $('#' + cleanchannelname + 'svpopup').popup('close');
+            });
+
+            if (data[i].enabled == '0') {
+                //console.log('stop mode  for .' + channelname + 'runmode')
+                $('.' + cleanchannelname + 'runmode').text('Stop');
+                $('.' + cleanchannelname + 'runmodecontainer').css('background-color', 'red');
+            }
+            else if (data[i].enabled == '1') {
+                //console.log('run mode  for .' + channelname + 'runmode')
+                $('.' + cleanchannelname + 'runmode').text('Run');
+                $('.' + cleanchannelname + 'runmodecontainer').css('background-color', 'green');
+            }
+        }
+        selector.trigger('create');
+        selector.listview('refresh');
+
+    }
+    else {
+        console.log('no new data.')
+    }
+}
+
+function updateTanksPanelData(options) {
+    options = options || {};
+    options.database = controldatabase;
+    options.tablename = 'channels';
+    options.likecriterion = 'dataclasses';
+    options.likecriterionvalue = 'tankspanel';
+    options.doLCDDisplays = true;
+    options.callback = renderTanksPanelData;
+    options = addConditionsFromCriterion(options);
+    addUserMeta(options);
+    wsgiCallbackTableData(options)
+}
+
+function renderTanksPanelData(response, options, xhr) {
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    if (options.hasOwnProperty('timeoutclass')) {
+        var timeout = $('.' + options.timeoutclass).val() * 1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        setTimeout(function () {
+            updateTanksPanelData(options)
+        }, options.timeout);
+    }
+
+    if (response.hasOwnProperty('data')) {
+        var data = response.data;
+        var doLCDDisplays = options.doLCDDisplays || false;
+        var channelnames = [];
+        for (var i = 0; i < data.length; i++) {
+
+            var channelname = cleanDirtyText(data[i].name);
+            channelnames.push(channelname);
+            setWidgetValues(channelname + 'pv', data[i].controlvalue, {jqmpage: true});
+            setWidgetValues(channelname + 'sv', data[i].setpointvalue, {jqmpage: true});
+//            console.log('rendering ' + channelname + ' with ' + data[i].controlvalue + ' and ' + data[i].setpointvalue)
+            if (doLCDDisplays) {
+                doLCD({displayid: channelname + 'pvdisplay', value: data[i].controlvalue})
+                doLCD({displayid: channelname + 'svdisplay', value: data[i].setpointvalue})
+
+                $('.' + channelname + 'pvjusttext').text(zeropad(data[i].controlvalue, 2, 1) + '    ')
+                //console.log(data[i].controlvalue)
+                //console.log(zeropad(data[i].controlvalue,2,1))
+                $('.' + channelname + 'svjusttext').text(zeropad(data[i].setpointvalue, 2, 1))
+                //console.log(channelname + 'pvdisplay')
+            }
+            if (data[i].enabled == '0') {
+                //console.log('stop mode  for .' + channelname + 'runmode')
+                $('.' + channelname + 'runmode').text('Stop');
+                $('.' + channelname + 'runmodecontainer').css('background-color', 'red');
+            }
+            else if (data[i].enabled == '1') {
+                //console.log('run mode  for .' + channelname + 'runmode')
+                $('.' + channelname + 'runmode').text('Run');
+                $('.' + channelname + 'runmodecontainer').css('background-color', 'green');
+            }
+
+            // if (data[i].data != '') {
+            //     //console.log('there is json data')
+            //     var parseddata = jsonstringparser(data[i].data)
+            //     if (parseddata.run == '0') {
+            //         //console.log('stop mode  for .' + channelname + 'runmode')
+            //         $('.' + channelname + 'runmode').text('Stop');
+            //         $('.' + channelname + 'runmodecontainer').css('background-color', 'red');
+            //     }
+            //     else if (parseddata.run == '1') {
+            //         //console.log('run mode  for .' + channelname + 'runmode')
+            //         $('.' + channelname + 'runmode').text('Run');
+            //         $('.' + channelname + 'runmodecontainer').css('background-color', 'green');
+            //     }
+            // }
+            // else {
+            //     console.log('no json data')
+            // }
+        }
+        tanksdata = data;
+    }
+
+}
+
+
+</script>
+
+<div data-role="page" id="demo-page"  data-theme="d">
+
+<script>
+    var tanksdata = []
+    $(document).ready(function(){
+        renderBrewTemplate({sessiondata: sessiondata, 'currentpage': currenturl, 'title':"Tanks"});
+        setTimeout(
+            function(){updateTanksPanelData({timeout: 3000})},1000
+        );
+        setInterval(function(){
+            $('.currenttime').html(getStringTime({UTC:true}))
+        },2000);
+        updateTanksPanel();
+    })
+</script>
+<div data-role="header" id="header" data-theme="d">
+    <h1><span id="headertext"></span></h1>
+    <a href="#nav-panel" data-icon="bars" data-theme="d" data-iconpos="notext">Menu</a>
+    <a href="#settingspanel" data-icon="gear" data-theme="d" data-iconpos="notext">Add</a>
+</div>
+<!-- /header -->
+
+	<div role="main" class="ui-content" >
+		<ul data-role="listview" data-inset="true" id="tankslist" class="dash_layout">
+            <li>Loading ...</li>
+            <!--<li>-->
+                <!--<a href="tankone.html" data-ajax="false" >-->
+                <!--<img src="img/tiles/brewtank.png" class="ui-li-thumb">-->
+                <!--<h2>Unitank 1</h2>-->
+                    <!--<div align="right">-->
+                    <!--<p style="line-height:1em; margin:0;">-->
+                        <!--<span class="subheadtext pvtext" style="align:right">PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadtext pvtext" style="align:right">PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadjusttext" >PV: <span class="MLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="MLTsvjusttext">?</span></span>-->
+                    <!--</p>-->
+                    <!--</div>-->
+                <!--<p class="ui-li-aside Kettlerunmodecontainer">Mode:<span class="Kettlerunmode">?</span></p>-->
+                <!--</a>-->
+            <!--</li>-->
+            <!--<li>-->
+                <!--<a href="tanktwo.html" data-ajax="false">-->
+                <!--<img src="img/tiles/brewtank.png" class="ui-li-thumb">-->
+                <!--<h2>MLT</h2>-->
+                <!--<div align="right">-->
+                    <!--<p style="line-height:1em; margin:0">-->
+                        <!--<span class="subheadtext pvtext" >PV: <canvas id="MLTpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="MLTsvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadjusttext" >PV: <span class="MLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="MLTsvjusttext">?</span></span>-->
+                    <!--</p>-->
+                <!--</div>-->
+                <!--<p class="ui-li-aside MLTrunmodecontainer">Mode:<span class="MLTrunmode">?</span></p>-->
+                <!--</a>-->
+            <!--</li>-->
+            <!--<li>-->
+                <!--<a href="HLT.html" data-ajax="false">-->
+                <!--<img src="img/tiles/brewtank.png" class="ui-li-thumb">-->
+                <!--<h2>HLT</h2>-->
+                <!--<div align="right">-->
+                    <!--<p style="line-height:1em; margin:0">-->
+                        <!--<span class="subheadtext pvtext" >PV: <canvas id="HLTpvdisplay" width="120" height="30"></canvas><br />SV: <canvas id="HLTsvdisplay" width="120" height="30"></canvas></span>-->
+                        <!--<span class="subheadjusttext" >PV: <span class="HLTpvjusttext" >?</span>&nbsp;&nbsp;  SV: <span class="HLTsvjusttext">?</span></span>-->
+                    <!--</p>-->
+                <!--</div>-->
+                <!--<p class="ui-li-aside HLTrunmodecontainer">Mode:<span class="HLTrunmode">?</span></p>-->
+                <!--</a>-->
+            <!--</li>-->
+
+		</ul>
+	</div><!-- /content -->
+	<!-- Panels -->
+
+<div data-role="panel" data-position="left" data-position-fixed="false" data-display="reveal" id="nav-panel" data-theme="a">
+    <ul data-role="listview" data-theme="a" data-divider-theme="a" style="margin-top:-16px;" class="nav-search">
+        <!-- populated by template renderer -->
+    </ul>
+    <!-- panel content goes here -->
+</div><!-- /panel -->
+
+<div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="settingspanel" data-theme="b">
+    <!-- filled by rendertemplate -->
+</div><!-- /panel -->
+
+<!-- /Panels -->
+
+<!--<div data-role="footer" data-theme="d" class="footer" style="border-width: 0;background:#e5e5e5">-->
+<div data-role="footer" data-theme="c" id="footer">
+    <!-- template -->
+</div><!-- /footer -->
+</div><!-- /page -->
+
+</body>
+</html>

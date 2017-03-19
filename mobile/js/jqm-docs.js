@@ -1,6 +1,6 @@
 //collapse page navs after use
 //$(function(){
-//	$('body').delegate('.content-secondary .ui-collapsible-content', 'click',  function(){
+//	$('body').delegate('.content-one .ui-collapsible-content', 'click',  function(){
 //		$(this).trigger("collapse");
 //	});
 //});

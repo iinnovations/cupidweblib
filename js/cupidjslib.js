@@ -6,7 +6,7 @@ var controldatabase='controldb';
 var recipedatabase='recipedatadb';
 var logdatabase='logdatadb';
 var infodatabase='deviceinfodb';
-var systemdatabase='systemdatadb';
+var systemdatabase='systemdb';
 var authdatabase='authlogdb';
 var safedatabase='safedatadb'
 var usersdatabase='usersdb'
@@ -21,12 +21,125 @@ var inputnames=[];
 var outputnames=[];
 var controlalgorithmnames=[];
 var controlrecipenames=[];
-var algorithmtypes=[]
+var algorithmtypes=[];
 var modes=['auto','manual'];
 
 function cupidjslibtest() {
     return true;
 }
+
+//////////////////////////////////////////////////////
+// Templating and things
+
+function renderTemplate(options){
+    // This should be modeled after colorweb, which is done cleanly
+
+    var usefooter = options.usefooter || false;
+    var pagetitle = options.title || '';
+    var headerhtml = makeHeaderHTML({title:pagetitle});
+    //console.log(headerhtml);
+    //$('#header').html(headerhtml);
+    var navpanelhtml = makeNavPanelHTML(options);
+    $('#nav-panel').html(navpanelhtml).trigger('create');
+
+    var settingspanelhtml = makeSettingsPanelHTML(options.sessiondata);
+    //console.log(settingspanelhtml)
+    $('#settingspanel').html(settingspanelhtml).trigger('create');
+    if (usefooter) {
+        $('.footertext').html('Copyright Interface Innovations LLC, 2017');
+    }
+    else {
+        $('#footer').hide()
+    }
+
+    // $('.pathalias').html(sessiondata.pathalias);
+    // console.log(sessiondata.pathalias)
+    // if (sessiondata.pathalias != 'none') {
+    //     $('#header_pathalias').html(' :: ' + sessiondata.pathalias)
+    // }
+    // else {
+    //     $('#header_pathalias').html('')
+    // }
+}
+function makeNavPanelHTML(options) {
+    var navpanelhtml =
+        '<ul data-role="listview" data-theme="a" data-divider-theme="a"  class="nav-search">' +
+        // '<li data-icon="delete" style="background-color:#111;">' +
+        // '<a href="#" data-rel="close">Close menu</a>' +
+        // '</li>' +
+        '<li data-filtertext="wai-aria voiceover accessibility screen reader">' +
+        '<a href="index.html" data-ajax="false">Home</a>' +
+        '</li>' +
+        '<li data-filtertext="wai-aria voiceover accessibility screen reader">' +
+        '<a href="controlpanel.html" data-ajax="false">Control Panel</a>' +
+        '</li>' +
+        '<li data-filtertext="wai-aria voiceover accessibility screen reader">' +
+        '<a href="interfaces.html" data-ajax="false">Interfaces</a>' +
+        '</li>' +
+        '<li data-filtertext="wai-aria voiceover accessibility screen reader">' +
+        '<a href="io.html" data-ajax="false">Inputs/Outputs</a>' +
+        '</li>' +
+        '<li data-filtertext="wai-aria voiceover accessibility screen reader">' +
+        '<a href="dataviewer.html" data-ajax="false">Datalog Viewer</a>' +
+        '</li>' +
+        '<li data-filtertext="wai-aria voiceover accessibility screen reader">' +
+        '<a href="system.html" data-ajax="false">System Status</a>' +
+        '</li>' +
+        '<li data-filtertext="wai-aria voiceover accessibility screen reader">' +
+        '<a href="network.html" data-ajax="false">Network</a>' +
+        '</li>' +
+        '<li data-filtertext="wai-aria voiceover accessibility screen reader">' +
+        '<a href="diagnostics.html" data-ajax="false">Diagnostics</a>' +
+        '</li>' +
+        ' </ul>';
+    return navpanelhtml
+}
+
+function makeHeaderHTML(options) {
+    var headerhtml = '';
+    if (options.hasOwnProperty('title')) {
+        if (options.title != '') {
+             headerhtml += '<h1>IIInventory :: ' + options.title + '</h1>'
+        }
+        else {
+             headerhtml += '<h1>IIInventory</h1>';
+        }
+    }
+    headerhtml += '<a href="#nav-panel" data-icon="bars" data-theme="e" data-iconpos="notext">Menu</a>' +
+        '<a href="#settings" data-icon="gear" data-theme="e" data-iconpos="notext">Add</a>';
+
+    return headerhtml
+}
+
+function makeSettingsPanelHTML(sessiondata) {
+
+    var panelhtml = '';
+    panelhtml +=
+    '<ul data-role="listview" data-theme="a" data-divider-theme="a" class="nav-search">' +
+        '<li data-icon="delete" style="background-color:#111;">' +
+            '<a href="#" data-rel="close">Close menu</a>' +
+        '</li>';
+    if (sessiondata.username) {
+        panelhtml +=
+            '<li><div class="ui-btn-text ui-btn-inner" style="text-align: center; font-size:12.5px; padding-top:0.7em">' + sessiondata.username + '</div></li>' +
+            '<li><div class="ui-btn-text ui-btn-inner" style="text-align: center; font-size:12.5px; padding-top:0.7em">' + sessiondata.pathalias + '</div></li>' +
+            '<li><a data-ajax="false" href="/auth/logoutmobile">Log out</a></li>';
+    }
+    else {
+        panelhtml +=
+            '<li><div class="ui-btn-text ui-btn-inner" style="text-align: center; font-size:12.5px; padding-top:0.7em">Not logged in</div></li>' +
+            '<li><a data-ajax="false" href="/auth/loginmobile" style="padding-right:10px">Log in</a></li>';
+    }
+    panelhtml +=
+        '<li data-filtertext="wai-aria voiceover accessibility screen reader">' +
+            '<a href="auth/manage.php">Manage user</a>' +
+        '</li>' +
+        '</ul>';
+
+    return panelhtml;
+}
+
+
 //////////////////////////////////////////////////////
 //   Utility functions
 //
@@ -122,6 +235,7 @@ function userDelete(options) {
     options.action = 'userdelete'
     runwsgiActions(options)
 }
+
 function userAdd(options) {
     // Need to pass : usertodelete, session username, session hpass
     var options = options || {};
@@ -149,7 +263,7 @@ function addChannel(channelname, callback){
     addDBRow(controldatabase,'channels',callback, ['name'],[channelname])
 }
 function addAction(name, callback){
-    addDBRow(controldatabase,'actions',callback, ['name','operator'],[name,'greater'])
+    addDBRow(controldatabase,'actions',callback, ['name','actiontype'],[name,'logical'])
 }
 function addInterface(name, callback){
     addDBRow(controldatabase,'interfaces',callback, ['name'],[name,])
@@ -217,6 +331,7 @@ function updateChannelsData(options) {
     options.database = controldatabase;
     options.tablename = 'channels';
     options.selectorclass = 'channelselect';
+    addUserMeta(options)
     getAndRenderTableData(options)
 }
 
@@ -226,6 +341,7 @@ function updateChannelIndicesData(options) {
     options.tablename = 'channels';
     options.selectortableitem = 'channelindex';
     options.selectorclass = 'channelindexselect';
+    addUserMeta(options)
     getAndRenderTableData(options)
 }
 
@@ -237,6 +353,7 @@ function updateOutputsData(options) {
     options.selectorclass = 'outputselect';
     options.selectorhasnoneitem = true;
 //    options.selectortableitem = 'id';
+    addUserMeta(options)
     getAndRenderTableData(options)
 }
 
@@ -248,6 +365,7 @@ function updateInputsData(options) {
     options.selectorclass = 'inputselect';
     options.selectorhasnoneitem = true;
 //    options.selectortableitem = 'id';
+    addUserMeta(options)
     getAndRenderTableData(options)
 }
 
@@ -301,6 +419,7 @@ function updateActionsData(options) {
     options.tablename = 'actions';
     options.selectorclass = 'actionselect';
     options.selectortableitem = 'name';
+    addUserMeta(options);
     getAndRenderTableData(options)
 }
 
@@ -308,9 +427,10 @@ function updateActionsData(options) {
 // System Status
 function updateSystemStatusData(options) {
     options = options || {};
-    options.database = controldatabase;
+    options.database = systemdatabase;
     options.tablename = 'systemstatus';
     options.index = 1;
+    addUserMeta(options)
     getAndRenderTableData(options)
 }
 
@@ -320,6 +440,7 @@ function updateNetStatusData(options) {
     options.database = systemdatabase;
     options.tablename = 'netstatus';
     options.index = 1;
+    addUserMeta(options)
     getAndRenderTableData(options)
 }
 
@@ -331,6 +452,7 @@ function updateNetAuthsData(options) {
     options.selectorclass = 'ssidselect';
     options.selectorhasnoneitem = true;
     options.selectortableitem = 'SSID'
+    addUserMeta(options)
     getAndRenderTableData(options)
 }
 
@@ -339,6 +461,7 @@ function updateUsersData(options) {
     options = options || {};
     options.database = usersdatabase;
     options.tablename = 'users';
+    addUserMeta(options)
     getAndRenderTableData(options)
 }
 
@@ -348,17 +471,10 @@ function updateNetConfigData(options) {
     options.database = systemdatabase;
     options.tablename = 'netconfig';
     options.index = 1;
+    addUserMeta(options)
     getAndRenderTableData(options)
 }
 
-// Metadata
-function updateMetadata(options) {
-    options = options || {};
-    options.database = systemdatabase;
-    options.tablename = 'metadata';
-    options.index = 1;
-    getAndRenderTableData(options)
-}
 
 // Unique render functions
 //// Metadata
@@ -390,7 +506,7 @@ function renderPlotMetadata(metadataresponse,options, xhr) {
 	}
 	for (var i=0;i<metadata.length;i++){
         //$('.' + metadata[i].name.replace(' ','_') + 'points').html(88);
-		$('.' + metadata[i].name.replace(/ /g,'_') + 'points').html(metadata[i].numpoints);
+		$('.' + cleanDirtyText(metadata[i].name) + 'points').html(metadata[i].numpoints);
         //console.log('rendering ' + '.' + metadata[i].name + 'points')
         //console.log(metadata[i].numpoints)
 	    //alert('.' + metadata[i].name.replace(' ','_') + 'points')
@@ -426,7 +542,7 @@ function renderControlRecipeData(reciperesponse,options) {
 
     // condition for 304
     if (reciperesponse.hasOwnProperty('data')) {
-        console.log('i have recipe data')
+        //console.log('i have recipe data')
         controlrecipenames=['none'];
         var recipenames = reciperesponse.data;
         controlrecipenames.push(recipenames);
@@ -454,7 +570,7 @@ function updateInputsTable(options) {
     options=options || {};
 	options.callback=renderInputsTable;
     options.tablename='inputs';
-    options.database=controldatabase;
+    options.database=controldb;
 	wsgiCallbackTableData(options)
 }
 function renderInputsTable (datatable,options) {
@@ -584,16 +700,15 @@ function RenderIOInfoTable (datatable,options) {
     var numdbrows = options.numdbrows || 999;
 
     // Set interval function. We either pass a class to retrieve it from,
-    // a static value, or nothing
+    // a static value, or nothing;
+    var timeout = 0
     if (options.hasOwnProperty('timeoutclass')) {
         timeout=$('.' + options.timeoutclass).val()*1000;
     }
     else if (options.hasOwnProperty('timeout')) {
         timeout=options.timeout;
     }
-    else {
-        timeout=0;
-    }
+
 	if (timeout>0) {
 		setTimeout(function(){UpdateIOInfoTable(options)},timeout);
 	}
@@ -923,6 +1038,8 @@ var largeChannelOptionsObj={
 	]
 };
 
+
+
 function getAndRenderLogData(options){
     // This section lets the timeout function get an updated value for the table
     // it should be retrieving. We can do it by channel or tablename, as long as we
@@ -939,6 +1056,8 @@ function getAndRenderLogData(options){
     options.database = logdatabase;
     //var callback=renderLogData;
     options.callback = renderLogData;
+    console.log('RENDER LOG');
+    console.log(options);
 	wsgiCallbackTableData(options);
 }
 
@@ -995,6 +1114,7 @@ function renderLogData (dataresponse,options) {
 
 function getAndRenderMultLogsData(options){
     options = options || {};
+    addUserMeta(options);
     options.callback=renderMultLogsData;
     //options.callback=logdone;
     options.database = logdatabase;
@@ -1005,7 +1125,7 @@ function renderMultLogsData(returnedlogdataresponse,options, xhr){
     options=options || {};
     returnedlogdataresponse = returnedlogdataresponse || {};
     var returnedlogdata = returnedlogdataresponse.data || [];
-    console.log(options.serieslabels)
+    //console.log(options.serieslabels)
 
     //[datatable, datatable, datatable]
 
@@ -1056,15 +1176,15 @@ function renderMultLogsData(returnedlogdataresponse,options, xhr){
         //     l is a series within a group
         var totalseriescount = 0;
         for (var k=0;k<options.serieslabels.length;k++) {
-            console.log('length: ' + returnedlogdata.length)
+            // console.log('Log data length: ' + returnedlogdata.length)
             // For the s-th series in the l-th dataset
 
-            console.log(options.serieslabels[k].length)
+            // console.log('Series labels of length ' + options.serieslabels[k].length)
 
             for (var l = 0; l < options.serieslabels[k].length; l++) {
                 var currentseries = [];
                 var seriesname = options.seriesnames[k][l];
-                console.log(seriesname)
+                // console.log(seriesname)
 
                 var serieslabel = options.serieslabels[k][l];
                 var seriesaxis = options.seriesaxes[k][l] || 'yaxis';
@@ -1073,17 +1193,18 @@ function renderMultLogsData(returnedlogdataresponse,options, xhr){
                 if (options.labelincludevalue) {
                     //                get last point, and round with set precision
                     //console.log(returnedlogdata[totalseriescount])
-                    console.log(options.includelabelvalueprecision)
-                    serieslabel += ': ' + Math.round(returnedlogdata[l][0][seriesname] * Math.pow(10, options.includelabelvalueprecision)) / Math.pow(10, options.includelabelvalueprecision)
+                    // console.log(options.includelabelvalueprecision)
+                    serieslabel += ': ' + Math.round(returnedlogdata[totalseriescount][0][seriesname] * Math.pow(10, options.includelabelvalueprecision)) / Math.pow(10, options.includelabelvalueprecision)
                     //                serieslabel += ': ' + Math.round(returnedlogdata[l][serieslength-1][seriesname])
                 }
                 // squirt in the data
-                console.log(numpoints)
+                // console.log(numpoints);
+
                 for (var p=0;p<numpoints;p++) {
                     currentseries.push([returnedlogdata[totalseriescount][p].time, returnedlogdata[totalseriescount][p][seriesname]]);
                 }
-                console.log(returnedlogdata[totalseriescount])
-                console.log(currentseries)
+                // console.log(returnedlogdata[totalseriescount])
+                // console.log(currentseries)
                 for (var m = 0; m < options.renderplotids.length; m++) {
                     // For now the options reside in the html. Probably most flexible this way.
                     //                    options.renderplotoptions[k].series[totalseriescount].label=options.serieslabels[l][i];
@@ -1097,8 +1218,17 @@ function renderMultLogsData(returnedlogdataresponse,options, xhr){
             }
         }
         for (var i = 0; i < options.renderplotids.length; i++) {
-            $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
-            globaldata = plotseriesarray;
+            // Note that globaldata gd MUST exist in the global scope for this to work properly.
+            $('#' + options.renderplotids[i]).html('');
+
+            // Create plot objects named by the div id they go into
+            if (gd.plots[options.renderplotids[i]]) {
+                console.log('DESTROYING: ');
+                console.log(options.renderplotids[i])
+                gd.plots[options.renderplotids[i]].destroy();
+            }
+            gd.plots[options.renderplotids[i]] = $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
+            gd.plotseries = plotseriesarray;
         }
     }
     else {

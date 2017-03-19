@@ -12,36 +12,49 @@
     <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
     <meta http-equiv="pragma" content="no-cache" />
 
-    <title>CuPID Home</title>
+    <title>Actions Edit</title>
 
     <script src="/js/jquery-1.11.0.min.js"></script>
     <script src="/js/jquery-migrate-1.2.1.min.js"></script>
 
-    <link rel="stylesheet" href="jqm/jquery.mobile-1.4.5.css" />
+    <script src="/js/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+    <script src="/js/jquery.ui.touch-punch.min.js"></script>
+
+    <!--<link rel="stylesheet" href="jqm/jquery.mobile-1.4.5.css" />-->
+    <link rel="stylesheet" href="jqm/themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="jqm/jquery.mobile.custom.structure.min.css" />
     <link rel="stylesheet" href="css/custom.css" />
     <link rel="stylesheet" href="jqm/themes/CuPIDthemes.css" />
 
     <script src="js/jqm-docs.js"></script>
-    <script src="jqm/jquery.mobile-1.4.5.js"></script>
+    <!--<script src="jqm/jquery.mobile-1.4.5.js"></script>-->
+    <script src="jqm/jquery.mobile.custom.js"></script>
 
     <script src="/js/iijslib.js" type="text/javascript"></script>
     <script src="/js/cupidjslib.js" type="text/javascript"></script>
 </head>
-<body>
+<body >
 <!--Record auth level-->
 <script type="text/javascript">
-var sessiondata = {}
+var sessiondata = {};
+
 sessiondata.username = "<?php if (!empty($_SESSION['user']['name'])) { echo $_SESSION['user']['name'];} ?>";
 sessiondata.sessionid = "<?php if (!empty($_SESSION['user']['sessionid'])) {echo $_SESSION['user']['sessionid'];} ?>";
 sessiondata.appip =  "<?php if (!empty($_SESSION['user']['appip'])) {echo $_SESSION['user']['appip'];} ?>";
 sessiondata.realip =  "<?php if (!empty($_SESSION['user']['realip'])) {echo $_SESSION['user']['realip'];} ?>";
 sessiondata.authlevel =  "<?php if (!empty($_SESSION['user']['authlevel'])) {echo $_SESSION['user']['authlevel'];} ?>";
+sessiondata.hpass =  "<?php if (!empty($_SESSION['user']['hpass'])) {echo $_SESSION['user']['hpass'];} ?>";
+sessiondata.accesskeywords =  "<?php if (!empty($_SESSION['user']['accesskeywords'])) {echo $_SESSION['user']['accesskeywords'];} ?>";
+var currenturl = getCurrentURL();
+sessiondata.metastring = "<?php if (!empty($_SESSION['user']['metadata'])) {echo $_SESSION['user']['metadata'];} ?>";
+sessiondata.usermeta = stringJSONparse(sessiondata.metastring);
+
 
 // <!--Log access-->
 logUserAuths(sessiondata)
 </script>
 
-<div data-role="page" class="type-home" id="main">
+<div data-role="page" class="type-home" data-theme="c" id="main">
 <script>
 
 // define some globals
@@ -51,8 +64,10 @@ var updateinterval=2000;
 var actauthlevel=2;
 
 //// actions
-function UpdateActionsTable() {
-    wsgiCallbackTableData({database:controldatabase,tablename:'actions',callback:RenderActionsTable});
+function updateActionsTable() {
+    var actionobj = {database:controldatabase,tablename:'actions',callback:RenderActionsTable};
+    addUserMeta(actionobj);
+    wsgiCallbackTableData(actionobj);
 }
 function RenderActionsTable(actionstableresponse) {
     var actionsdata=actionstableresponse.data || [];
@@ -60,7 +75,7 @@ function RenderActionsTable(actionstableresponse) {
     var divhtmlitemstring;
     $("#actionset").html('');
 //    alert("i just dletell")
-    for (var i=0; i<actionstable.length; i++){
+    for (var i=0; i<actionsdata.length; i++){
         index=i+1;
         divhtmlitemstring = '\
            <div data-role="collapsible" data-collapsed="true" data-count-theme="a" ><!--control item --> \
@@ -118,20 +133,20 @@ function RenderActionsTable(actionstableresponse) {
         $('#' + 'action_' + index + '_deleteconfirm').off('click.delete');
         $('#' + 'action_' + index + '_deleteconfirm').on('click.delete',{'passindex':index,'name':actionsdata[i].name}, function(event){
 //            alert("delete confirmed for action " + event.data.name)
-            var callback=UpdateActionsTable;
+            var callback=updateActionsTable;
             deleteAction(event.data.name,callback);
         });
         $('#' + 'action_' + index + '_moveupconfirm').off('click.moveup');
         $('#' + 'action_' + index + '_moveupconfirm').on('click.moveup',{'passindex':index,'name':actionsdata[i].name}, function(event){
             var passedindex = event.data.passindex;
-            var callback = UpdateActionsTable;
+            var callback = updateActionsTable;
             wsgiSwapTableRows({database:controldatabase,tablename:'actions', 'row1':passedindex-1, row2:passedindex,uniqueindex:'name',callback:callback});
 
         });
         $('#' + 'action_' + index + '_movedownconfirm').off('click.movedown');
         $('#' + 'action_' + index + '_movedownconfirm').on('click.movedown',{'passindex':index,'name':actionsdata[i].name},function(event){
             var passedindex = event.data.passindex;
-            var callback = UpdateActionsTable;
+            var callback = updateActionsTable;
             wsgiSwapTableRows({database:controldatabase,tablename:'actions', 'row1':passedindex+1, row2:passedindex,uniqueindex:'name',callback:callback});
         })
     }
@@ -141,22 +156,25 @@ function RenderActionsTable(actionstableresponse) {
 }
 
 $(document).ready(function(){
+
+    renderTemplate({sessiondata:sessiondata, 'currentpage' : currenturl});
+
     togglestolamps();
     //// Control Algorithms
     //Just run this once so we don't overwrite edited values
-    UpdateActionsTable();
+    updateActionsTable();
 //    UpdateActionsTable({'timeout':updateinterval})
     setTimeout(function(){
         updateActionsData({'jqmpage':true})
     },1000);
     $('#datarefresh').click(function(event){
-        UpdateActionsTable();
+        updateActionsTable();
         setTimeout(function(){
             updateActionsData({'jqmpage':true})
         },1000);
     });
     $('#addaction').click(function(event){
-        addAction('newaction')
+        addAction('newaction', updateActionsTable)
         setTimeout(function(){
             updateActionsData({'jqmpage':true})
         },1000);
@@ -164,8 +182,16 @@ $(document).ready(function(){
 });
 </script>
 
-<div data-role="content">
-    <div class="content-secondary">
+<!-- /header -->
+<div data-role="header" data-theme="c">
+    <h1>Actions Edit<span id="header_pathalias"></span> </h1>
+    <a href="#nav-panel" data-icon="bars" data-theme="e" data-iconpos="notext">Menu</a>
+    <a href="#settingspanel" data-icon="gear" data-theme="e" data-iconpos="notext">Add</a>
+</div>
+<!-- /header -->
+
+<div data-role="content" style="min-height:600px">
+    <div class="content-one">
         <ul data-role="listview" data-inset="true" data-theme="b">
             <li data-role="list-divider"><h4>Edit actions</h4></li>
             <li data-role="fieldcontain" >
@@ -173,10 +199,10 @@ $(document).ready(function(){
                 <p>To reload data from the database, press the <b>Refresh</b> button below</p>
             </li>
         </ul>
-        <a data-role="button" data-icon="refresh" data-theme="e" id="datarefresh" >Reload Network Config</a>
+        <a data-role="button" data-icon="refresh" data-theme="e" id="datarefresh" >Reload Actions</a>
         <a data-role="button" data-icon="plus" data-theme="e" id="addaction" >Add Action</a>
-    </div><!--/content-secondary-->
-    <div class="content-primary">
+    </div><!--/content-one-->
+    <div class="content-two">
         <ul data-role="listview" data-inset="true" data-theme="b" id="actionlistview">
             <li data-role="list-divider">
                 <h4>Actions</h4>
@@ -277,29 +303,31 @@ $(document).ready(function(){
                 &nbsp;
             </li>
         </ul>
-    </div><!--content-primary-->
+    </div><!--content-two-->
 </div><!--content-->
-<div data-role="footer" data-id='fixednav' data-position="fixed" data-theme="c" >
-    <div data-role="navbar" data-iconpos="left" >
-        <ul>
-            <li ><a href="/mobile/index.html" data-icon="home" >Home</a></li>
-            <?php
-                if($user->logged_in()):
-                ?>
-                    <li><div class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.5em!important; padding-left: 0px!important; padding-right: 0px!important"><?php echo $_SESSION['user']['name']; ?></div></li>
-                    <li><a data-ajax="false" href="/auth/logoutmobile">Log out</a></li>
-                    <?php
-                endif;
-                if(!$user->logged_in()):
-                ?>
-                    <li><div class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.5em!important; padding-left: 0px!important; padding-right: 0px!important">Not logged in</div></li>
-                    <li><a data-ajax="false" href="/auth/loginmobile" style="padding-right:10px">Log in</a></li>
-                <?php
-                    endif;
-                ?>
-        </ul>
-    </div>
-</div><!--footer-->
+
+<!-- Panels -->
+
+<div data-role="panel" data-position="left" data-position-fixed="false" data-display="reveal" id="nav-panel" data-theme="a">
+    <ul data-role="listview" data-theme="a" data-divider-theme="a" style="margin-top:-16px;" class="nav-search">
+        <!-- populated by template renderer -->
+    </ul>
+    <!-- panel content goes here -->
+</div><!-- /panel -->
+
+<div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="settingspanel" data-theme="b">
+    <!-- filled by rendertemplate -->
+</div><!-- /panel -->
+
+<!-- /Panels -->
+
+<!--<div data-role="footer" data-theme="d" class="footer" style="border-width: 0;background:#e5e5e5">-->
+<div data-role="footer" data-theme="c" id="footer">
+    <div class="footertext">Copyright 2016 Interface Innovations</div>
+</div><!-- /footer -->
+
+
+
 </div><!-- page -->
 </body>
 </html>

@@ -10,9 +10,32 @@ var stdauthmessage='You do not have sufficient authorization for this action';
 function iijslibtest() {
     return true;
 }
-
+function getCurrentURL() {
+    var url=document.location.pathname.match(/[^\/]+$/)
+    if ( url != null ) {
+        currenturl = url[0];
+    }
+    else {
+        currenturl = 'index.html';
+    }
+    return currenturl
+}
 // Value processing
-
+function stringJSONparse(string) {
+    // This takes an existing string and adds in quotes and brackets, returning string
+    var splits = string.split(',');
+    var newjsonstring = '';
+    for (var i=0;i<splits.length;i++){
+        var itemsplits = splits[i].split(':');
+        newjsonstring += '"' + itemsplits[0] + '":"' + itemsplits[1] + '"';
+        if (i<splits.length-1) {
+            newjsonstring += ',';
+        }
+    }
+    // console.log(newjsonstring);
+    var jsonobject = JSON.parse('{' + newjsonstring + ' }');
+    return jsonobject
+}
 function jsonstringparser(string){
     var dataobject = {}
     var split = string.split(',');
@@ -23,6 +46,10 @@ function jsonstringparser(string){
         dataobject[key] = value
     }
     return dataobject
+}
+function cleanDirtyText(dirtytext) {
+    var cleanText = dirtytext.replace(/\./g,'_').replace(/ /g,'_').replace(/\(/g,'_').replace(/\)/g,'_').replace(/\:/g,'_')
+    return cleanText
 }
 function getNameFromPath(path){
     path  = path.replace(/\//g,' ')
@@ -330,8 +357,19 @@ function clearTable(tableid,headerrows) {
 ////////////////////////////////////////////////////////
 // Authentication
 
+function addUserMeta(options, passedsessiondata){
+    // console.log('I am adding user meta!')
+    sessiondata = passedsessiondata || sessiondata;
+    // options.pathalias = sessiondata.usermeta.pathalias;
+    options.username = sessiondata.username;
+    options.hpass = sessiondata.hpass;
+    // We don't need to pass the keywords. We will grab these from the database and
+    // do the authentication on this side.
+    return options
+}
+
 function checkauth(authlevel, reqauthlevel, callback, messagearg) {
-    var stdmessage = "you are not authorized for this function"
+    var stdmessage = "you are not authorized for this function (authlevel required: " + reqauthlevel + ' ('  + authlevel + ')'
 	// Handle custom message or lack thereof
 	var message = messagearg || stdmessage ;
 	if (authlevel >= reqauthlevel) {
@@ -357,15 +395,20 @@ function isNumber(n) {
 
 function wsgiCallbackTableData (actionobj) {
 	// Get the data
+    var internals = {}
     actionobj.action = 'gettabledata';
     if (!actionobj.hasOwnProperty('start')){
         actionobj.start = 0;
     }
     var starttime = new Date().getTime();
-    var callback = actionobj.callback || logdone;
+    internals.callback = actionobj.callback || logdone;
     // Need to delete method or ajax will execute
+    if (actionobj.hasOwnProperty('auxcallback')) {
+        internals.auxcallback = actionobj.auxcallback
+        delete actionobj.auxcallback
+    }
     delete actionobj.callback;
-    console.log(actionobj)
+    // console.log(actionobj)
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
@@ -380,14 +423,18 @@ function wsgiCallbackTableData (actionobj) {
             if (response.hasOwnProperty('etag')){
                 actionobj.etag = response.etag;
             }
-            //console.log(callback)
-            actionobj.callback = callback;
-            callback(response, actionobj, xhr);
+            // console.log(callback)
+            actionobj.callback = internals.callback;
+            internals.callback(response, actionobj, xhr);
+            if (internals.hasOwnProperty('auxcallback')) {
+                // don/t execute here. leave it to execute later if we wish, i.e. after rendering data to DOM
+                actionobj.auxcallback = internals.auxcallback
+            }
 		},
         error: function(xhr, textstatus, errorthrown){
             console.log('error function: ' + errorthrown)
-            actionobj.callback = callback;
-            callback({}, actionobj, xhr);
+            actionobj.callback = internals.callback;
+            actionobj.callback({}, actionobj, xhr);
         },
         complete: function(){
             //console.log('complete function')
@@ -453,7 +500,9 @@ function wsgiCallbackMultTableData (actionobj) {
 
 
         },
-        complete: function(){console.log('complete function')}
+        complete: function(){
+            //console.log('complete function')}
+        }
 	});	
 }
 function wsgiGetTableNames (actionobj) {
@@ -518,19 +567,36 @@ function wsgiExecuteCallbackQuery (actionobj) {
 }
 
 function runwsgiActions(actionobj) {
-    var callback = actionobj.callback || logdone;
+    console.log(actionobj)
+    addUserMeta(actionobj);
+    var internals = {};
+    internals.callback = actionobj.callback || logdone;
     delete actionobj.callback;
+    if (actionobj.hasOwnProperty('auxcallback')) {
+        internals.auxcallback = actionobj.auxcallback;
+        delete actionobj.auxcallback;
+    }
     $.ajax({
         url: "/wsgiactions",
         type: "post",
         datatype:"json",
         timeout:20000,
         data: actionobj,
-        success: function(response){
-            callback(response,actionobj);
-            actionobj.callback = callback;
+        success: function(response, textStatus, xhr){
+            internals.callback(response,actionobj);
+            actionobj.callback = internals.callback;
+            if (internals.hasOwnProperty('auxcallback')) {
+                console.log('I have auxcallback')
+                console.log(internals.auxcallback)
+                internals.auxcallback(response,actionobj);
+                actionobj.callback = internals.auxcallback;
+            }
         }
-   });
+   }).always(function (jqXHR) {
+        if (jqXHR.status == 401) {
+            alert ('You are not authorized for this action!')
+        }
+    });
 }
 
 function getwsgiStatus(callback) {
@@ -587,9 +653,8 @@ function setWidgetValues(baseclass,value,options) {
     var text = String(value) || '';
     value = value || 0;
 
-
-
-//    alert(' set widget values')
+    // console.log(' set widget values')
+    // console.log('Baseclass : ' + baseclass)
     // I may have broken this for standard pages with my jqmpage meddling.
 
     $(baseclass).html(text);
@@ -604,12 +669,17 @@ function setWidgetValues(baseclass,value,options) {
     // browser, as jqmobile has not been loaded
 
     if (jqmpage) {
+        if (baseclass.search('EStop') > 0) {
+            console.log('I render ' + baseclass + 'toggle')
+        }
+
         $(baseclass + 'toggle').val(booleanBinaryToOnOff(value)).slider("refresh");
         $(baseclass + 'automantoggle').val(value).slider("refresh");
         $(baseclass + 'slider').val(value).slider("refresh");
         setjqmSelectByClass(baseclass + 'jqmselect',value);
     }
 }
+
 function setjqmSelectByClass(classname,value) {
     $(classname).each(function(){
         var $thisid=$('#' + this.id);
@@ -620,6 +690,7 @@ function setjqmSelectByClass(classname,value) {
         }
     });
 }
+
 function getClassAuth(jqueryObject){
     var reqauthlevel=0;
     if (jqueryObject.hasClass('reqauth5')){
@@ -640,12 +711,14 @@ function getClassAuth(jqueryObject){
 
     return reqauthlevel
 }
+
 function setWidgetActions(options){
     var callback = options.callback || logdone;
     var updatetimeout = options.updatetimeout || 500;
     var jqmpage = options.jqmpage || false;
     var baseclass = options.baseclass;
-    var actionobj={'action':'setvalue','database':options.database,'table':options.tablename,'valuename':options.key, 'username':sessiondata.username, 'sessionhpass':sessiondata.hpass};
+    var actionobj={'action':'setvalue','database':options.database,'table':options.tablename,'valuename':options.key};
+    addUserMeta
     var reqauth=0;
     var currauth = options.currauth || 0; // we grab this as a prefilter for requests to send to the wsgi script
 
@@ -942,6 +1015,7 @@ function renderWidgetsFromArray(database,tablename,data,options) {
         else{
             var basebaseclass = '.' + tablename
         }
+
         $.each(data[i],function(key,value){
             var baseclass= basebaseclass + key + index;
             setWidgetValues(baseclass,value,options);
@@ -955,34 +1029,60 @@ function renderWidgetsFromArray(database,tablename,data,options) {
 
 // So here we take a table with multiple rows and render widgets based on a unique key
 // Say the unique key is 'item' and the table is 'metadata'
-// Say the first row has items 'item1' and fields 'field1' and 'field2' with 'field1value1' and 'field2value2', etc.
+// Say table has columns 'item' and 'value'
+// Row one consists of 'myspecialitem' and 'myspecialvalooz'
+// Now say uniquekey is specified as 'item'
+
+// For each row, baseclass will be 'metadata' + data[i][uniquekeyname] + uniquekey + key
+// .metadata + myspecialitem + item = myspecialitem
+// .metadata + myspecialitem + value = myspecialvalooz
 
 // Class names would be metadataitem1field1, metdataitem1field2, etc.
 
 // this needs to be updated before it is used to be consistent with arguments
 
 // Generic Unique Key Render
-function getAndRenderUniqueKeyData(options) {
-	  options.callback = renderWidgetsFromArrayByUniqueKey;
-	  wsgiCallbackTableData(options);
+function getAndRenderUniqueKeyData(myoptions) {
+    // console.log('my options')
+    // console.log(myoptions)
+      myoptions.callback = renderWidgetsFromArrayByUniqueKey;
+      // myoptions.callback = logdone();
+      wsgiCallbackTableData(myoptions);
 }
 
 function renderWidgetsFromArrayByUniqueKey(dataresponse, options, xhr) {
     var uniquekeyname=options.uniquekeyname || 'parameter';
     var data = dataresponse.data || [];
     var includekeyname = false;
+    var timestring = getStringTime();
+    $('.updatetime').html(timestring);
     if ( options.hasOwnProperty('includekeyname')) {
         includekeyname = options.includekeyname;
     }
+    // Set interval function. We either pass a class to retrieve it from,
+    // a static value, or nothing
+    var timeout = 0;
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout = $('.' + options.timeoutclass).val() * 1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        setTimeout(function () {
+            console.log('TIMEOUT OPTIONS')
+            console.log(options)
+            getAndRenderUniqueKeyData(options)
+        }, options.timeout);
+    }
 
+    // console.log('STATUS: ' + xhr.status)
     if (xhr.status == 200) {
-
+        // console.log('200 first call options.')
+        // console.log(options)
         for (var i = 0; i < data.length; i++) {
             // Set each possibility
             var uniquekey = data[i][uniquekeyname];
-            console.log("UNIQUE KEY : " + uniquekey)
+            //console.log("UNIQUE KEY : " + uniquekey)
             $.each(data[i], function (key, value) {
-                var baseclass = '.';
+                var baseclass = '';
                 if (includekeyname) {
                     baseclass += options.tablename + uniquekeyname + uniquekey + key;
                 }
@@ -990,12 +1090,17 @@ function renderWidgetsFromArrayByUniqueKey(dataresponse, options, xhr) {
                     // uisettings + showgpiologs + value
                     baseclass += options.tablename + uniquekey + key;
                 }
-                console.log('rendering ' + baseclass + ' with value ' + value);
+                baseclass = '.' + cleanDirtyText(baseclass);
+
+                // console.log('rendering ' + baseclass + ' with value ' + value);
                 setWidgetValues(baseclass, value, options);
-                options.baseclass = baseclass;
-                options.key = key;
-                options.condition = '"' + uniquekeyname + '"=\'' + uniquekey + "'"
-                setWidgetActions(options);
+                // This was adding properties ot the options object that were creating problems.
+
+                // var actionOptions = options;
+                // actionOptions.baseclass = baseclass;
+                // actionOptions.key = key;
+                // actionOptions.condition = '"' + uniquekeyname + '"=\'' + uniquekey + "'"
+                // setWidgetActions(actionOptions);
             })
         }
         togglestolamps();
@@ -1007,7 +1112,7 @@ function renderWidgetsFromArrayByUniqueKey(dataresponse, options, xhr) {
         }
     }
     else {
-        console.log('STATUS: ' + xhr.status)
+        // console.log('STATUS: ' + xhr.status)
     }
 }
 
@@ -1110,7 +1215,7 @@ function renderTableData(dataresponse, options, xhr) {
         }
     }
     else {
-        console.log('status; ' + xhr.status)
+        //console.log('status; ' + xhr.status)
     }
 }
 
@@ -1171,6 +1276,7 @@ function updateTableNamesData(options) {
     }
     wsgiGetTableNames (options)
 }
+
 function renderTableNamesData(tablenameresponse,options) {
     var tablenames = tablenameresponse.data;
     options = options || {};
@@ -1188,6 +1294,7 @@ function renderTableNamesData(tablenameresponse,options) {
 	if (options.timeout>0) {
 		setTimeout(function(){updateTableNamesData(options)},options.timeout);
 	}
+
 	var cleandbname = getNameFromPath(options.database)
 	$('.' + cleandbname + 'tableselect').each(function(){
 		if ($('#' + this.id).length > 0) {
@@ -1222,6 +1329,7 @@ function updateColumnsData(options) {
     }
     wsgiCallbackTableData(options)
 }
+
 function renderColumnsData(data,options) {
     options = options || {};
     var jqmpage = options.jqmpage || false;
@@ -1272,11 +1380,11 @@ function renderColumnsData(data,options) {
     }
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////////
 //  Sqlite table functions
 ///////////////////////////////////////////////////////////////////////////////////
+
+// This is dangerous. We must delete the runquery action. Not acceptable.
 
 function dropTable(database,tablename) {
     var query='drop table \"' + tablename  + '\"';
@@ -1321,5 +1429,7 @@ function addDBRow(database, table, callback, valuenames,values) {
         query+=' default values';
     }
 //    console.log(query)
-    runwsgiActions({action:'runquery', database:database,query:query, callback:callback});
+    var actionobj = {action:'runquery', database:database,query:query, callback:callback};
+    addUserMeta(actionobj, sessiondata);
+    runwsgiActions(actionobj);
 }

@@ -24,7 +24,7 @@ button,
 .ui-btn {
 	font-size: 0.9em;
 	line-height: 1.5;
-	 font-family: Helvetica, Arial, sans-serif /*{global-font-family}*/;
+	 font-family: "Open Sans", Helvetica, Arial, sans-serif /*{global-font-family}*/;
 }
 legend,
 .ui-input-text input,
@@ -804,9 +804,9 @@ html .ui-bar-d .ui-btn:visited,
 html .ui-body-d .ui-btn:visited,
 html body .ui-group-theme-d .ui-btn:visited,
 html head + body .ui-btn.ui-btn-d:visited {
-	background-color: #F5F5F5 /*{d-bup-background-color}*/;
-	border-color: #bbbbbb /*{d-bup-border}*/;
-	color: #444444 /*{d-bup-color}*/;
+	background-color: #FF3030 /*{d-bup-background-color}*/;
+	border-color: #333 /*{d-bup-border}*/;
+	color: #FFF /*{d-bup-color}*/;
 	text-shadow: none;
 }
 /* Button hover */

@@ -120,10 +120,12 @@ function makeSettingsPanelHTML(sessiondata) {
             '<a href="#" data-rel="close">Close menu</a>' +
         '</li>';
     if (sessiondata.username) {
-        panelhtml +=
-            '<li><div class="ui-btn-text ui-btn-inner" style="text-align: center; font-size:12.5px; padding-top:0.7em">' + sessiondata.username + '</div></li>' +
-            '<li><div class="ui-btn-text ui-btn-inner" style="text-align: center; font-size:12.5px; padding-top:0.7em">' + sessiondata.pathalias + '</div></li>' +
-            '<li><a data-ajax="false" href="/auth/logoutmobile">Log out</a></li>';
+        panelhtml += '<li><div class="ui-btn-text ui-btn-inner" style="text-align: center; font-size:12.5px; padding-top:0.7em">' + sessiondata.username + '</div></li>';
+        if (sessiondata.hasOwnProperty('pathalias')) {
+            panelhtml += '<li><div class="ui-btn-text ui-btn-inner" style="text-align: center; font-size:12.5px; padding-top:0.7em">' + sessiondata.pathalias + '</div></li>';
+
+        }
+        panelhtml += '<li><a data-ajax="false" href="/auth/logoutmobile">Log out</a></li>';
     }
     else {
         panelhtml +=
@@ -155,6 +157,8 @@ function isvalidname(name) {
 }
 
 function parseLogTableName(logtablename) {
+    // we do this server-side now
+
     logtablename = logtablename || '';
     var result = {}
     var splitarray = logtablename.split("_")
@@ -444,6 +448,8 @@ function updateNetStatusData(options) {
     getAndRenderTableData(options)
 }
 
+
+
 //// Netauths Data
 function updateNetAuthsData(options) {
     options = options || {};
@@ -488,7 +494,7 @@ function updatePlotMetadata(options) {
 function renderPlotMetadata(metadataresponse,options, xhr) {
     options = options || {};
     metadataresponse = metadataresponse || {};
-    var metadata = metadataresponse.data || [];
+    gd.log_metadata = metadataresponse.data || [];
     var jqmpage = options.jqmpage || false;
 
     // Set interval function. We either pass a class to retrieve it from,
@@ -504,10 +510,17 @@ function renderPlotMetadata(metadataresponse,options, xhr) {
 	if (timeout>0) {
 		setTimeout(function(){updatePlotMetadata(options)},timeout);
 	}
-	for (var i=0;i<metadata.length;i++){
+	for (var i=0;i<gd.log_metadata.length;i++){
+        var this_metadatum = gd.log_metadata[i];
+        // console.log(this_metadatum)
         //$('.' + metadata[i].name.replace(' ','_') + 'points').html(88);
-		$('.' + cleanDirtyText(metadata[i].name) + 'points').html(metadata[i].numpoints);
-        //console.log('rendering ' + '.' + metadata[i].name + 'points')
+        // console.log('rendering ' + cleanDirtyText(metadata[i].name) + 'points')
+        // Things are labeled like input_sdinfiasdfn_log, so we give them classes like input_isfnisdnfis_logpoints
+		$('.' + cleanDirtyText(this_metadatum.tablename) + 'points').html(this_metadatum.numpoints);
+        var formatted_time = format_time_from_seconds(this_metadatum.timespan);
+        $('.' + cleanDirtyText(this_metadatum.tablename) + 'timespan').html(formatted_time.number + formatted_time.unit)
+
+        // console.log('rendering ' + '.' + metadata[i].name + 'points')
         //console.log(metadata[i].numpoints)
 	    //alert('.' + metadata[i].name.replace(' ','_') + 'points')
 	}
@@ -964,9 +977,9 @@ var channelOptionsObj={
 		},
 		y2axis:{
             autoscale: true,
-		  min:-200,
-		  max:200,
-		  ticks:[-200,-100,0,100,200],
+		  min:-110,
+		  max:110,
+		  ticks:[-100,0,100],
 		  tickOptions:{showGridline:false, mark:'inside'},
 		  showTicks: true
 		}
@@ -976,7 +989,8 @@ var channelOptionsObj={
   "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"], 
 		show:true,
 		lineWidth:2.5,
-		showMarker :false
+		showMarker :false,
+        shadow: false
 	},
 	cursor:{
 	  show: true,
@@ -991,6 +1005,72 @@ var channelOptionsObj={
     highlighter: {
         show: true,
         sizeAdjust: 7.5
+    },
+    grid: {
+	    shadow:false,
+        background: '#fffcfc'
+    }
+};
+var modernOptionsObj={
+	legend: {
+	  show: false,
+	  location: 'sw',     // compass direction, nw, n, ne, e, se, s, sw, w.
+	  xoffset: 12,        // pixel offset of the legend box from the x (or x2) axis.
+	  yoffset: 12,        // pixel offset of the legend box from the y (or y2) axis.
+      fontSize: '18pt'
+	},
+
+
+	axes:{
+		xaxis:{
+			renderer:$.jqplot.DateAxisRenderer,
+			tickOptions:{mark:'inside',textColor: '#eee',shadow:false}
+		},
+
+		yaxis:{
+            autoscale:true,
+            showTicks: true,
+            tickOptions:{mark:'inside',textColor: '#eee',shadow:false}
+		},
+		y2axis:{
+            autoscale: true,
+		  min:-110,
+		  max:110,
+		  ticks:[-100,0,100],
+		  tickOptions:{showGridline:false, mark:'inside',textColor: '#eee',shadow:false},
+		  showTicks: true,
+		}
+	},
+	seriesDefaults:{
+		 seriesColors: [ "#000000", "#ff0000", "#00ff00", "#0000ff", "#555555", "#958c12",
+  "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"],
+		show:true,
+		lineWidth:2.5,
+		showMarker :false,
+        shadow: false
+	},
+	cursor:{
+	  show: true,
+	  zoom:true,
+	  showTooltip:true
+	},
+	series:[
+	  {label: 'Control Value'},
+	  {label: 'Setpoint Value'},
+	  {label: 'Action (%)',yaxis:'y2axis'}
+	],
+    highlighter: {
+        show: true,
+        sizeAdjust: 4
+    },
+    grid: {
+	    shadow:false,
+        background: 'transparent'
+    },
+    tickOptions: {
+        // labelPosition: 'middle',
+        showGridline: false,
+        textColor: '#ffffff'
     }
 };
 var largeChannelOptionsObj={
@@ -1056,8 +1136,9 @@ function getAndRenderLogData(options){
     options.database = logdatabase;
     //var callback=renderLogData;
     options.callback = renderLogData;
-    console.log('RENDER LOG');
-    console.log(options);
+    addUserMeta(options)
+    // console.log('RENDER LOG');
+    // console.log(options);
 	wsgiCallbackTableData(options);
 }
 
@@ -1115,23 +1196,41 @@ function renderLogData (dataresponse,options) {
 function getAndRenderMultLogsData(options){
     options = options || {};
     addUserMeta(options);
-    options.callback=renderMultLogsData;
-    //options.callback=logdone;
+    options.callback=renderMultLogsDataToDOM;
+    options.auxcallback = renderMultLogsDataFromDOM;
     options.database = logdatabase;
     wsgiCallbackMultTableData(options)
 }
+function renderMultLogsDataToDOM(dataresponse, options) {
+    var timeout =0;
+    if (options.hasOwnProperty('timeoutclass')) {
+        timeout=$('.' + options.timeoutclass).val()*1000;
+    }
+    else if (options.hasOwnProperty('timeout')) {
+        timeout=options.timeout;
+    }
+    if (dataresponse.hasOwnProperty('data')) {
+        // console.log('rendering data of length ' + dataresponse.data.length + ' to plot_data')
+        gd.plot_data = dataresponse.data;
+    }
+    if (timeout>0) {
+        // console.log('TIMEOUT: ' + timeout)
+        setTimeout(function(){updatePlots(options)}, timeout);
+    }
+    if (options.hasOwnProperty('auxcallback')) {
+        //console.log('i am an auxcallback!')
+        options.auxcallback(options);
+	}
+}
+function renderMultLogsDataFromDOM(options){
 
-function renderMultLogsData(returnedlogdataresponse,options, xhr){
-    options=options || {};
-    returnedlogdataresponse = returnedlogdataresponse || {};
-    var returnedlogdata = returnedlogdataresponse.data || [];
-    //console.log(options.serieslabels)
+    // We have options here, which contains nothing we need.
+    // It has all the stuff from the wsgi grab. Intead of passing that all through our ajax to use it here,
+    // we'll get it from the dom in gd.plot_options.
 
-    //[datatable, datatable, datatable]
-
-    // This function operates on multiple returned log tables
-    // This means that the log data and seriesnames have an additional dimension
-    // The plotids and results, however, do not.
+    setUpdating(true)
+    console.log('hi there. i am rendering from DOM');
+    // console.log(options)
 
     // We give this function [[seriesnames]] to get and [plotids]
     // to render to, as properties of the options argument
@@ -1142,30 +1241,12 @@ function renderMultLogsData(returnedlogdataresponse,options, xhr){
     // if we want to render labels, options.serieslabels, value specified by
     // options.labelincludevalue, options.labelvalueprecision
 
-    var timeout =0;
-    if (options.hasOwnProperty('timeoutclass')) {
-        var timeout=$('.' + options.timeoutclass).val()*1000;
-    }
-    else if (options.hasOwnProperty('timeout')) {
-        var timeout=options.timeout;
-    }
 
-    if (options.hasOwnProperty('auxcallback')) {
-        if (timeout>0) {
-            //console.log('i am an auxcallback!')
-            setTimeout(options.auxcallback, timeout);
-        }
-        // one-off callback (this is unnecessary syntax, but here to remind us of what we're doing
-        else{
-            options.auxcallback()
-        }
-	}
-    // If no data (could be 304 not modified), do absolutely nothing with plots
-    //console.log(returnedlogdata)
-    if (returnedlogdata.length > 0) {
-        options.renderplotids = options.renderplotids || [];
-        for (i=0;i<options.renderplotids.length;i++) {
-            $('#' + options.renderplotids[i]).html('');
+    if (gd.plot_data.length > 0) {
+        console.log('renderplotids')
+        console.log(gd.plot_options.renderplotids)
+        for (i=0;i<gd.plot_options.renderplotids.length;i++) {
+            $('#' + gd.plot_options.renderplotids[i]).html('');
         }
         var plotseriesarray=[];
 
@@ -1175,65 +1256,67 @@ function renderMultLogsData(returnedlogdataresponse,options, xhr){
         //     k is a series group
         //     l is a series within a group
         var totalseriescount = 0;
-        for (var k=0;k<options.serieslabels.length;k++) {
+        for (var k=0;k<gd.plot_options.serieslabels.length;k++) {
             // console.log('Log data length: ' + returnedlogdata.length)
             // For the s-th series in the l-th dataset
 
             // console.log('Series labels of length ' + options.serieslabels[k].length)
 
-            for (var l = 0; l < options.serieslabels[k].length; l++) {
+            for (var l = 0; l < gd.plot_options.serieslabels[k].length; l++) {
                 var currentseries = [];
-                var seriesname = options.seriesnames[k][l];
+                var seriesname = gd.plot_options.seriesnames[k][l];
                 // console.log(seriesname)
 
-                var serieslabel = options.serieslabels[k][l];
-                var seriesaxis = options.seriesaxes[k][l] || 'yaxis';
-                var numpoints = returnedlogdata[totalseriescount].length;
+                var serieslabel = gd.plot_options.serieslabels[k][l];
+                var seriesaxis = gd.plot_options.seriesaxes[k][l] || 'yaxis';
+                var numpoints = gd.plot_data[totalseriescount].length;
 
-                if (options.labelincludevalue) {
+                if (gd.plot_options.labelincludevalue) {
                     //                get last point, and round with set precision
                     //console.log(returnedlogdata[totalseriescount])
                     // console.log(options.includelabelvalueprecision)
-                    serieslabel += ': ' + Math.round(returnedlogdata[totalseriescount][0][seriesname] * Math.pow(10, options.includelabelvalueprecision)) / Math.pow(10, options.includelabelvalueprecision)
-                    //                serieslabel += ': ' + Math.round(returnedlogdata[l][serieslength-1][seriesname])
+                    serieslabel += ': ' + Math.round(gd.plot_data[totalseriescount][0][seriesname] * Math.pow(10, gd.plot_options.includelabelvalueprecision)) / Math.pow(10, gd.plot_options.includelabelvalueprecision)
+                    //                serieslabel += ': ' + Math.round(gd.plot_data[l][serieslength-1][seriesname])
                 }
                 // squirt in the data
                 // console.log(numpoints);
 
                 for (var p=0;p<numpoints;p++) {
-                    currentseries.push([returnedlogdata[totalseriescount][p].time, returnedlogdata[totalseriescount][p][seriesname]]);
+                    currentseries.push([gd.plot_data[totalseriescount][p].time, gd.plot_data[totalseriescount][p][seriesname]]);
                 }
-                // console.log(returnedlogdata[totalseriescount])
+                // console.log(gd.plot_data[totalseriescount])
                 // console.log(currentseries)
-                for (var m = 0; m < options.renderplotids.length; m++) {
+                for (var m = 0; m < gd.plot_options.renderplotids.length; m++) {
                     // For now the options reside in the html. Probably most flexible this way.
                     //                    options.renderplotoptions[k].series[totalseriescount].label=options.serieslabels[l][i];
-                    options.renderplotoptions[m].series[totalseriescount].label = serieslabel;
-                    options.renderplotoptions[m].series[totalseriescount].yaxis = seriesaxis;
+                    gd.plot_options.renderplotoptions[m].series[totalseriescount].label = serieslabel;
+                    gd.plot_options.renderplotoptions[m].series[totalseriescount].yaxis = seriesaxis;
                     //console.log('assigning ' + seriesaxis + ' to ' + serieslabel)
                 }
                 plotseriesarray.push(currentseries);
 
                 totalseriescount += 1;
+                // console.log(totalseriescount)
             }
         }
-        for (var i = 0; i < options.renderplotids.length; i++) {
+        // console.log('PLOT SERIES')
+        // console.log(plotseriesarray)
+        for (var i = 0; i < gd.plot_options.renderplotids.length; i++) {
+            // console.log('Rendering a plot to ' + gd.plot_options.renderplotids[i])
             // Note that globaldata gd MUST exist in the global scope for this to work properly.
-            $('#' + options.renderplotids[i]).html('');
+            $('#' + gd.plot_options.renderplotids[i]).html('');
 
             // Create plot objects named by the div id they go into
-            if (gd.plots[options.renderplotids[i]]) {
+            if (gd.plots[gd.plot_options.renderplotids[i]]) {
                 console.log('DESTROYING: ');
-                console.log(options.renderplotids[i])
-                gd.plots[options.renderplotids[i]].destroy();
+                console.log(gd.plot_options.renderplotids[i])
+                gd.plots[gd.plot_options.renderplotids[i]].destroy();
             }
-            gd.plots[options.renderplotids[i]] = $.jqplot(options.renderplotids[i], plotseriesarray, options.renderplotoptions[i]);
+            gd.plots[gd.plot_options.renderplotids[i]] = $.jqplot(gd.plot_options.renderplotids[i], plotseriesarray, gd.plot_options.renderplotoptions[i]);
             gd.plotseries = plotseriesarray;
         }
     }
-    else {
-        //console.log('No data returned, so no plot modification. Status: ' + xhr.status)
-    }
+    setUpdating(false)
 }
 
 } // if jqplot

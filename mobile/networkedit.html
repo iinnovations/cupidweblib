@@ -196,6 +196,8 @@ function deleteNetwork(networkname) {
 
 $(document).ready(function(){
 
+    renderTemplate({sessiondata: sessiondata, 'currentpage': currenturl});
+
     $('#restartnetworkconfirmbutton').on('click',function(){
         runwsgiActions({action:'setsystemflag',systemflag:'netconfig'});
         $('#restartnetworkpopup').popup('close')
@@ -208,6 +210,7 @@ $(document).ready(function(){
         updateNetConfigData({jqmpage:true})
     })
 
+
   togglestolamps()
   //// Control Algorithms
   UpdateWirelessTable({jqmpage:true})
@@ -215,7 +218,9 @@ $(document).ready(function(){
   updateNetAuthsData({timeout:updateinterval, jqmpage:true})
 
   // Don't do netconfig on interval, since user will be editing
-  setTimeout(function(){updateNetConfigData({jqmpage:true})},1500)
+  setTimeout(function(){
+      console.log('updating netconfig data, including widgets.')
+      updateNetConfigData({jqmpage:true})},1500)
 })
 </script>
 <!-- /header -->
@@ -300,7 +305,7 @@ $(document).ready(function(){
                 <option value="station">Station</option>
                 <option value="eap">Access Point</option>
                 <option value="eth0wlan0bridge">Wired to Wlan0 AP Bridge</option>
-                <option value="wlan0wlan1bridge">Wlan0 to Wlan1 AP Bridge</option>
+                <option value="staticeth0_apwlan0_stadhcpwlan1">Wlan0 to Wlan1 AP Bridge (Standard)</option>
                 <option value="wlan1wlan0bridge">Wlan1 to Wlan0 AP Bridge</option>
                 <option value="tempap">Temporary AP</option>
                 </select>

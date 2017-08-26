@@ -37,6 +37,7 @@
     <script type="text/javascript" src="js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
     <script type="text/javascript" src="js/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
     <script type="text/javascript" src="js/jqplot/plugins/jqplot.cursor.min.js"></script>
+    <script type="text/javascript" src="js/jqplot/plugins/jqplot.highlighter.js"></script>
 
     <script src="/js/iijslib.js" type="text/javascript"></script>
     <script src="/js/cupidjslib.js" type="text/javascript"></script>
@@ -67,11 +68,17 @@ logUserAuths(sessiondata)
 
 // define some globals
 
-var gd = {plots:{}, data:'', plotdata:{}, logdata:{}, ioinfo:{}, uisettings:{}, actauthlevel:2, jqmpage:true,
+var gd = {plots:{}, data:'', plot_data:{}, plotoptions:{}, logdata:{'metadata':[], 'active_metadata':{}}, archived_log_data:{'metadata':{}}, ioinfo:{ids:[], names:[]}, uisettings:{},
+    actauthlevel:2, jqmpage:true,
     updatetimeout:100, loginterval:30000, updateinterval:30000};
 
 gd.uisettings = {showinputgpiologs:true, showinput1wirelogs:true, showchannellogs:true,
     showotherlogs:true, labeltype:'name', labelincludevalue: true, }
+
+gd.show_update_items = [{attribute:'showinputgpiologs',selector:'uisettingsshowinputgpiologsvalueflip'},
+                    {attribute:'showinput1wirelogs',selector:'uisettingsshowinput1wirelogsvalueflip'},
+                    {attribute:'showchannellogs',selector:'uisettingsshowchannellogsvalueflip'},
+                    {attribute:'showotherlogs',selector:'uisettingsshowotherlogsvalueflip'}];
 
 // Converter
 function JSONToCSVConvertor(JSONData, ReportTitle, labels, labelstrings) {
@@ -96,9 +103,6 @@ function JSONToCSVConvertor(JSONData, ReportTitle, labels, labelstrings) {
         //append Label row with line break
         CSV += row + '\r\n';
     }
-
-    //1st loop is to extract each row
-//    console.log(arrData.length)
 
     // arrData.length is the number of series
     for (var index in arrData[0]) {
@@ -159,9 +163,12 @@ function JSONToCSVConvertor(JSONData, ReportTitle, labels, labelstrings) {
 
 //load ioinfo into DOM
 function getAndRenderIOInfo(options) {
-    options = options ||  {database:controldatabase,tablename:'ioinfo',callback:renderIOInfo};
+    console.log('trying to get ioinfo')
+     options = options || {};
+    options.database = controldatabase;
+    options.tablename='ioinfo';
+    options.callback=renderIOInfo;
     addUserMeta(options);
-    console.log('i am going to try to get and renderioinfo')
     wsgiCallbackTableData(options);
 }
 
@@ -172,27 +179,45 @@ function renderIOInfo(dataresponse, options, xhr) {
     console.log('I am retrieving ioinfo. here is what I got')
     console.log(dataresponse)
     dataresponse = dataresponse || {};
-    var datatable = dataresponse.data || [];
-    var ioinfonames = [];
-    var ioinfoids = [];
-    for (var i=0; i< datatable.length; i++){
-        ioinfoids.push(datatable[i].id);
-        ioinfonames.push(datatable[i].name)
+    if (dataresponse.hasOwnProperty('data')) {
+        console.log('we got ioinfo data, and it is: ')
+        console.log(dataresponse.data)
+
+        var datatable = dataresponse.data || [];
+        var ioinfonames = [];
+        var ioinfoids = [];
+        for (var i = 0; i < datatable.length; i++) {
+            ioinfoids.push(datatable[i].id);
+            ioinfonames.push(datatable[i].name)
+        }
+        // render into global object
+        gd.ioinfo.ids = ioinfoids;
+        gd.ioinfo.names = ioinfonames;
     }
-    // render into global object
-    gd.ioinfo.ids = ioinfoids;
-    gd.ioinfo.names = ioinfonames;
+    else {
+        console.log('trying to render ioinfo with no data. why are we doing this.')
+    }
 }
 
-function renderUISettings(dataresponse, options, xhr) {
-    // This puts this stuff into globals. We can probably avoid this.
-    // This is deprecated with the use of the more general RendertoDOM callback
-
+function renderUISettingstoDOM(dataresponse, options, xhr) {
+    // This puts this stuff into globals and into the indicators
+//    console.log('doing my rendering')
     dataresponse = dataresponse || {};
     var datatable = dataresponse.data || [];
-//    console.log(datatable)
     for (var i=0; i< datatable.length; i++){
         gd.uisettings[datatable[i].setting] = datatable[i].value
+    }
+    renderUISettingsFromDOM()
+}
+
+function renderUISettingsFromDOM() {
+    for (var i=0; i<gd.show_update_items.length; i++) {
+//        console.log(show_update_items[i].selector)
+//        console.log(show_update_items[i].attribute)
+//        console.log(gd.uisettings[show_update_items[i].attribute])
+        var set_val = booleanBinaryToOnOff(gd.uisettings[gd.show_update_items[i].attribute])
+//        console.log(set_val)
+        $('#' + gd.show_update_items[i].selector).val(set_val).flipswitch('refresh');
     }
 }
 
@@ -203,23 +228,10 @@ function updateLocalUISettings() {
 
 // This is kind of a hack, but it's faster an also avoids an ugly callback string
 
-    var updateitems = [{attribute:'showinputgpiologs',selector:'uisettingsshowinputgpiologsvaluetoggle'},
-                    {attribute:'showinput1wirelogs',selector:'uisettingsshowinput1wirelogsvaluetoggle'},
-                    {attribute:'showchannellogs',selector:'uisettingsshowchannellogsvaluetoggle'},
-                    {attribute:'showotherlogs',selector:'uisettingsshowotherlogsvaluetoggle'}];
-
-    for (var i=0; i<updateitems.length; i++) {
-        var itemvalue = $('#' + updateitems[i].selector).val();
-        console.log(updateitems[i].attribute);
-        console.log(itemvalue);
-        if (itemvalue == 'On') {
-            console.log('TRUE');
-            gd.uisettings[updateitems[i].attribute] = true;
-        }
-        else if (itemvalue == 'Off') {
-            console.log('FALSE');
-            gd.uisettings[updateitems[i].attribute] = false;
-        }
+    for (var i=0; i<gd.show_update_items.length; i++) {
+        var itemvalue = $('#' + gd.show_update_items[i].selector).val();
+//        console.log(show_update_items[i].attribute);
+        gd.uisettings[gd.show_update_items[i].attribute] = (itemvalue == "On");
     }
 }
 
@@ -235,8 +247,9 @@ function updateLogTable() {
     var options = {database: logdatabase};
     options.callback = renderLogsTable;
     options.database = logdatabase;
+    options.tablename = 'metadata';
     addUserMeta(options);
-    wsgiGetTableNames(options);
+    wsgiCallbackTableData(options)
 
 }
 
@@ -248,78 +261,70 @@ function renderLogsTable(dataresponse, options, xhr) {
     // So if the reponse has data, load it into the global. if not, process what
     // already exists in the global
     if (dataresponse.hasOwnProperty('data')) {
-//        console.log('I GOT DATA')
-//        console.log(dataresponse.data)
-        gd.logdata.allmetadata = dataresponse.data;
+        gd.logdata.metadata = dataresponse.data;
     }
 
     // This datatable is the list of logtablenames
     // we're going to put them into the metadata component of the gd.logdata object
+    //
+    gd.logdata.active_metadata = [];
+    for (var i=0; i<gd.logdata.metadata.length; i++) {
 
-    var metadata = [];
-//    console.log(datatable.length)
-    for (var i=0; i<gd.logdata.allmetadata.length; i++) {
-        console.log("processing metadata of length: " + gd.logdata.allmetadata.length)
-        // So determine what type of log it is by what the name is.
-        // We can pretty easily parse it.
-        var thisseriesmeta = parseLogTableName(gd.logdata.allmetadata[i]);
-//        console.log(thisseriesmeta)
+        var this_meta_item = gd.logdata.metadata[i];
+
+//        console.log('processing metaitem')
+//        console.log(this_meta_item)
+
         var render = false;
+        console.log(gd.uisettings)
 
-//        console.log(thisseriesmeta.type)
-//        console.log(thisseriesmeta.subtype)
-        if (thisseriesmeta.type == 'input' && thisseriesmeta.subtype == 'GPIO' && gd.uisettings.showinputgpiologs == 1) {
+        if (this_meta_item.type == 'input' && this_meta_item.subtype == 'gpio' && gd.uisettings.showinputgpiologs == 1) {
             render = true;
 //            console.log('render nput: GPIO')
         }
-        else if (thisseriesmeta.type == 'input' && thisseriesmeta.subtype == '1Wire' && gd.uisettings.showinput1wirelogs == 1) {
+        else if (this_meta_item.type == 'input' && this_meta_item.subtype == '1wire' && gd.uisettings.showinput1wirelogs == 1) {
             render = true;
 //            console.log('rende input: 1Wire')
 
         }
-        else if (thisseriesmeta.type == 'channel' && gd.uisettings.showchannellogs == 1) {
+        else if (this_meta_item.type == 'channel' && gd.uisettings.showchannellogs == 1) {
             render = true;
 //            console.log('render channel')
 //
         }
-        else if (thisseriesmeta.type == 'input' && thisseriesmeta.subtype == 'unknown' && gd.uisettings.showotherlogs == 1) {
+        else if (this_meta_item.type == 'input' && (this_meta_item.subtype == 'unknown' || this_meta_item.subtype == 'mote') && gd.uisettings.showotherlogs == 1) {
             render = true;
 //            console.log('render input : other')
 
         }
         if (render) {
-//            console.log('RENDERING ' + thisseriesmeta.id)
+//            console.log('RENDERING ' + this_meta_item.id)
             // Determine if there is a short name to be had. If not, just put short name in ID
             // We are going to hide the real ID in the logtable list anyway and just make the text human readable
-            thisseriesmeta.name = thisseriesmeta.id;
-
-            // search for the shortname
-            var index = gd.ioinfo.ids.indexOf(thisseriesmeta.id);
-            if ( index >=0 ) {
-                thisseriesmeta.name = gd.ioinfo.names[index];
-            }
+            this_meta_item.name = this_meta_item.id;
 
             // now set display names
-            thisseriesmeta.displayname = thisseriesmeta.tablename;
-            if (gd.uisettings.labeltype == 'id'){
-                thisseriesmeta.displayname = thisseriesmeta.id;
+            this_meta_item.displayname = this_meta_item.name;
+
+            // id is default
+            if (gd.uisettings.labeltype == 'name') {
+                var index = gd.ioinfo.ids.indexOf(this_meta_item.id);
+                if ( index >=0 ) {
+                    this_meta_item.name = gd.ioinfo.names[index];
+                }
+                this_meta_item.displayname = this_meta_item.name;
             }
-            else if (gd.uisettings.labeltype == 'name') {
-                thisseriesmeta.displayname = thisseriesmeta.name;
-            }
-            metadata.push(thisseriesmeta)
+            gd.logdata.active_metadata.push(this_meta_item)
+        }
+        else {
+//            console.log('not rendering')
         }
     }
-    gd.logdata.metadata = metadata;
-//    console.log(metadata)
-//     TODO: should do sorting in here
-
 
     // Now we operate on the metadata.
-    var loglistview =  $('#logdatalistview')
+    var loglistview =  $('#current_log_listview')
     loglistview.empty();
     loglistview.append(
-        '<li data-role="list-divider">Content Selection</li>' +
         '<li data-role="fieldcontain" class="sm-inset-header">' +
             '<label for="selectalltoggle" >Select All</label>' +
             '<select id="selectalltoggle" class="selectalltoggle" data-mini="true" data-role="slider" >' +
@@ -329,26 +334,23 @@ function renderLogsTable(dataresponse, options, xhr) {
         '</li>'
     );
 
-    for (var i=0;i<gd.logdata.metadata.length;i++){
+    for (var i=0;i<gd.logdata.active_metadata.length;i++){
+        var meta_element = gd.logdata.active_metadata[i]
+        var clean_log_name = cleanDirtyText(meta_element.tablename);
+        var formatted_time = format_time_from_seconds(meta_element.timespan)
         loglistview.append(
-            '<li data-role="fieldcontain" >' +
-//                '<table width="100%" style="margin-top:0px">' +
-//                '<tr><td>' +
-//                    '<p class="ui-block-a ui-biglabel">' + gd.logdata.metadata[i].displayname + '</p>' +
-//                '</td></tr>' +
-//                '<tr><td>' +
-                '<div class="ui-grid-b">' +
-                    '<div class="ui-block-a" style="width:55%;font-size:14px;padding-top:8px" >' + gd.logdata.metadata[i].displayname +
-//                        '<label for="' + gd.logdata.metadata[i].tablename + 'toggle" style="font-size:13px; margin-left: 0px; margin-right: 5px; position: relative">Plot</label>' +
-//                        '<p class="ui-block-a ui-biglabel">' + gd.logdata.metadata[i].displayname + '</p>' +
+            '<li data-role="fieldcontain" style="padding: .4em 0;">' +
+                '<div style="position:relative;height:35px">' +
+                    '<div style="position:absolute;left:5px;font-size:14px;padding:8px 0" >' + meta_element.displayname +
                     '</div>' +
-                    '<div class="ui-block-b" style="width:100px;padding-left:10px">' +
-                        '<select id="plotme' + gd.logdata.metadata[i].tablename + 'toggle" class="plotme ' + gd.logdata.metadata[i].tablename + 'toggle plottoggle" data-mini="true" data-role="flipswitch">' +
+                    '<div style="width:80px;padding-left:5px;position:absolute;right:90px">' +
+                        '<select id="plotme' + clean_log_name + 'toggle" class="plotme ' + clean_log_name + 'toggle plottoggle" data-mini="true" data-role="flipswitch">' +
                             '<option value="Off">Off</option>' +
                             '<option value="On">On</option>' +
                         '</select>' +
                     '</div>' +
-                    '<div class="ui-block-c ' + cleanDirtyText(gd.logdata.metadata[i].tablename) + 'points  ui-btn-corner-all cnt" style="float:right; text-align:center; width:50px; margin-top:6px; font-size:13px; padding: 2px 6px; border: 1px solid #000">????' +
+                    '<div class=" ui-btn-corner-all cnt" style="position:absolute; right:1px; top:0.8px; text-align:center; height:18px; width:75px; margin-top:6px; font-size:13px; padding: 2.5px 6px; border: 1px solid #000">' +
+                        '<span class="' + clean_log_name + 'points" >' + meta_element.numpoints + '</span>, <span class="' + clean_log_name + 'timespan">' + formatted_time.number + formatted_time.unit + '</span>' +
                     '</div>' +
                 '</div>' +
 //                '</td></tr></table>' +
@@ -375,68 +377,137 @@ function renderLogsTable(dataresponse, options, xhr) {
     $('.plottoggle').change(function(){
         updatePlotSequence()
     });
-    updatePlotMetadata(addUserMeta({}));
+    updatePlotMetadata(addUserMeta({timeout:5000}));
 }
+function updateStoredLogsTable(options) {
 
+    // I think we should do this from the metadata table. This way we can store the shortnames in
+    // globals that we retrieve from metadata. This will simplify processing into plots as well.
+    // The main point is that it will also allow using colloquial names for data selection for the plot
+
+    // old method: get table names and perform callback
+    var options = options || {};
+    options.callback = renderStoredLogsTable;
+    options.action = 'get_archive_info';
+    addUserMeta(options);
+    wsgiCallbackTableData(options);
+
+}
+function renderStoredLogsTable(dataresponse, options, xhr) {
+
+    // We may very well get a 304. If we do, we still need to update the UI table.
+    dataresponse = dataresponse || {};
+    console.log('ARCHIVE DATA')
+    console.log(dataresponse)
+
+    // So if the reponse has data, load it into the global. if not, process what
+    // already exists in the global
+    if (dataresponse.hasOwnProperty('data')) {
+        gd.archived_log_data.metadata = dataresponse.data.metadata;
+    }
+
+    // Now we operate on the metadata.
+    var loglistview =  $('#stored_log_listview')
+    loglistview.empty();
+//    loglistview.append(
+//        '<li data-role="fieldcontain" class="sm-inset-header">' +
+//            '<label for="selectalltoggle" >Select All</label>' +
+//            '<select id="selectalltoggle" class="selectalltoggle" data-mini="true" data-role="slider" >' +
+//                '<option value="Off">Off</option>' +
+//                '<option value="On">On</option>' +
+//            '</select>' +
+//        '</li>'
+//    );
+
+    for (var i=0;i<gd.archived_log_data.metadata.length;i++){
+        var meta_element = gd.archived_log_data.metadata[i]
+        var clean_log_name = cleanDirtyText(meta_element.tablename);
+        var formatted_time = format_time_from_seconds(meta_element.timespan)
+        loglistview.append(
+            '<li data-role="fieldcontain" style="padding: .4em 0;">' +
+                '<div style="position:relative;height:35px">' +
+                    '<div style="position:absolute;left:5px;font-size:14px;padding:8px 0" >' + meta_element.id +
+                    '</div>' +
+                    '<div style="width:80px;padding-left:5px;position:absolute;right:90px">' +
+                        '<select id="plotme' + clean_log_name + 'toggle" class="plotme ' + clean_log_name + 'toggle plottoggle" data-mini="true" data-role="flipswitch">' +
+                            '<option value="Off">Off</option>' +
+                            '<option value="On">On</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="' + clean_log_name + 'points  ui-btn-corner-all cnt" style="float:right; position:absolute; right:1px; text-align:center; width:75px; margin-top:6px; font-size:13px; padding: 2.5px 6px; border: 1px solid #000">' +
+                            meta_element.numpoints + ', ' + formatted_time.number + formatted_time.unit +
+                    '</div>' +
+                '</div>' +
+//                '</td></tr></table>' +
+            '</li>'
+        )
+    }
+    loglistview.listview('refresh');
+    loglistview.trigger("create");
+
+}
 function getPlotSeriesNamesFromViewerControls(){
 
     // Ok, this is confusing as hell.
     // Seriesshortnames are what we want to use for a colloquial name for the series
     // seriesnames are what the name of the value is that we're getting from the table, e.g. 'value' or 'controlvalue'
 
-    gd.plotdata.seriestablenames = [];
-    gd.plotdata.seriesids = [];
-    gd.plotdata.seriesdisplaynames = [];
+    gd.plot_data.seriestablenames = [];
+    gd.plot_data.seriesids = [];
+    gd.plot_data.seriesdisplaynames = [];
 
-    gd.plotdata.seriesnames = [];
-    gd.plotdata.seriesaxes = [];
+    gd.plot_data.seriesnames = [];
+    gd.plot_data.seriesaxes = [];
 
     $('.plottoggle').each(function(index,element){
         if (this.value=="On"){
 
-            var metaelement = gd.logdata.metadata[index];
+            var metaelement = gd.logdata.active_metadata[index];
+
             // use global list of lognames in metadata
-            gd.plotdata.seriestablenames.push(metaelement.tablename);
-            gd.plotdata.seriesids.push(metaelement.id);
+            gd.plot_data.seriestablenames.push(metaelement.tablename);
+            console.log('added ' + metaelement.tablename);
+            gd.plot_data.seriesids.push(metaelement.id);
 
             if (metaelement.type == 'input') {
-                gd.plotdata.seriesaxes.push('yaxis');
-                gd.plotdata.seriesnames.push('value');
-                gd.plotdata.seriesdisplaynames.push(metaelement.displayname)
+                gd.plot_data.seriesaxes.push('yaxis');
+                gd.plot_data.seriesnames.push('value');
+                gd.plot_data.seriesdisplaynames.push(metaelement.displayname)
             }
             else if (metaelement.type == 'channel') {
-                gd.plotdata.seriesdisplaynames.push(metaelement.displayname + ' PV');
-                gd.plotdata.seriesnames.push('controlvalue');
-                gd.plotdata.seriesaxes.push('yaxis')
+                console.log(index)
+                console.log(metaelement)
+                gd.plot_data.seriesdisplaynames.push(metaelement.displayname + ' PV');
+                gd.plot_data.seriesnames.push('process_value');
+                gd.plot_data.seriesaxes.push('yaxis')
 
                 // push another tablename instance for multiple values
-                gd.plotdata.seriestablenames.push(metaelement.tablenames);
-                gd.plotdata.seriesids.push(metaelement.ids);
+                gd.plot_data.seriestablenames.push(metaelement.tablename);
+                gd.plot_data.seriesids.push(metaelement.ids);
 
-                gd.plotdata.seriesdisplaynames.push(metaelement.displayname + ' SV');
-                gd.plotdata.seriesnames.push('setpointvalue');
-                gd.plotdata.seriesaxes.push('yaxis')
+                gd.plot_data.seriesdisplaynames.push(metaelement.displayname + ' SV');
+                gd.plot_data.seriesnames.push('setpoint_value');
+                gd.plot_data.seriesaxes.push('yaxis')
 
                 // push another tablename instance for multiple values
-                gd.plotdata.seriestablenames.push(metaelement.tablename);
-                gd.plotdata.seriesids.push(metaelement.id);
+                gd.plot_data.seriestablenames.push(metaelement.tablename);
+                gd.plot_data.seriesids.push(metaelement.id);
 
-                gd.plotdata.seriesdisplaynames.push(metaelement.id + ' action');
-                gd.plotdata.seriesnames.push('action');
-                gd.plotdata.seriesaxes.push('y2axis')
+                gd.plot_data.seriesdisplaynames.push(metaelement.id + ' action');
+                gd.plot_data.seriesnames.push('action');
+                gd.plot_data.seriesaxes.push('y2axis')
             }
             else {
-                gd.plotdata.seriesnames.push('value');
-                gd.plotdata.seriesdisplaynames.push('value');
-                gd.plotdata.seriesaxes.push('yaxis')
+                gd.plot_data.seriesnames.push('value');
+                gd.plot_data.seriesdisplaynames.push('value');
+                gd.plot_data.seriesaxes.push('yaxis')
             }
         }
     });
-
-    return gd.plotdata
 }
 
 function updatePlots(options){
+    var options = options || {}
     setUpdating(true);
 
     // Ok, this is a bit complicated. Typically when we want to do repeated asynchronous rendering, we pass
@@ -451,28 +522,28 @@ function updatePlots(options){
     // If you're looking for the auxcallback, it's defined in the call to this function in the options
     // object.
 
-    options = options || {};
+    gd.activePage = $.mobile.activePage.attr("id");
 
-    var activePage = $.mobile.activePage.attr("id");
-    if (activePage == 'main'){
-        options.renderplotids = ['plot']
+    if (gd.activePage == 'main'){
+        gd.plot_options.renderplotids = ['plot']
     }
     else {
-        options.renderplotids = ['fullplot'];
-        console.log('full plot!')
+        gd.plot_options.renderplotids = ['fullplot'];
     }
-    var results = getPlotSeriesNamesFromViewerControls();
-    var tablenames = results.seriestablenames;
+    // This will refresh the plot metadata, rendering into the DOM
+    getPlotSeriesNamesFromViewerControls();
 
     var serieslabels = [];
     if (gd.uisettings.labeltype == 'name'){
-        serieslabels = results.seriesdisplaynames;
+        serieslabels = gd.plot_data.seriesdisplaynames;
     }
     else if (gd.uisettings.labeltype == 'id') {
-        serieslabels = results.seriesids;
+        serieslabels = gd.plot_data.seriesids;
     }
     else
-        {serieslabels = results.seriestablenames;}
+    {
+        serieslabels = gd.plot_data.seriestablenames;
+    }
 
     // Get total number of series and label appropriately
     if (typeof channelOptionsObj === "undefined") {
@@ -486,27 +557,32 @@ function updatePlots(options){
     var seriesaxes =[];
 
     for (var i = 0; i < serieslabels.length; i++) {
-        customOptionsObj.series.push([{label: serieslabels[i], axis: results.seriesaxes[i]}]);
+        customOptionsObj.series.push([{label: serieslabels[i], axis: gd.plot_data.seriesaxes[i]}]);
         passedserieslabels.push([serieslabels[i]]);
-        seriesnames.push([results.seriesnames[i]]);
-        seriesaxes.push([results.seriesaxes[i]]);
+        seriesnames.push([gd.plot_data.seriesnames[i]]);
+        seriesaxes.push([gd.plot_data.seriesaxes[i]]);
     }
-    var length = $('#plotpointsslider').val();
 
-    options.tablenames = tablenames;
-    options.seriesnames = seriesnames;
-    options.serieslabels = passedserieslabels;
-    options.seriesaxes = seriesaxes;
-    options.labelincludevalue = gd.uisettings.labelincludevalue;
-    options.includelabelvalueprecision = $('#includelabelvalueprecision').val();
-    options.renderplotoptions = [customOptionsObj];
-    options.length = parseInt(length);
-    options.start = -1;
+    options.length = $('#plotpointsslider').val();
+
+    gd.plot_options.tablenames = gd.plot_data.seriestablenames;
+    gd.plot_options.seriesnames = seriesnames;
+    gd.plot_options.serieslabels = passedserieslabels;
+    gd.plot_options.seriesaxes = seriesaxes;
+    gd.plot_options.labelincludevalue = gd.uisettings.labelincludevalue;
+    gd.plot_options.includelabelvalueprecision = $('#includelabelvalueprecision').val();
+    gd.plot_options.renderplotoptions = [customOptionsObj];
+    gd.plot_options.length = parseInt(length);
+    gd.plot_options.start = -1;
+
+//    var plot_options = {};
+//    console.log(gd.plot_data.seriestablenames);
+
+    options.tablenames = gd.plot_data.seriestablenames;
 
     getAndRenderMultLogsData(options);
     //getAndRenderLogData({logtablename:'input_DS18B20-1_log','seriesnames':['value'],renderplotids:['plot'],renderplotoptions:[channelOptionsObj]})
 }
-
 function setUpdating(status){
     status=status || false;
     if (status) {
@@ -517,44 +593,48 @@ function setUpdating(status){
     }
 }
 function updatePlotSequence() {
+
     setUpdating(true);
-    var auxcallback=function(){
-        setUpdating(false)
-    };
-    var renderoptions = {renderplotids:['plot'], auxcallback:auxcallback};
+    var renderoptions = {timeoutclass:'updateperiodwidget'};
     updatePlots(renderoptions)
 }
 $(document).ready(function(){
 
+    gd.plot_options = {}
+    gd.plot_options.renderplotids = ['plot'];
+
     renderTemplate({sessiondata: sessiondata, 'currentpage': currenturl});
+
+    $('#plot').height($(window).height()-235);
+    $( window ).resize(function() {
+        $('#plot').height($(window).height()-235);
+        renderMultLogsDataFromDOM()
+    });
 
     // Put IOInfo metadata into the DOM for rendering properly
 //    getAndRenderTableData({database:controldatabase, tablename:'ioinfo', rendertoDOM:true, objectname:'ioinfo',  jqmpage:true});
-    getAndRenderIOInfo();
+    getAndRenderIOInfo({'timeout':5000});
 
     // Get uisettings data and render it to DOM
-    getAndRenderUniqueKeyData(addUserMeta({auxcallback: renderUISettings, database:systemdatabase, tablename:'uisettings', uniquekeyname:'setting', includekeyname: false, jqmpage:true}));
+    getAndRenderUniqueKeyData(addUserMeta({auxcallback: renderUISettingstoDOM, execute_aux:true, database:systemdatabase, tablename:'uisettings', uniquekeyname:'setting', includekeyname: false, jqmpage:true}));
 //    getAndRenderToDOM({database:systemdatabase, tablename:'uisettings', rendertoDOM:true, objectname:'uisettings'});
 
     togglestolamps();
 
     //// Button click responses
 
-
-
     $('#plotrefresh').click(function(event){
-        updatePlotSequence()
+        updatePlots()
     });
     $('#fullplotrefresh').click(function(event){
-        var renderoptions = {renderplotids:['fullplot']};
-        updatePlots(renderoptions)
+        updatePlots()
     });
     $('#plotlabelidsbutton').click(function(){
         $('#plotlabelnamesbutton').removeClass('ui-btn-active');
         $('#plotlabelidsbutton').removeClass('ui-btn-active');
         $('#plotlabeltablenamesbutton').removeClass('ui-btn-active');
         $('#plotlabelidsbutton').addClass('ui-btn-active');
-        uisettings.labeltype = 'id';
+        gd.uisettings.labeltype = 'id';
         $('#maincontrolgroup').listview('refresh');
     });
     $('#plotlabelnamesbutton').click(function(){
@@ -562,7 +642,7 @@ $(document).ready(function(){
         $('#plotlabelidsbutton').removeClass('ui-btn-active');
         $('#plotlabeltablenamesbutton').removeClass('ui-btn-active');
         $('#plotlabelnamesbutton').addClass('ui-btn-active');
-        uisettings.labeltype = 'name';
+        gd.uisettings.labeltype = 'name';
         $('#maincontrolgroup').listview('refresh');
     });
     $('#plotlabeltablenamesbutton').click(function(){
@@ -570,21 +650,23 @@ $(document).ready(function(){
         $('#plotlabelidsbutton').removeClass('ui-btn-active');
         $('#plotlabeltablenamesbutton').removeClass('ui-btn-active');
         $('#plotlabeltablenamesbutton').addClass('ui-btn-active');
-        uisettings.labeltype = 'tablenames';
+        gd.uisettings.labeltype = 'tablenames';
         $('#maincontrolgroup').listview('refresh');
     });
     $('#includelabelvalue').click(function(){
         if (uisettings.labelincludevalue) {
             $('#includelabelvalue').removeClass('ui-btn-active');
-            uisettings.labelincludevalue = false;
+            gd.uisettings.labelincludevalue = false;
         }
         else {
             $('#includelabelvalue').addClass('ui-btn-active');
-            uisettings.labelincludevalue = true;
+            gd.uisettings.labelincludevalue = true;
         }
         $('#maincontrolgroup').listview('refresh');
     });
-
+     $('#plotpointsslider').change(function() {
+        updatePlots()
+    })
     $('.logselector').change(function() {
         updateLocalUISettings();
         updateLogTable();
@@ -596,11 +678,12 @@ $(document).ready(function(){
             return;
         }
 //        console.log(gd.plotseries)
-        JSONToCSVConvertor(gd.plotseries, "Data Export", true, gd.plotdata.seriesdisplaynames);
+        JSONToCSVConvertor(gd.plotseries, "Data Export", true, gd.plot_data.seriesdisplaynames);
     });
 
-
-    setTimeout(function(){updateLogTable()}, 1000);
+// THINK WE NEED THIS
+    setTimeout(function(){updateLogTable()}, 200);
+    setTimeout(function(){updateStoredLogsTable()}, 200);
 //    setTimeout(function(){
 //        updatePlotMetadata({'timeout':'2000'})
 //    },1000);
@@ -629,13 +712,7 @@ $(document).ready(function(){
 
     setTimeout(function(){
         var options ={};
-        options.auxcallback =
-            function(){
-                var timeout=$('.' + 'updateperiodwidget').val()*1000;
-//                    alert(timeout)
-                setUpdating(false);
-                setTimeout(function(){updatePlots(options)},timeout);
-            };
+        options.timeoutclass = 'updateperiodwidget';
         updatePlots(options)
     },1000);
 
@@ -685,30 +762,30 @@ $(document).ready(function(){
             <div data-role="collapsible" data-collapsed="true" data-inset="false" data-count-theme="b" data-content-theme="c">
                 <h4>Content</h4>
                 <li class="sm-inset-header" data-role="fieldcontain">
-                    <label for="uisettingsshowinput1wirelogsvaluetoggle" >Show input 1Wire logs</label>
-                    <select id="uisettingsshowinput1wirelogsvaluetoggle" data-mini="true" class="uisettingsshowinput1wirelogsvaluetoggle logselector" data-role="slider" style="width:25%">
+                    <label for="uisettingsshowinput1wirelogsvalueflip" >Show input 1Wire logs</label>
+                    <select id="uisettingsshowinput1wirelogsvalueflip" data-mini="true" class="uisettingsshowinput1wirelogsvalueflip logselector" data-role="flipswitch" style="width:25%">
                         <option value="Off">Off</option>
                         <option value="On">On</option>
                     </select>
                 </li>
 
                 <li class="sm-inset-header" data-role="fieldcontain">
-                    <label for="uisettingsshowinputgpiologsvaluetoggle" >Show Input GPIO Logs</label>
-                    <select id="uisettingsshowinputgpiologsvaluetoggle" data-mini="true" class="uisettingsshowinputgpiologsvaluetoggle logselector" data-role="slider" style="width:25%">
+                    <label for="uisettingsshowinputgpiologsvalueflip" >Show Input GPIO Logs</label>
+                    <select id="uisettingsshowinputgpiologsvalueflip" data-mini="true" class="uisettingsshowinputgpiologsvalueflip logselector" data-role="flipswitch" style="width:25%">
                         <option value="Off">Off</option>
                         <option value="On">On</option>
                     </select>
                 </li>
                 <li class="sm-inset-header" data-role="fieldcontain">
-                    <label for="uisettingsshowchannellogsvaluetoggle" >Show Channel Logs</label>
-                    <select id="uisettingsshowchannellogsvaluetoggle" data-mini="true" class="uisettingsshowchannellogsvaluetoggle logselector" data-role="slider" style="width:25%">
+                    <label for="uisettingsshowchannellogsvalueflip" >Show Channel Logs</label>
+                    <select id="uisettingsshowchannellogsvalueflip" data-mini="true" class="uisettingsshowchannellogsvalueflip logselector" data-role="flipswitch" style="width:25%">
                         <option value="Off">Off</option>
                         <option value="On">On</option>
                     </select>
                 </li>
                 <li class="sm-inset-header" data-role="fieldcontain">
-                    <label for="uisettingsshowotherlogsvaluetoggle" >Show Other Logs</label>
-                    <select id="uisettingsshowotherlogsvaluetoggle" data-mini="true" class="uisettingsshowotherlogsvaluetoggle logselector" data-role="slider" style="width:25%">
+                    <label for="uisettingsshowotherlogsvalueflip" >Show Other Logs</label>
+                    <select id="uisettingsshowotherlogsvalueflip" data-mini="true" class="uisettingsshowotherlogsvalueflip logselector" data-role="flipswitch" style="width:25%">
                         <option value="Off">Off</option>
                         <option value="On">On</option>
                     </select>
@@ -719,25 +796,37 @@ $(document).ready(function(){
             </li>
         </ul>
 
-        <ul data-role="listview" data-inset="true" data-dividertheme="b"  data-theme="b" id="logdatalistview">
+        <ul data-role="listview" data-inset="true" data-divider-theme="b"  data-theme="b" id="logdatalistview">
             <li data-role="list-divider">Content Selection</li>
-            <li data-role="fieldcontain">
-                &nbsp;
-            </li>
+            <div data-role="collapsible" id="current_logs" data-collapsed="false">
+                <h4>Current Logs</h4>
+                <ul data-role="listview" id="current_log_listview">
+                    <li>Loading ....</li>
+                </ul>
+            </div>
+            <div data-role="collapsible" id="stored_logs" data-collapsed="true">
+                <h4>Stored Logs</h4>
+                <ul data-role="listview" id="stored_log_listview">
+                    <li>Loading</li>
+                </ul>
+            </div>
         </ul>
     </div><!--/content-one-->
-    <div class="content-two-wide">
-        <div><a href="#" data-role="button">Refresh Plot</a></div>
-        <ul data-role="listview" data-inset="true" data-dividertheme="b" data-theme="b" id="channellistview">
-            <li data-role="list-divider" style="height:40px">
-                <h4><span style="float:left; line-height: 24px">Data Plot</span><span class="updatingbubble ui-btn-up-c  ui-btn-corner-all cnt" style="float:right; font-size:12px; padding: 7px 7px; display:none">Updating</span></h4>
+    <div class="content-two-wide" id="plot_main_div">
+        <ul data-role="listview" data-inset="true" data-divider-theme="b" data-theme="b" id="plotlistview" >
+            <li data-role="list-divider" style="position:relative">
+                <span>Data Plot</span><div class="updatingbubble ui-btn-up-c  ui-btn-corner-all cnt" style="position:absolute;right:10px;top:2px; font-size:12px; padding: 7px 7px;display:none">Updating</div>
             </li>
             <li data-role="fieldcontain" >
                 <div id="plot" class="plots" ></div>
             </li>
         </ul>
-        <div><a href="#fullplotpage" data-role="button">Full Screen Plot</a></div>
-        <div><a href="#" data-role="button" id="dumpdata">Download Data</a></div>
+        <div class="ui-grid-b">
+            <div class="ui-block-a" style="padding:0.1em 0.1em"><button id='plotrefresh' >Refresh Plot</button></div>
+            <div class="ui-block-b" style="padding:0.1em 0.1em"><a href="#fullplotpage" data-role="button">Full Screen Plot</a></div>
+            <div class="ui-block-c" style="padding:0.1em 0.1em"><button id="dumpdata">Download Data</button></div>
+        </div>
+
     </div><!--content-two-->
 </div><!--content-->
 <!-- Panels -->
@@ -770,7 +859,7 @@ $( document ).on( "pageinit", "#fullplotpage", function( event ) {
     var tablenames = results.seriestablenames;
     var seriesnames = results.seriesnames;
     // we'll choose ids or names here.
-    var serieslabels = results.seriedisplaysnames;
+    var serieslabels = results.seriesdisplaynames;
 
     // Get total number of series and label appropriately
     var customOptionsObj=largeChannelOptionsObj;
@@ -782,12 +871,13 @@ $( document ).on( "pageinit", "#fullplotpage", function( event ) {
         }
         totalseries+=seriesnames[i].length;
     }
-    getAndRenderMultLogsData(logdatabase,{'tablenames':tablenames,'serieslabels':serieslabels,renderplotids:['fullplot'],renderplotoptions:[customOptionsObj]})
+    gd.renderplotids = ['fullplot'];
+    getAndRenderMultLogsData(logdatabase,{'tablenames':tablenames,renderplotids:gd.renderplotids,'serieslabels':serieslabels,renderplotoptions:[customOptionsObj]})
 });
 </script>
     <div data-role="content">
         <div class="content-two" style="width:90%">
-            <ul data-role="listview" data-inset="true" datadividertheme="c">
+            <ul data-role="listview" data-inset="true" data-dividertheme="c">
                 <li data-role="list-divider">
                      <h4><span style="float:left; line-height: 24px">Full Plot</span><span class="updatingbubble ui-btn-up-c  ui-btn-corner-all cnt" style="float:right; font-size:12px; padding: 7px 7px; display:none">Updating</span></h4>
                 </li>
@@ -798,27 +888,6 @@ $( document ).on( "pageinit", "#fullplotpage", function( event ) {
             <div data-role="button" data-theme="c" id="fullplotrefresh">Refresh Plot</div>
         </div>
     </div>
-    <div data-role="footer" data-id='fixednav' data-position="fixed" data-theme="c" >
-        <div data-role="navbar" data-iconpos="left" >
-            <ul>
-                <li ><a href="/mobile/index.html" data-icon="home" >Home</a></li>
-                <?php
-                    if($user->logged_in()):
-                    ?>
-                        <li><div class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.5em!important; padding-left: 0px!important; padding-right: 0px!important"><?php echo $_SESSION['user']['name']; ?></div></li>
-                        <li><a data-ajax="false" href="/auth/logoutmobile">Log out</a></li>
-                        <?php
-                    endif;
-                    if(!$user->logged_in()):
-                    ?>
-                        <li><div class="ui-btn-text ui-btn-inner" style="text-align: center; padding-top: 0.5em!important; padding-left: 0px!important; padding-right: 0px!important">Not logged in</div></li>
-                        <li><a data-ajax="false" href="/auth/loginmobile" style="padding-right:10px">Log in</a></li>
-                    <?php
-                        endif;
-                    ?>
-            </ul>
-        </div>
-	</div><!--footer-->
 </div><!-- page -->
 </body>
 </html>

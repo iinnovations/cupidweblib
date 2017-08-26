@@ -51,6 +51,36 @@ function cleanDirtyText(dirtytext) {
     var cleanText = dirtytext.replace(/\./g,'_').replace(/ /g,'_').replace(/\(/g,'_').replace(/\)/g,'_').replace(/\:/g,'_')
     return cleanText
 }
+function format_time_from_seconds(time, precision) {
+    precision = precision || 0;
+    var return_time = {'number':time, 'unit':'s'}
+    if (time > 3600 * 24 * 365) {
+        return_time.unit = 'yr';
+        return_time.number = setprecision(time / 3600 / 24 / 7, precision)
+    }
+    else if (time > 3600 * 24 * 28) {
+        return_time.unit = 'mon';
+        return_time.number = setprecision(time / 3600 / 24 / 7, precision)
+    }
+    else if (time > 3600 * 24 * 7) {
+        return_time.unit = 'wk';
+        return_time.number = setprecision(time / 3600 / 24 / 7, precision)
+    }
+    else if (time > 3600 * 24) {
+        return_time.unit = 'day';
+        return_time.number = setprecision(time / 3600 / 24, precision)
+    }
+    else if (time > 3600) {
+        return_time.unit = 'hr';
+        return_time.number = setprecision(time / 3600, precision)
+    }
+    else if (time > 60) {
+        return_time.unit = 'min';
+        return_time.number = setprecision(time / 60, precision)
+    }
+
+    return return_time
+}
 function getNameFromPath(path){
     path  = path.replace(/\//g,' ')
     path = path.trim()
@@ -66,11 +96,15 @@ function pad(num, size) {
     return s;
 }
 function setprecision(num, digits) {
-	if (isNumber(num)) {
-		var roundednumber=num.toPrecision(digits);
+    var rounded_number = num;
+    if (digits == 0) {
+        rounded_number = parseFloat(parseInt(num))
+    }
+	else if (isNumber(num)) {
+		rounded_number=num.toPrecision(digits);
 	}
-	else {roundednumber = 0}
-	return roundednumber;
+	else {rounded_number = 0}
+	return rounded_number;
 }
 function zeropad(num, sizebefore, sizeafter) {
     var allfrac = (num%1);
@@ -395,8 +429,10 @@ function isNumber(n) {
 
 function wsgiCallbackTableData (actionobj) {
 	// Get the data
-    var internals = {}
-    actionobj.action = 'gettabledata';
+    var internals = {};
+    if (!actionobj.hasOwnProperty('action')) {
+        actionobj.action = 'gettabledata';
+    }
     if (!actionobj.hasOwnProperty('start')){
         actionobj.start = 0;
     }
@@ -413,7 +449,7 @@ function wsgiCallbackTableData (actionobj) {
 		url: "/wsgireadonly",
 		type: "post",
 		datatype:"json",
-        tiemout:2000,
+        timeout:20000,
 		data: actionobj,
 		success: function(response, textStatus, xhr){
 			// Execute our callback function
@@ -427,17 +463,19 @@ function wsgiCallbackTableData (actionobj) {
             actionobj.callback = internals.callback;
             internals.callback(response, actionobj, xhr);
             if (internals.hasOwnProperty('auxcallback')) {
-                // don/t execute here. leave it to execute later if we wish, i.e. after rendering data to DOM
+                if (actionobj.hasOwnProperty('execute_aux') && actionobj.execute_aux) {
+                    internals.auxcallback(response, actionobj, xhr);
+                }
                 actionobj.auxcallback = internals.auxcallback
             }
 		},
         error: function(xhr, textstatus, errorthrown){
-            console.log('error function: ' + errorthrown)
+            console.log('error function: ' + errorthrown + ' on action ' + JSON.stringify(actionobj));
             actionobj.callback = internals.callback;
             actionobj.callback({}, actionobj, xhr);
         },
         complete: function(){
-            //console.log('complete function')
+            console.log('complete function')
         }
 	});	
 }
@@ -507,7 +545,7 @@ function wsgiCallbackMultTableData (actionobj) {
 }
 function wsgiGetTableNames (actionobj) {
     actionobj.action = 'gettablenames';
-     var starttime = new Date().getTime();
+    var starttime = new Date().getTime();
     callback = actionobj.callback || logdone;
 
     // Need to delete method or ajax will execute
@@ -674,6 +712,7 @@ function setWidgetValues(baseclass,value,options) {
         }
 
         $(baseclass + 'toggle').val(booleanBinaryToOnOff(value)).slider("refresh");
+        $(baseclass + 'flip').val(booleanBinaryToOnOff(value)).flipswitch("refresh");
         $(baseclass + 'automantoggle').val(value).slider("refresh");
         $(baseclass + 'slider').val(value).slider("refresh");
         setjqmSelectByClass(baseclass + 'jqmselect',value);
@@ -1067,8 +1106,8 @@ function renderWidgetsFromArrayByUniqueKey(dataresponse, options, xhr) {
     }
     else if (options.hasOwnProperty('timeout')) {
         setTimeout(function () {
-            console.log('TIMEOUT OPTIONS')
-            console.log(options)
+            // console.log('TIMEOUT OPTIONS')
+            // console.log(options)
             getAndRenderUniqueKeyData(options)
         }, options.timeout);
     }
@@ -1205,6 +1244,7 @@ function renderTableData(dataresponse, options, xhr) {
         }
         else {
             // include index in class render name
+            console.log('rendering widgets from array on table ' + options.tablename)
             renderWidgetsFromArray(options.database, options.tablename, datatable, options)
             if (options.hasOwnProperty('auxcallback')) {
                 options.auxcallback(datatable)

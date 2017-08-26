@@ -12,7 +12,7 @@
     <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
     <meta http-equiv="pragma" content="no-cache" />
 
-    <title>CuPID Network Status</title>
+    <title>Network</title>
 
     <script src="/js/jquery-1.11.0.min.js"></script>
     <script src="/js/jquery-migrate-1.2.1.min.js"></script>
@@ -23,7 +23,6 @@
     <!--<link rel="stylesheet" href="jqm/jquery.mobile-1.4.5.css" />-->
     <link rel="stylesheet" href="jqm/themes/jquery.mobile.icons.min.css" />
     <link rel="stylesheet" href="jqm/jquery.mobile.custom.structure.min.css" />
-
     <link rel="stylesheet" href="css/custom.css" />
     <link rel="stylesheet" href="jqm/themes/CuPIDthemes.css" />
 
@@ -57,18 +56,84 @@ logUserAuths(sessiondata)
 
 <div data-role="page" class="type-home" id="main">
 <script>
- var updateinterval=3000
+    var updateinterval=3000
+    var gd = {}
+    function updateNetInterfacesData(options) {
+        console.log('updating network interfaces');
+        options.database = systemdatabase;
+        options.tablename = 'netifaces';
+        options.callback=renderNetInterfacesResponse;
+        addUserMeta(options);
+        wsgiCallbackTableData(options);
+    }
+    function renderNetInterfacesResponse(response, options, xhr) {
+        console.log('rendering network interfaces')
+
+        var timeout =0;
+        if (options.hasOwnProperty('timeoutclass')) {
+            var timeout=$('.' + options.timeoutclass).val()*1000;
+        }
+        else if (options.hasOwnProperty('timeout')) {
+            var timeout=options.timeout;
+        }
+        if (response.hasOwnProperty('data')) {
+            gd.net_interfaces = response.data;
+            renderNetInterfacesFromDOM();
+        }
+        if (timeout>0) {
+//            console.log('i am waiting')
+//            console.log(timeout)
+            setTimeout(function(){updateNetInterfacesData(options)}, timeout);
+        }
+        if (options.hasOwnProperty('auxcallback')) {
+            //console.log('i am an auxcallback!')
+            setTimeout(options.auxcallback, timeout);
+        }
+    }
+    function renderNetInterfacesFromDOM() {
+        var htmlstring = ''
+//        console.log('Rendering data.')
+        for (var i=0;i<gd.net_interfaces.length;i++) {
+            var this_interface = gd.net_interfaces[i];
+            htmlstring += '' +
+                    '<li style="padding:0;border-radius: 0" data-role="collapsible">' +
+                        '<h3>' + this_interface.name + '</h3>' +
+                        '<ul data-role="listview">' +
+                            '<li><div class="ui-grid-a">' +
+                                '<div class="ui-block-a">HW Address</div>' +
+                                '<div class="ui-block-b">' + this_interface.hwaddress + '</div>' +
+                            '</div></li>' +
+                            '<li><div class="ui-grid-a">' +
+                                '<div class="ui-block-a">Address</div>' +
+                                '<div class="ui-block-b">' + this_interface.address + '</div>' +
+                            '</div></li>' +
+                            '<li><div class="ui-grid-a">' +
+                                '<div class="ui-block-a">Mask</div>' +
+                                '<div class="ui-block-b">' + this_interface.mask + '</div>' +
+                            '</div></li>' +
+                            '<li><div class="ui-grid-a">' +
+                                '<div class="ui-block-a">Broadcast</div>' +
+                                '<div class="ui-block-b">' + this_interface.bcast + '</div>' +
+                            '</div></li>' +
+                        '</ul>' +
+                '</li>'
+        }
+        $('#interfaces').html(htmlstring).trigger('create');
+    }
+
+
 $(document).ready(function(){
   renderTemplate({sessiondata: sessiondata, 'currentpage': currenturl});
   togglestolamps()
   //// Control Algorithms
   updateNetStatusData({timeout:updateinterval,jqmpage:true})
+  updateNetInterfacesData({timeout:updateinterval,jqmpage:true})
   updateNetConfigData({timeout:updateinterval,jqmpage:true})
 })
 </script>
 <!-- /header -->
 <div data-role="header" data-theme="c">
-    <h1>Home<span id="header_pathalias"></span> </h1>
+    <h1>Network<span id="header_pathalias"></span> </h1>
     <a href="#nav-panel" data-icon="bars" data-theme="e" data-iconpos="notext">Menu</a>
     <a href="#settingspanel" data-icon="gear" data-theme="e" data-iconpos="notext">Add</a>
 </div>
@@ -103,13 +168,25 @@ $(document).ready(function(){
                 </span>
             </li>
             <li data-role="fieldcontain"><table width="100%"><tr><td>WAN latency (ms)   </td><td align="right"><span class="netstatuslatency">&nbsp;</span></td></tr></table></li>
-            <li data-role="fieldcontain"><table width="100%"><tr><td>LAN IP     </td><td align="right"><span class="netstatusaddress">&nbsp;</span></td></tr></table></li>
             <li data-role="fieldcontain"><table width="100%"><tr><td>Online since     </td><td align="right"><span class="netstatusonlinetime">&nbsp;</span></td></tr></table></li>
             <li data-role="fieldcontain"><table width="100%"><tr><td>Status Msg    </td><td align="right"><p><span class="netstatusstatusmsg">&nbsp;</span></p></td></tr></table></li>
-          </ul>
+            <li data-role="list-divider">Interfaces</li>
+            <div id="interfaces">
+                <li style="padding:0;border-radius: 0" data-role="collapsible">
+                    <!--<div >-->
+                        <h3>An interface</h3>
+                        <ul data-role="listview">
+                            <li>Item 1</li>
+                            <li>Item 2</li>
+                        </ul>
+                    <!--</div>-->
+                </li>
+            </div>
+            <li class="lilast" style="padding:0">&nbsp;</li>
+        </ul>
 		</div><!--/content-one-->
         <div class="content-two">
-				<ul data-role="listview" data-inset="true">
+				<ul data-role="listview" data-inset="true" data-theme="b" data-dividertheme="b">
             <li data-role="list-divider"><h4>Network Config Settings</h4></li>
 			<li data-role="fieldcontain"><table width="100%"><tr><td>Network Role      </td><td align="right"><span class="netconfigmode">&nbsp</span></td></tr></table></li>
             <li data-role="fieldcontain"><table width="100%"><tr><td>SSID      </td><td align="right"><span class="netconfigSSID">&nbsp;</span></td></tr></table></li>

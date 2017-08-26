@@ -4,14 +4,14 @@ body {
 	padding:0;
 	background:#999;
   	color:#000;
-	font-family:tahoma,arial,sans-serif;
+	font-family:"Open Sans",arial,sans-serif;
 	font-size:14px;
 	}
 
 .content,
-.fullcontent{
-	font:Arial, Helvetica, sans-serif;
-}
+/*.fullcontent{*/
+	/*font:Arial, Helvetica, sans-serif;*/
+/*}*/
 p {
 	line-height:130%;
 }
@@ -437,7 +437,7 @@ div.table .select {
 	margin:2px 1px 0 0;
 	width:176px;
 	height:25px;
-	background:#9097A9 url(../img/bg-select.gif);
+	/*background:#9097A9 url(../img/bg-select.gif);*/
 	color:#fff;
 	}
 div.table .select strong {
@@ -487,7 +487,7 @@ button {
 	border-radius:3px;
 	-moz-box-shadow:0px 0px 2px rgba(0,0,0,0.4);
 	-webkit-box-shadow:0px 0px 2px rgba(0,0,0,0.4);
-	box-shadow:0px 0px 2px rgba(0,0,0,0.4)
+	box-shadow:0px 0px 2px rgba(0,0,0,0.4);
 	
 
 	color:rgba(0,0,0,0.9);

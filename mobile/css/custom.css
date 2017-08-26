@@ -95,6 +95,18 @@ body, input, textarea, select, button { font-family: Helvetica, Arial, san-serif
 .content-one .ui-collapsible-inset, .content-one-narrow .ui-collapsible-inset {
 	margin: 0;
 }
+.content-one .ui-collapsible, .content-one-narrow .ui-collapsible {
+    margin: 0;
+    padding: 0;
+}
+.content-one .ui-listview, .content-one-narrow .ui-listview {
+	margin: 0;
+    background-color:#FEFEFE;
+}
+.type-index .content-one .ui-listview, .type-index .content-one-narrow .ui-listview {
+    margin: 0;
+}
+
 .ui-collapsible-content {
     background-color:#FEFEFE;
 }
@@ -105,23 +117,14 @@ body, input, textarea, select, button { font-family: Helvetica, Arial, san-serif
 .ui-collapsible-heading {
     margin: 0 0;
 }
-.content-one .ui-collapsible, .content-one-narrow .ui-collapsible {
-    margin: 0;
-    padding: 0;
-}
-.content-one .ui-listview, .content-one-narrow .ui-listview {
-	margin: 0;
-    background-color:#FEFEFE;
-}
+
 .ui-collapsible-inset {
     margin: 0 0;
 }
 .ui-collapsible-set .ui-collapsible, .ui-collapsible-inset, .ui-collapsible-set {
     margin:0 0;
 }
-.type-index .content-one .ui-listview, .type-index .content-one-narrow .ui-listview {
-    margin: 0;
-}
+
 
 @media all and (min-width:650px) {
 	.ui-mobile-viewport .footer-docs {
@@ -351,6 +354,20 @@ dd h4 { margin:15px 0 0 0; }
 	.content-one-narrow {
 		width:25%;
 	}
+		.content-two, .content-two-wide {
+		float: right;
+		margin-top: 30px;
+		margin-right: 1%;
+		padding-right: 1%;
+	}
+	.content-two {
+		width: 55%;
+		padding-right: 1%;
+	}
+	.content-two-wide {
+		width:65%;
+	}
+
 	.content-one,
 	.content-one-narrow,
 	.type-interior .content-one,
@@ -376,22 +393,20 @@ dd h4 { margin:15px 0 0 0; }
 		padding-bottom: 9999px;
 		background: #bbb;
 	}
-
 	.ui-mobile #jqm-homeheader {
 		padding: 0;
 	}
-	.content-two, .content-two-wide {
-		float: right;
-		margin-top: 30px;
-		margin-right: 1%;
-		padding-right: 1%;
+	.type-home .ui-content {
+		background-position: 39%;
 	}
-	.content-two {
-		width: 55%;
-	}
-	.content-two-wide {
-		width:65%;
-	}
+    .plots {
+        height:300px;
+    }
+    .fullplots {
+        height:500px;
+    }
+
+
 	.content-two ul:first-child,
 	.content-two-wide ul:first-child {
 		margin-top: 0;
@@ -451,22 +466,7 @@ dd h4 { margin:15px 0 0 0; }
     }
 }
 @media all and (min-width: 750px){
-	.type-home .ui-content {
-		background-position: 39%;
-	}
-	.content-one {
-		width: 35%;
-	}
-	.content-two {
-		width: 55%;
-		padding-right: 1%;
-	}
-    .plots {
-        height:300px;
-    }
-    .fullplots {
-        height:500px;
-    }
+
 }
 
 @media all and (min-width: 1200px){

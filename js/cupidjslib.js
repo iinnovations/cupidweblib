@@ -221,8 +221,9 @@ function logUserAuths(sessiondata) {
         $.ajax({
                 url: "/wsgisessioncontrol",
                 type: "post",
-                datatype:"json",
-                data: {'sessionid':sessiondata.sessionid,'event':'access','username':sessiondata.username,'realIP':sessiondata.realip,'apparentIP':sessiondata.appip},
+        		contentType: "application/json",
+                timeout:20000,
+                data: JSON.stringify({'sessionid':sessiondata.sessionid,'event':'access','username':sessiondata.username,'realIP':sessiondata.realip,'apparentIP':sessiondata.appip}),
                 success: function(response){
                     //alert("I logged access");
                 }

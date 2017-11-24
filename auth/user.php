@@ -170,19 +170,27 @@ class user {
 	
 	private function login(){ // processes the login form
 
+        echo $_POST['name'].',';
+        echo $_POST['password'];
 		if(!isset($_POST['name'])||!isset($_POST['password']))
 			die();
 		$name=strtolower($_POST['name']);
 		$password=$_POST['password'];
 		if(strlen($name)<$this->config['username']['min']||strlen($name)>$this->config['username']['max']||strlen($password)<$this->config['password']['min'])
-			$this->fail("Invalid username or password"); // invalid username or password length 
+			$this->fail("Invalid username or password (length)"); // invalid username or password length
 		if(!$this->is_username($name))
-			$this->fail("Invalid username or password"); // invalid character in username or sql injection attempt
+			$this->fail("Invalid username or password (invalid characters)"); // invalid character in username or sql injection attempt
 		$hpass=sha1($password);
 		$password=md5(sha1($name).$this->config['password']['salt'].sha1($password));
 		$db=$this->sqlite();
 		$q=$db->prepare("SELECT id, name, email, authlevel, temp FROM users WHERE name=? AND password=?");
+		//echo ','.$name.','.$password.',';
+
+        //echo "\n";
+        //echo $q;
+
 		$q->execute(array($name,$password));
+
 		$result=$q->fetch(PDO::FETCH_ASSOC);
 		
 		// get length of session
@@ -193,7 +201,7 @@ class user {
 		$sessionlength=$sesslenresult['sessionlength'];
 		
 		if(!$result)
-			$this->fail("Invalid username or password"); // invalid username or password
+			$this->fail("Invalid username or password (no user or password mismatch)"); // invalid username or password
 		//else
 		//	if($result['temp'][0]=='a')
 		//		$this->fail("You have not activated your account"); // account not activated
@@ -335,7 +343,7 @@ class user {
 
 	private function activate($key){ // process account and email activation
 		//$key=$_GET['activate'];
-		if(strlen($key)<>32||ereg("[^a-f0-9]",$key))
+		if(strlen($key)<>32||preg_match("[^a-f0-9]",$key))
 			$this->fail('Invalid activation key: '.$key,'/'.$this->config['pages']['login']);
 		$db=$this->sqlite();
         $q=$db->prepare("SELECT id, temp FROM users WHERE temp LIKE ?");
@@ -448,11 +456,12 @@ class user {
 	}
 
 	private function is_email($str){ // returns true if email is a valid format
-		return ereg("^[a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+(\.[a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+)*@([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+([a-z]{2}|com|org|net|gov|mil|biz|tel|info|mobi|name|aero|jobs|museum)$",$str);
+	    return filter_var($str, FILTER_VALIDATE_EMAIL);
+		//return ereg("^[a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+(\.[a-z0-9,!#\$%&'\*\+/=\?\^_`\{\|}~-]+)*@([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+([a-z]{2}|com|org|net|gov|mil|biz|tel|info|mobi|name|aero|jobs|museum)$",$str);
 	}
 
 	private function is_username($str){ // returns true if the username contains only alphanumeric characters
-		return !ereg("[^a-z0-9.]",$str);
+		return !preg_match("/[^a-z0-9]",$str);
 	}
 
 	private function valid_session(){ // returns true if the session is valid
@@ -471,7 +480,7 @@ class user {
                 $this->fail('You must log in to access this page.','/'.$this->config['pages']['loginmobile']);
             }
             else {
-                $this->fail('You must log in to access this page!!','/'.$this->config['pages']['loginmobile']);
+                $this->fail('You must log in to access this page','/'.$this->config['pages']['loginmobile']);
             }
 		}
 	}

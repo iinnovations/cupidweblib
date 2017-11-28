@@ -277,87 +277,86 @@ $(document).ready(function(){
 	<div class="content-one">
 	  <ul data-role="listview" data-inset="true" data-theme="c">
 		<li data-role="list-divider"><h4>Master Controls</h4></li>
-        <li data-role="fieldcontain" >
-            <span class="justalamp">
-			  <label for="systemstatussystemstatusstatustoggle" class="ui-biglabel" style="
-			  display:inline-block; width:50%; ">
+        <li data-role="fieldcontain"  class="sm-inset-header" style="padding:.7em 1em 0.3em 1em">
+			  <label for="systemstatussystemstatusstatustoggle" style="display:inline-block; width:50%; padding:.2em 1em 0.3em 1em ">
 			  System Status
 			  </label>
-			  <select name="ssenabled" style="margin-top:1.5em" id="systemstatussystemstatusstatustoggle" class="systemstatussystemstatusstatustoggle" data-role="slider" >
+            <span class="justalamp">
+			  <select name="ssenabled" data-mini="true" style="padding-top:0.5em" id="systemstatussystemstatusstatustoggle" class="systemstatussystemstatusstatustoggle" data-role="slider" >
                 <option value="Off">Off</option>
                 <option value="On">On</option>
 			  </select>
            </span>
 		</li>
-		<li data-role="fieldcontain" >
-            <span class="justalamp">
-			  <label for="systemstatuspicontrolstatustoggle" class="ui-biglabel" style="
-			  display:inline-block; width:50%; ">
+		<li data-role="fieldcontain" class="sm-inset-header" style="padding:.7em 1em 0.3em 1em">
+			  <label for="systemstatuspicontrolstatustoggle" class="ui-stdlabel" style="
+			  display:inline-block; width:50%; padding:.2em 1em 0.3em 1em ">
 			  Pi Control
 			  </label>
-			  <select name="pcenabled" id="systemstatuspicontrolstatustoggle" class="systemstatuspicontrolstatustoggle" data-role="slider" >
+            <span class="justalamp">
+			  <select name="pcenabled" data-mini="true" id="systemstatuspicontrolstatustoggle" class="systemstatuspicontrolstatustoggle" data-role="slider" >
                 <option value="Off">Off</option>
                 <option value="On">On</option>
 			  </select> 
            </span>
 		</li>
-		<li data-role="fieldcontain">
-          <span class="justalamp">
-            <label for="systemstatusenableoutputs" class="ui-biglabel" style="display:inline-block; width:50%; ">
+		<li data-role="fieldcontain" class="sm-inset-header" style="padding:.7em 1em 0.3em 1em">
+            <label for="systemstatusenableoutputs" class="ui-biglabel" style="display:inline-block; width:50%; padding:.2em 1em 0.3em 1em ">
             Outputs
             </label>
-            <select name="systemstatusenableoutputs" class="systemstatusenableoutputstoggle reqauth3" data-role="slider">
+          <span class="justalamp">
+            <select name="systemstatusenableoutputs" data-mini="true" class="systemstatusenableoutputstoggle reqauth3" data-role="slider">
             <option value="Off">Off</option>
             <option value="On">On</option>
             </select> 
 		  </span>
 		</li>
-		<li data-role="fieldcontain">
-          <span class="justalamp">
-			  <label for="systemstatusupdateioenabled" class="ui-biglabel" style="display:inline-block; width:50%;">
+		<li data-role="fieldcontain" class="sm-inset-header" style="padding:.7em 1em 0.3em 1em">
+			  <label for="systemstatusupdateioenabled" class="ui-biglabel" style="display:inline-block; width:50%;padding:.2em 1em 0.3em 1em ">
 			  Inputs Read
 			  </label>
-			  <select name="systemstatusupdateiostatus" class="systemstatusupdateiostatustoggle" data-role="slider">
+              <span class="justalamp">
+			  <select name="systemstatusupdateiostatus" data-mini="true" class="systemstatusupdateiostatustoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
             </span>
 		</li>
-        <li data-role="fieldcontain">
-          <span class="justalamp">
-			  <label for="systemstatussessioncontrolstatus" class="ui-biglabel" style="display:inline-block; width:50%;">
+        <li data-role="fieldcontain" class="sm-inset-header" style="padding:.7em 1em 0.3em 1em">
+			  <label for="systemstatussessioncontrolstatus" class="ui-biglabel" style="display:inline-block; width:50%;padding:.2em 1em 0.3em 1em ">
 			  Session Manager
 			  </label>
-			  <select name="systemstatussessioncontrolstatus" class="systemstatussessioncontrolstatustoggle" data-role="slider">
+              <span class="justalamp">
+			  <select name="systemstatussessioncontrolstatus" data-mini="true" class="systemstatussessioncontrolstatustoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>
             </span>
 		</li>
-        <li data-role="fieldcontain">
-          <span class="justalamp">
-			  <label for="systemstatusnetconfigenabled" class="ui-biglabel" style="display:inline-block; width:50%;">
+        <li data-role="fieldcontain" class="sm-inset-header" style="padding:.7em 1em 0.3em 1em">
+			  <label for="systemstatusnetconfigenabled" class="ui-biglabel" style="display:inline-block; width:50%;padding:.2em 1em 0.3em 1em ">
 			  Netconfig
 			  </label>
-			  <select name="systemstatusnetconfigenabled" class="systemstatusnetconfigenabledtoggle" data-role="slider">
+              <span class="justalamp">
+			  <select name="systemstatusnetconfigenabled" data-mini="true" class="systemstatusnetconfigenabledtoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>
             </span>
 		</li>
-        <li data-role="fieldcontain">
-          <span class="justalamp">
-			  <label for="systemstatusupdateioenabled" class="ui-biglabel" style="display:inline-block; width:50%;">
+        <li data-role="fieldcontain" class="sm-inset-header" style="padding:.7em 1em 0.3em 1em">
+			  <label for="systemstatusupdateioenabled" class="ui-biglabel" style="display:inline-block; width:50%;padding:.2em 1em 0.3em 1em ">
 			  Serial Handler
 			  </label>
-			  <select name="systemstatusserialhandlerstatus" class="systemstatusserialhandlerstatustoggle" data-role="slider">
+              <span class="justalamp">
+			  <select name="systemstatusserialhandlerstatus" data-mini="true" class="systemstatusserialhandlerstatustoggle" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>
             </span>
 		</li>
         <div data-role="collapsible" data-collapsed="true" data-inset="false" data-count-theme="b" data-content-theme="b">
-           <h3>More</h3>
+           <h4>More</h4>
            <li data-role="fieldcontain" class="sm-inset-header">
                 <fieldset class="ui-grid-a">
                   <div class="ui-block-a ui-biglabel" >Last picontrol Poll</div>
@@ -381,75 +380,75 @@ $(document).ready(function(){
             </li>
         </div>
         <div data-role="collapsible" data-collapsed="true" data-inset="false" data-count-theme="b" data-content-theme="b">
-           <h3>Edit</h3>
-            <li data-role="fieldcontain">
+           <h4>Edit</h4>
+            <li data-role="fieldcontain" class="sm-inset-header">
 			  <label for="systemstatussystemstatusenabledtoggle" style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">System Status
 			  </label>
-			  <select id="systemstatussystemstatusenabledtoggle" class="systemstatussystemstatusenabledtoggle reqauth3" data-role="slider" >
+			  <select id="systemstatussystemstatusenabledtoggle" data-mini="true" class="systemstatussystemstatusenabledtoggle reqauth3" data-role="slider" >
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>
 			</li>
-             <li data-role="fieldcontain">
+             <li data-role="fieldcontain" class="sm-inset-header">
 			  <label for="systemstatuspicontrolenabledtoggle" style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">Pi Control
 			  </label>
-			  <select id="systemstatuspicontrolenabledtoggle" class="systemstatuspicontrolenabledtoggle reqauth3" data-role="slider" >
+			  <select id="systemstatuspicontrolenabledtoggle" data-mini="true" class="systemstatuspicontrolenabledtoggle reqauth3" data-role="slider" >
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
 			</li>
-            <li data-role="fieldcontain">
+            <li data-role="fieldcontain" class="sm-inset-header">
 			  <label for="systemstatusenableoutputstoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
 			  Outputs
 			  </label>
-			  <select id="systemstatusenableoutputstoggle" class="systemstatusenableoutputstoggle reqauth3" data-role="slider">
+			  <select id="systemstatusenableoutputstoggle" data-mini="true" class="systemstatusenableoutputstoggle reqauth3" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select> 
 		    </li>
-            <li data-role="fieldcontain">
+            <li data-role="fieldcontain" class="sm-inset-header">
 			  <label for="systemstatusupdateioenabledtoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
 			  Inputs Read
 			  </label>
-			  <select id="systemstatusupdateioenabledtoggle" class="systemstatusupdateioenabledtoggle reqauth3" data-role="slider">
+			  <select id="systemstatusupdateioenabledtoggle" data-mini="true" class="systemstatusupdateioenabledtoggle reqauth3" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>
             </li>
-            <li data-role="fieldcontain">
+            <li data-role="fieldcontain" class="sm-inset-header">
 			  <label for="systemstatusnetconfigenabledtoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
 			  Netconfig
 			  </label>
-			  <select id="systemstatusnetconfigenabledtoggle" class="systemstatusnetconfigenabledtoggle reqauth3" data-role="slider">
+			  <select id="systemstatusnetconfigenabledtoggle" data-mini="true" class="systemstatusnetconfigenabledtoggle reqauth3" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>
             </li>
-            <li data-role="fieldcontain">
+            <li data-role="fieldcontain" class="sm-inset-header">
 			  <label for="systemstatussessioncontrolenabledtoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
 			  Session Manager
 			  </label>
-			  <select id="systemstatussessioncontrolenabledtoggle" class="systemstatussessioncontrolenabledtoggle reqauth3" data-role="slider">
+			  <select id="systemstatussessioncontrolenabledtoggle" data-mini="true" class="systemstatussessioncontrolenabledtoggle reqauth3" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>
             </li>
-            <li data-role="fieldcontain">
+            <li data-role="fieldcontain" class="sm-inset-header">
 			  <label for="systemstatusserialhandlerenabledtoggle"  style="display:inline-block; width:50%;" class="ui-stdlabel sm-inset-header">
 			  Serial Handler
 			  </label>
-			  <select id="systemstatusserialhandlerenabledtoggle" class="systemstatusserialhandlerenabledtoggle reqauth3" data-role="slider">
+			  <select id="systemstatusserialhandlerenabledtoggle" data-mini="true" class="systemstatusserialhandlerenabledtoggle reqauth3" data-role="slider">
 			  <option value="Off">Off</option>
 			  <option value="On">On</option>
 			  </select>
             </li>
-            <li class="sm-inset-header">
+            <li class="sm-inset-header" class="sm-inset-header">
             <label for="systemstatuspicontrolfreqslider" style="width:100%; padding-right:40px">Pi Control Freq:</label>
 			<input type="range" id="systemstatuspicontrolfreqslider" class="systemstatuspicontrolfreqslider reqauth3" value="55" min="0" max="100" />
             </li>
-            <li class="sm-inset-header">
+            <li class="sm-inset-header" class="sm-inset-header">
 			<label for="systemstatusupdateiofreqslider" style="width:100%; padding-right:40px">Input Poll Freq:</label>
-			<input type="range" id="systemstatusupdateiofreqslider" class="systemstatusupdateiofreqslider reqauth3" value="60" min="0" max="600" />
+			<input type="range" id="systemstatusupdateiofreqslider" data-mini="true" class="systemstatusupdateiofreqslider reqauth3" value="60" min="0" max="600" />
             </li>
         </div>
         <li data-role="fieldcontain">

@@ -478,7 +478,7 @@ function updateNetConfigData(options) {
     options.database = systemdatabase;
     options.tablename = 'netconfig';
     options.index = 1;
-    addUserMeta(options)
+    addUserMeta(options);
     getAndRenderTableData(options)
 }
 

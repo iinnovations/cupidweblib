@@ -303,9 +303,10 @@ $(document).ready(function(){
                 <label for="netconfigmodejqmselect"  style="display:inline-block; width:45%;"><h3>Mode</h3></label>
                 <select id="netconfigmodejqmselect" class="netconfigmodejqmselect modeselect" >
                 <option value="station">Station</option>
-                <option value="eap">Access Point</option>
+                <option value="ap">Access Point</option>
                 <option value="eth0wlan0bridge">Wired to Wlan0 AP Bridge</option>
-                <option value="staticeth0_apwlan0_stadhcpwlan1">Wlan0 to Wlan1 AP Bridge (Standard)</option>
+                <option value="staticeth0_apwlan0_stadhcpwlan1">eth0 static, Sta Wlan0 to Wlan1 AP Bridge (Panel CuPID)</option>
+                <option value="dhcpeth0_apwlan0_stadhcpwlan1">eth0 DHCP, Sta Wlan0 to Wlan1 AP Bridge (Standalone CuPID)</option>
                 <option value="wlan1wlan0bridge">Wlan1 to Wlan0 AP Bridge</option>
                 <option value="tempap">Temporary AP</option>
                 </select>

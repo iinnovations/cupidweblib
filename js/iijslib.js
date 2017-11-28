@@ -448,9 +448,9 @@ function wsgiCallbackTableData (actionobj) {
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
-		datatype:"json",
+		contentType: "application/json",
         timeout:20000,
-		data: actionobj,
+		data: JSON.stringify(actionobj),
 		success: function(response, textStatus, xhr){
 			// Execute our callback function
             response = response || {};
@@ -475,7 +475,7 @@ function wsgiCallbackTableData (actionobj) {
             actionobj.callback({}, actionobj, xhr);
         },
         complete: function(){
-            console.log('complete function')
+            // console.log('complete function')
         }
 	});	
 }
@@ -483,10 +483,7 @@ function wsgiCallbackMultTableData (actionobj) {
 
     // Get the data
     // We do this because the wsgi acts funny with things we say are
-    // arrays and send in arrays of less than 2 items. So we send in two extra elements
-    // and then prune them off in the response.
 
-    actionobj.tablenames = ['', ''].concat(actionobj.tablenames);
     actionobj.action = 'gettabledata';
     if (!actionobj.hasOwnProperty('start')) {
         actionobj.start =  0;
@@ -508,19 +505,14 @@ function wsgiCallbackMultTableData (actionobj) {
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
-		datatype:"json",						
-		data: actionobj,
+		contentType: "application/json",
+        timeout:20000,
+		data: JSON.stringify(actionobj),
 		success: function(response, textstatus, xhr){
 
 			//alert("I worked");
 			// Execute our callback function
             response = response || {};
-
-            // response might be 304 not modified. Need to consider this down the line as well
-            if (response.hasOwnProperty('data')) {
-                 response.data=response.data.slice(2);
-            }
-            actionobj.tablenames=actionobj.tablenames.slice(2);
 
             var now = new Date().getTime();
             response.responsetime = now - starttime;
@@ -553,8 +545,9 @@ function wsgiGetTableNames (actionobj) {
 	$.ajax({
 		url: "/wsgireadonly",
 		type: "post",
-		datatype:"json",						
-		data: actionobj,
+		contentType: "application/json",
+        timeout:20000,
+		data: JSON.stringify(actionobj),
 		success: function(response, textStatus, xhr){
 			// Execute our callback function
             response = response || {};
@@ -573,8 +566,9 @@ function wsgiSwapTableRows (actionobj) {
     $.ajax({
         url: "/wsgiactions",
         type: "post",
-        datatype:"json",
-        data: actionobj,
+        contentType: "application/json",
+        timeout:20000,
+		data: JSON.stringify(actionobj),
         success: function(response){
             // Execute our callback function
             response = response || {};
@@ -592,8 +586,9 @@ function wsgiExecuteCallbackQuery (actionobj) {
 	$.ajax({
 		url: "/wsgiactions",
 		type: "post",
-		datatype:"json",						
-		data: actionobj,
+		contentType: "application/json",
+        timeout:20000,
+		data: JSON.stringify(actionobj),
 		success: function(response){
             response = response || {};
             if (response.hasOwnProperty('etag')){
@@ -617,9 +612,9 @@ function runwsgiActions(actionobj) {
     $.ajax({
         url: "/wsgiactions",
         type: "post",
-        datatype:"json",
+        contentType: "application/json",
         timeout:20000,
-        data: actionobj,
+		data: JSON.stringify(actionobj),
         success: function(response, textStatus, xhr){
             internals.callback(response,actionobj);
             actionobj.callback = internals.callback;
@@ -644,8 +639,9 @@ function getwsgiStatus(callback) {
     $.ajax({
         url: "/wsgireadonly",
         type: "post",
-        datatype:"json",
-        data: actionobj,
+        contentType: "application/json",
+        timeout:20000,
+		data: JSON.stringify(actionobj),
         success: function(response){
             callback(response,actionobj);
             actionobj.callback = callback;
